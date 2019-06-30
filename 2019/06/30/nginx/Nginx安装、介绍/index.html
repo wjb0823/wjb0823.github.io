@@ -94,20 +94,20 @@
 
 
 
-  <meta name="description" content="安装步骤 上传nginx ​    上传nginx安装包到linux  安装gcc 1yum -y install gcc-c++ gcc    1gcc -v   安装依赖库1yum -y install pcre-devel openssl-devel    pcre-devel：为nginx提供正则表达式库openssl-devel：为nginx提供SSL密码库  解压 1tar -zxvf">
+  <meta name="description" content="1. 安装步骤 上传nginx上传nginx安装包到linux 安装gcc1yum -y install gcc-c++ gcc    查看是否安装gcc： 1gcc -v   安装依赖库1yum -y install pcre-devel openssl-devel    pcre-devel：为nginx提供正则表达式库openssl-devel：为nginx提供SSL密码库  解压 1tar">
 <meta name="keywords" content="Nginx">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Nginx安装">
 <meta property="og:url" content="http://yoursite.com/2019/06/30/nginx/Nginx安装、介绍/index.html">
 <meta property="og:site_name" content="大海啊全不是水">
-<meta property="og:description" content="安装步骤 上传nginx ​    上传nginx安装包到linux  安装gcc 1yum -y install gcc-c++ gcc    1gcc -v   安装依赖库1yum -y install pcre-devel openssl-devel    pcre-devel：为nginx提供正则表达式库openssl-devel：为nginx提供SSL密码库  解压 1tar -zxvf">
+<meta property="og:description" content="1. 安装步骤 上传nginx上传nginx安装包到linux 安装gcc1yum -y install gcc-c++ gcc    查看是否安装gcc： 1gcc -v   安装依赖库1yum -y install pcre-devel openssl-devel    pcre-devel：为nginx提供正则表达式库openssl-devel：为nginx提供SSL密码库  解压 1tar">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2019/06/img/nginx.png">
-<meta property="og:updated_time" content="2019-06-30T08:27:22.607Z">
+<meta property="og:image" content="http://yoursite.com/images/nginx1.png">
+<meta property="og:updated_time" content="2019-06-30T09:26:24.415Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx安装">
-<meta name="twitter:description" content="安装步骤 上传nginx ​    上传nginx安装包到linux  安装gcc 1yum -y install gcc-c++ gcc    1gcc -v   安装依赖库1yum -y install pcre-devel openssl-devel    pcre-devel：为nginx提供正则表达式库openssl-devel：为nginx提供SSL密码库  解压 1tar -zxvf">
-<meta name="twitter:image" content="http://yoursite.com/2019/06/img/nginx.png">
+<meta name="twitter:description" content="1. 安装步骤 上传nginx上传nginx安装包到linux 安装gcc1yum -y install gcc-c++ gcc    查看是否安装gcc： 1gcc -v   安装依赖库1yum -y install pcre-devel openssl-devel    pcre-devel：为nginx提供正则表达式库openssl-devel：为nginx提供SSL密码库  解压 1tar">
+<meta name="twitter:image" content="http://yoursite.com/images/nginx1.png">
 
 
 
@@ -347,7 +347,7 @@
                 
               
 
-              <time title="Erstellt: 2019-06-30 14:15:27 / Geändert am: 16:27:22" itemprop="dateCreated datePublished" datetime="2019-06-30T14:15:27+08:00">2019-06-30</time>
+              <time title="Erstellt: 2019-06-30 14:15:27 / Geändert am: 17:26:24" itemprop="dateCreated datePublished" datetime="2019-06-30T14:15:27+08:00">2019-06-30</time>
             </span>
           
 
@@ -404,34 +404,49 @@
       
 
       
-        <h3 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h3><ol>
-<li><p>上传nginx</p>
-<p>​    上传nginx安装包到linux</p>
-</li>
-<li><p>安装gcc</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install gcc-c++ gcc</span><br></pre></td></tr></table></figure>
+        <h3 id="1-安装步骤"><a href="#1-安装步骤" class="headerlink" title="1. 安装步骤"></a>1. 安装步骤</h3><ol>
+<li>上传nginx<br>上传nginx安装包到linux</li>
+<li>安装gcc<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install gcc-c++ gcc</span><br></pre></td></tr></table></figure>
 
 </li>
 </ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -v</span><br></pre></td></tr></table></figure>
+<p>查看是否安装gcc：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -v</span><br></pre></td></tr></table></figure>
 
 <ol start="3">
-<li>安装依赖库<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install pcre-devel openssl-devel</span><br></pre></td></tr></table></figure>
+<li>安装依赖库<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install pcre-devel openssl-devel</span><br></pre></td></tr></table></figure>
 
 </li>
 </ol>
 <p>pcre-devel：为nginx提供正则表达式库<br>openssl-devel：为nginx提供SSL密码库</p>
 <ol start="4">
 <li><p>解压</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf nginx_1.6.2.tar.gz -C /usr/local/</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf nginx_1.6.2.tar.gz -C /usr/local/</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>生成makefile<br><img src="../../../img/nginx.png" alt="生成makefile"></p>
+<li><p>生成makefile<br><img src="/images/nginx1.png" alt="生成makefile"></p>
 </li>
 </ol>
 <p>该步的目的是生成makefile文件<br>指定安装目录、安装模块</p>
 <ol start="6">
-<li>编译安装<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure></li>
+<li>编译安装<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+</li>
 </ol>
+<h3 id="2-nginx命令随出可用"><a href="#2-nginx命令随出可用" class="headerlink" title="2. nginx命令随出可用"></a>2. nginx命令随出可用</h3><p>有两种方法：</p>
+<ol>
+<li>修改/etc/profile</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export NGINX_HOME=/usr/local/nginx</span><br><span class="line">export PATH=$PATH:$&#123;NGINX_HOME&#125;/sbin</span><br></pre></td></tr></table></figure>
+
+<p>执行source /etc/profile使修改立即生效。</p>
+<ol start="2">
+<li><p>添加到PATH<br>通过软链接</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s /usr/local/nginx/sbin/nginx /usr/local/sbin/nginx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>命令<br>查看nginx -h</p>
+</li>
+</ol>
+<p>启动nginx -c file<br>停止nginx -s stop/quit<br>平滑重启nginx -s reload<br>测试配置文件nginx -tq</p>
 
       
     </div>
@@ -467,6 +482,22 @@
       
       
 
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/30/nginx/Nginx/" rel="next" title="Nginx安装">
+                <i class="fa fa-chevron-left"></i> Nginx安装
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
       
 
       
@@ -532,7 +563,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-count">2</span>
                     <span class="site-state-item-name">Artikel</span>
                   </a>
                 </div>
@@ -600,7 +631,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装步骤"><span class="nav-number">1.</span> <span class="nav-text">安装步骤</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-安装步骤"><span class="nav-number">1.</span> <span class="nav-text">1. 安装步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-nginx命令随出可用"><span class="nav-number">2.</span> <span class="nav-text">2. nginx命令随出可用</span></a></li></ol></div>
             
 
           </div>
