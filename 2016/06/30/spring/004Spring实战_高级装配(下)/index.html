@@ -94,18 +94,18 @@
 
 
 
-  <meta name="description" content="1. 通过后缀名在/opt目录下新建statics目录作为静态资源存放目录，在statics目录下新建一个images目录，上传一张图片marvel.jpg配置location如下：   123location ~.*\.(jpg|png|js|css|html) &amp;#123;            root   /opt/statics;   &amp;#125;  通过路径http://192.168">
-<meta name="keywords" content="Nginx">
+  <meta name="description" content="3.4 bean 的作用域Spring Bean的作用域：  单例 (Singleton)：整个应用只有一个bean 原型 (Prototype)：每次注入或通过Spring应用上下文获取的时候，都会创建一个新的bean实例 会话 (Session)：在Web应用中，为每个会话创建一个bean实例 请求 (Request)：在Web应用中，为每个请求创建一个bean实例  各种配置方式：采用组件扫">
+<meta name="keywords" content="Spring,Spring实战">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Nginx-静态代理">
-<meta property="og:url" content="http://yoursite.com/2019/06/30/nginx/03Nginx-静态代理/index.html">
+<meta property="og:title" content="Spring实战_高级装配(下)">
+<meta property="og:url" content="http://yoursite.com/2016/06/30/spring/004Spring实战_高级装配(下)/index.html">
 <meta property="og:site_name" content="大海啊全是水">
-<meta property="og:description" content="1. 通过后缀名在/opt目录下新建statics目录作为静态资源存放目录，在statics目录下新建一个images目录，上传一张图片marvel.jpg配置location如下：   123location ~.*\.(jpg|png|js|css|html) &amp;#123;            root   /opt/statics;   &amp;#125;  通过路径http://192.168">
+<meta property="og:description" content="3.4 bean 的作用域Spring Bean的作用域：  单例 (Singleton)：整个应用只有一个bean 原型 (Prototype)：每次注入或通过Spring应用上下文获取的时候，都会创建一个新的bean实例 会话 (Session)：在Web应用中，为每个会话创建一个bean实例 请求 (Request)：在Web应用中，为每个请求创建一个bean实例  各种配置方式：采用组件扫">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-06-30T12:20:54.890Z">
+<meta property="og:updated_time" content="2019-06-30T15:32:34.433Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Nginx-静态代理">
-<meta name="twitter:description" content="1. 通过后缀名在/opt目录下新建statics目录作为静态资源存放目录，在statics目录下新建一个images目录，上传一张图片marvel.jpg配置location如下：   123location ~.*\.(jpg|png|js|css|html) &amp;#123;            root   /opt/statics;   &amp;#125;  通过路径http://192.168">
+<meta name="twitter:title" content="Spring实战_高级装配(下)">
+<meta name="twitter:description" content="3.4 bean 的作用域Spring Bean的作用域：  单例 (Singleton)：整个应用只有一个bean 原型 (Prototype)：每次注入或通过Spring应用上下文获取的时候，都会创建一个新的bean实例 会话 (Session)：在Web应用中，为每个会话创建一个bean实例 请求 (Request)：在Web应用中，为每个请求创建一个bean实例  各种配置方式：采用组件扫">
 
 
 
@@ -113,7 +113,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2019/06/30/nginx/03Nginx-静态代理/">
+  <link rel="canonical" href="http://yoursite.com/2016/06/30/spring/004Spring实战_高级装配(下)/">
 
 
 
@@ -123,7 +123,7 @@
   };
 </script>
 
-  <title>Nginx-静态代理 | 大海啊全是水</title>
+  <title>Spring实战_高级装配(下) | 大海啊全是水</title>
   
 
 
@@ -302,7 +302,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/30/nginx/03Nginx-静态代理/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/30/spring/004Spring实战_高级装配(下)/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="JJJ">
@@ -319,7 +319,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Nginx-静态代理
+          <h1 class="post-title" itemprop="name headline">Spring实战_高级装配(下)
 
               
             
@@ -345,13 +345,23 @@
                 
               
 
-              <time title="创建时间：2019-06-30 14:15:27 / 修改时间：20:20:54" itemprop="dateCreated datePublished" datetime="2019-06-30T14:15:27+08:00">2019-06-30</time>
+              <time title="创建时间：2016-06-30 14:15:27" itemprop="dateCreated datePublished" datetime="2016-06-30T14:15:27+08:00">2016-06-30</time>
             </span>
           
 
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-30 23:32:34" itemprop="dateModified" datetime="2019-06-30T23:32:34+08:00">2019-06-30</time>
+              </span>
             
           
 
@@ -364,7 +374,14 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Nginx/" itemprop="url" rel="index"><span itemprop="name">Nginx</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring/Spring实战/" itemprop="url" rel="index"><span itemprop="name">Spring实战</span></a></span>
 
                 
                 
@@ -402,16 +419,30 @@
       
 
       
-        <h3 id="1-通过后缀名"><a href="#1-通过后缀名" class="headerlink" title="1. 通过后缀名"></a>1. 通过后缀名</h3><p>在/opt目录下新建statics目录作为静态资源存放目录，在statics目录下新建一个images目录，上传一张图片marvel.jpg<br>配置location如下：  </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location ~.*\.(jpg|png|js|css|html) &#123;</span><br><span class="line">            root   /opt/statics;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+        <h1 id="3-4-bean-的作用域"><a href="#3-4-bean-的作用域" class="headerlink" title="3.4 bean 的作用域"></a>3.4 bean 的作用域</h1><p>Spring Bean的作用域：</p>
+<ul>
+<li>单例 (Singleton)：整个应用只有一个bean</li>
+<li>原型 (Prototype)：每次注入或通过Spring应用上下文获取的时候，都会创建一个新的bean实例</li>
+<li>会话 (Session)：在Web应用中，为每个会话创建一个bean实例</li>
+<li>请求 (Request)：在Web应用中，为每个请求创建一个bean实例</li>
+</ul>
+<p>各种配置方式：<br>采用组件扫描：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Scope</span>(ConfigurableBeanFactory.SCOPE_PROTOTYPE)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Notepad</span> </span>&#123;...&#125;</span><br></pre></td></tr></table></figure>
 
-<p>通过路径<a href="http://192.168.0.109/images/marvel.jpg访问静态资源" target="_blank" rel="noopener">http://192.168.0.109/images/marvel.jpg访问静态资源</a></p>
-<h3 id="2-通过目录"><a href="#2-通过目录" class="headerlink" title="2. 通过目录"></a>2. 通过目录</h3><p>修改location配置：  </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location ~.*(images|css|html).+ &#123;</span><br><span class="line">             root   /opt/statics;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>Java配置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@Scope</span>(ConfigurableBeanFactory.SCOPE_PROTOTYPE)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Notepad</span> </span>&#123;...&#125;</span><br></pre></td></tr></table></figure>
 
+<p>XML配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"notepad"</span> <span class="attr">class</span>=<span class="string">"com.myapp.Notepad"</span> <span class="attr">scope</span>=<span class="string">"prototype"</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>通过路径<a href="http://192.168.0.109/images/ironman.jpg访问静态资源" target="_blank" rel="noopener">http://192.168.0.109/images/ironman.jpg访问静态资源</a></p>
+<h2 id="3-4-1-使用会话和请求作用域bean"><a href="#3-4-1-使用会话和请求作用域bean" class="headerlink" title="3.4.1 使用会话和请求作用域bean"></a>3.4.1 使用会话和请求作用域bean</h2><p>在Web应用中，如果能够实例化在会话和请求范围内共享bean，那将是非常有价值的。就购物车bean来说，会话作用域是最合适的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Scope</span>(</span><br><span class="line">  value=WebApplicationContext.SCOPE_SESSION,</span><br><span class="line">  proxyMode=ScopedProxyMode.INTERFACES)</span><br><span class="line"><span class="function"><span class="keyword">public</span> ShoppingCart <span class="title">cart</span><span class="params">()</span> </span>&#123;...&#125;</span><br></pre></td></tr></table></figure>
 
+<p>将proxyMode属性设置为ScopedProxyMode.INTERFACES的原因主要是：<br>假设我们要在单例的StoreService bean中注入ShoppingCart，因为单例的bean在Spring应用上下文加载的时候创建。当它创建的时候，Spring会试图将ShoppingCart注入bean中。而此时ShoppingCart并不存在。<br>另外，系统中将会有多个ShoppingCart实例：每个用户一个。我们并不想让Spring注入某个固定的ShoppingCart实例到StoreService。我们希望的是当StoreService处理购物车功能时，它所使用的ShoppingCart实例恰好是当前会话对应的那一个。<br>因此Spring会注入一个ShoppingCart bean的代理。这个代理暴露了与ShoppingCart相同的方法，因此，StoreService会认为它是一个购物车。但是，当StoreService调用ShoppingCart的方法时，代理会对其进行懒解析并将调用委托给会话作用域内真正的ShoppingCart bean。</p>
+<p>proxyMode=ScopedProxyMode.INTERFACES，这表示ShoppingCart为一个接口，如果ShoppingCart为一个具体类的话，Spring就没有办法创建基于接口的代理了。此时，它必须使用CGLIB的代理，proxyMode也将设置成ScopedProxyMode.TARGET_CLATODOSS.<br>TARGET_CLASS.</p>
+<h2 id="3-4-2-在XML中声明作用域代理"><a href="#3-4-2-在XML中声明作用域代理" class="headerlink" title="3.4.2 在XML中声明作用域代理"></a>3.4.2 在XML中声明作用域代理</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"cart"</span> <span class="attr">class</span>=<span class="string">"com.myapp.ShoppingCart"</span> <span class="attr">scope</span>=<span class="string">"session"</span> &gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">aop:scoped-proxy</span> <span class="attr">proxy-target-class</span>=<span class="string">"false"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="3-5-运行时值注入"><a href="#3-5-运行时值注入" class="headerlink" title="3.5 运行时值注入"></a>3.5 运行时值注入</h1><h2 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h2>
       
     </div>
 
@@ -437,7 +468,9 @@
         
         <div class="post-tags">
           
-            <a href="/tags/Nginx/" rel="tag"># Nginx</a>
+            <a href="/tags/Spring/" rel="tag"># Spring</a>
+          
+            <a href="/tags/Spring实战/" rel="tag"># Spring实战</a>
           
         </div>
       
@@ -450,8 +483,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/06/30/nginx/04Nginx-负载均衡/" rel="next" title="Nginx-负载均衡">
-                <i class="fa fa-chevron-left"></i> Nginx-负载均衡
+              <a href="/2016/06/30/spring/005Spring实战_面向切面的Spring/" rel="next" title="Spring实战_面向切面的Spring">
+                <i class="fa fa-chevron-left"></i> Spring实战_面向切面的Spring
               </a>
             
           </div>
@@ -459,6 +492,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/30/spring/003Spring实战_高级装配(上)/" rel="prev" title="Spring实战_高级装配(上)">
+                Spring实战_高级装配(上) <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -611,7 +648,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-通过后缀名"><span class="nav-number">1.</span> <span class="nav-text">1. 通过后缀名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-通过目录"><span class="nav-number">2.</span> <span class="nav-text">2. 通过目录</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#3-4-bean-的作用域"><span class="nav-number">1.</span> <span class="nav-text">3.4 bean 的作用域</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-1-使用会话和请求作用域bean"><span class="nav-number">1.1.</span> <span class="nav-text">3.4.1 使用会话和请求作用域bean</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-2-在XML中声明作用域代理"><span class="nav-number">1.2.</span> <span class="nav-text">3.4.2 在XML中声明作用域代理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-5-运行时值注入"><span class="nav-number">2.</span> <span class="nav-text">3.5 运行时值注入</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#TODO"><span class="nav-number">2.1.</span> <span class="nav-text">TODO</span></a></li></ol></li></ol></div>
             
 
           </div>
