@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Redis支持RDB和AOF两种持久化机制，下面我们详细介绍下两种持久化机制： 1. RDBRDB持久化机制，对redis中的数据执行周期性的持久化 1.1 RDB持久化机制的工作流程1.redis根据配置自己尝试去生成rdb快照文件2.fork一个子进程出来3.子进程尝试将数据dump到临时的rdb快照文件中4.完成rdb快照文件的生成之后，就替换之前的旧的快照文件dump.rdb，每次生成一个">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis_持久化">
+<meta property="og:url" content="http://yoursite.com/2018/07/11/redis/003Redis_持久化/index.html">
+<meta property="og:site_name" content="大海啊全是水">
+<meta property="og:description" content="Redis支持RDB和AOF两种持久化机制，下面我们详细介绍下两种持久化机制： 1. RDBRDB持久化机制，对redis中的数据执行周期性的持久化 1.1 RDB持久化机制的工作流程1.redis根据配置自己尝试去生成rdb快照文件2.fork一个子进程出来3.子进程尝试将数据dump到临时的rdb快照文件中4.完成rdb快照文件的生成之后，就替换之前的旧的快照文件dump.rdb，每次生成一个">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/redis002.png">
+<meta property="og:image" content="http://yoursite.com/images/redis003.png">
+<meta property="og:updated_time" content="2018-07-11T14:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis_持久化">
+<meta name="twitter:description" content="Redis支持RDB和AOF两种持久化机制，下面我们详细介绍下两种持久化机制： 1. RDBRDB持久化机制，对redis中的数据执行周期性的持久化 1.1 RDB持久化机制的工作流程1.redis根据配置自己尝试去生成rdb快照文件2.fork一个子进程出来3.子进程尝试将数据dump到临时的rdb快照文件中4.完成rdb快照文件的生成之后，就替换之前的旧的快照文件dump.rdb，每次生成一个">
+<meta name="twitter:image" content="http://yoursite.com/images/redis002.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2018/07/11/redis/003Redis_持久化/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Redis_持久化 | 大海啊全是水</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">大海啊全是水</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/11/redis/003Redis_持久化/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JJJ">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="大海啊全是水">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis_持久化
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-07-11 22:15:27" itemprop="dateCreated datePublished" datetime="2018-07-11T22:15:27+08:00">2018-07-11</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Redis支持RDB和AOF两种持久化机制，下面我们详细介绍下两种持久化机制：</p>
+<h1 id="1-RDB"><a href="#1-RDB" class="headerlink" title="1. RDB"></a>1. RDB</h1><p>RDB持久化机制，对redis中的数据执行周期性的持久化</p>
+<h2 id="1-1-RDB持久化机制的工作流程"><a href="#1-1-RDB持久化机制的工作流程" class="headerlink" title="1.1 RDB持久化机制的工作流程"></a>1.1 RDB持久化机制的工作流程</h2><p>1.redis根据配置自己尝试去生成rdb快照文件<br>2.fork一个子进程出来<br>3.子进程尝试将数据dump到临时的rdb快照文件中<br>4.完成rdb快照文件的生成之后，就替换之前的旧的快照文件<br>dump.rdb，每次生成一个新的快照，都会覆盖之前的老快照</p>
+<p>RDB是通过系统的fork()函数fork出一个子进程,通过子进程来进行磁盘IO来完成持久化。</p>
+<h2 id="1-2-配置说明"><a href="#1-2-配置说明" class="headerlink" title="1.2 配置说明"></a>1.2 配置说明</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 触发条件：</span><br><span class="line">save 900 1 </span><br><span class="line">save 300 10</span><br><span class="line">save 60 10000</span><br><span class="line"><span class="meta">#</span> 解释：900秒内有至少1个键被更改则进行快照 </span><br><span class="line">dbfilename #rdb文件名称</span><br><span class="line">dir ./ #rdb文件目录</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-3-实操"><a href="#1-3-实操" class="headerlink" title="1.3 实操"></a>1.3 实操</h2><p>基于RDB持久化机制的数据恢复实验<br>1.在redis中保存几条数据，通过redis-cli SHUTDOWN，立即停掉redis进程，然后重启redis，看看刚才插入的数据还在不在<br>数据还在，为什么？<br>通过redis-cli SHUTDOWN这种方式去停掉redis，其实是一种安全退出的模式，redis在退出的时候会将内存中的数据立即生成一份完整的rdb快照</p>
+<ol start="2">
+<li>在redis中再保存几条新的数据，用kill -9粗暴杀死redis进程，模拟redis故障异常退出，导致内存数据丢失的场景<br>这次就发现，redis进程异常被杀掉，数据没有进dump文件，几条最新的数据就丢失了。<br>修改配置：</li>
+</ol>
+<ul>
+<li>手动设置一个save检查点，save 5 1</li>
+<li>写入几条数据，等待5秒钟，会发现自动进行了一次dump rdb快照，在dump.rdb中发现了数据</li>
+<li>异常停掉redis进程，再重新启动redis，看刚才插入的数据还在</li>
+</ul>
+<h2 id="1-4-优缺点"><a href="#1-4-优缺点" class="headerlink" title="1.4 优缺点"></a>1.4 优缺点</h2><p><strong>优点：</strong></p>
+<ol>
+<li>RDB会生成多个数据文件，每个数据文件都代表了某一个时刻中redis的数据，这种多个数据文件的方式，非常适合做冷备，可以将这种完整的数据文件发送到一些远程的安全存储上去，比如说Amazon的S3云服务上去，在国内可以是阿里云的ODPS分布式存储上，以预定好的备份策略来定期备份redis中的数据</li>
+<li>RDB对redis对外提供的读写服务，影响非常小，可以让redis保持高性能，因为redis主进程只需要fork一个子进程，让子进程执行磁盘IO操作来进行RDB持久化即可</li>
+<li>相对于AOF持久化机制来说，直接基于RDB数据文件来重启和恢复redis进程，更加快速</li>
+</ol>
+<p><strong>缺点</strong></p>
+<ol>
+<li>如果想要在redis故障时，尽可能少的丢失数据，那么RDB没有AOF好。一般来说，RDB数据快照文件，都是每隔5分钟，或者更长时间生成一次，这个时候就得接受一旦redis进程宕机，那么会丢失最近5分钟的数据</li>
+<li>RDB每次在fork子进程来执行RDB快照数据文件生成的时候，如果数据文件特别大，可能会导致对客户端提供的服务暂停数毫秒，或者甚至数秒</li>
+</ol>
+<h1 id="2-AOF"><a href="#2-AOF" class="headerlink" title="2. AOF"></a>2. AOF</h1><p>AOF机制对每条写入命令作为日志，以append-only的模式写入一个日志文件中，在redis重启的时候，可以通过回放AOF日志中的写入指令来重新构建整个数据集</p>
+<h2 id="2-1-AOF机制的工作流程"><a href="#2-1-AOF机制的工作流程" class="headerlink" title="2.1 AOF机制的工作流程"></a>2.1 AOF机制的工作流程</h2><ol>
+<li>rdis fork一个子进程</li>
+<li>进程基于当前内存中的数据，构建日志，开始往一个新的临时的AOF文件中写入日志</li>
+<li>rdis主进程，接收到client新的写操作之后，在内存中写入日志，同时新的日志也继续写入旧的AOF文件</li>
+<li>进程写完新的日志文件之后，redis主进程将内存中的新日志再次追加到新的AOF文件中</li>
+<li>新的日志文件替换掉旧的日志文件</li>
+</ol>
+<h2 id="2-2-配置说明"><a href="#2-2-配置说明" class="headerlink" title="2.2 配置说明"></a>2.2 配置说明</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">appendonly yes，可以打开AOF持久化机制</span><br><span class="line">有三种fsync策略策略：</span><br><span class="line">一种是每次写入一条数据就执行一次fsync; </span><br><span class="line">一种是每隔一秒执行一次fsync; </span><br><span class="line">一种是不主动执行fsync</span><br><span class="line"> </span><br><span class="line">appendfsync always #每次写入一条数据就执行一次fsync; </span><br><span class="line">appendfsync everysec #每隔一秒执行一次fsync; </span><br><span class="line">appendfsync no #不主动执行fsync， redis s cache就撒手不管了，然后后面os自己会时不时有自己的策略将数据刷入磁盘，不可控了</span><br><span class="line"> </span><br><span class="line">rewrite参数：</span><br><span class="line">auto-aof-rewrite-percentage 100 </span><br><span class="line">auto-aof-rewrite-min-size 64mb</span><br><span class="line">比如说上一次AOF rewrite之后，是128mb</span><br><span class="line">然后就会接着128mb继续写AOF的日志，如果发现增长的比例，超过了之前的100%，256mb，就可能会去触发一次rewrite</span><br><span class="line">但是此时还要去跟min-size，64mb去比较，256mb &gt; 64mb，才会去触发rewrite</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-3-实操"><a href="#2-3-实操" class="headerlink" title="2.3 实操"></a>2.3 实操</h2><p>AOF持久化的数据恢复实验</p>
+<ol>
+<li>先仅仅打开RDB，写入一些数据，然后kill -9杀掉redis进程，接着重启redis，发现数据没了，因为RDB快照还没生成</li>
+<li>打开AOF的开关，启用AOF持久化</li>
+<li>写入一些数据，观察AOF文件中的日志内容<br>其实你在appendonly.aof文件中，可以看到刚写的日志，它们其实就是先写入os cache的，然后1秒后才fsync到磁盘中，只有fsync到磁盘中了，才是安全的，要不然光是在os cache中，机器只要重启，就什么都没了</li>
+<li>kill -9杀掉redis进程，重新启动redis进程，发现数据被恢复回来了，就是从AOF文件中恢复回来的</li>
+</ol>
+<h2 id="2-4-优缺点"><a href="#2-4-优缺点" class="headerlink" title="2.4 优缺点"></a>2.4 优缺点</h2><p><strong>优点</strong></p>
+<ol>
+<li>AOF可以更好的保护数据不丢失，一般AOF会每隔1秒，通过一个后台线程执行一次fsync操作，最多丢失1秒钟的数据</li>
+<li>AOF日志文件以append-only模式写入，所以没有任何磁盘寻址的开销，写入性能非常高，而且文件不容易破损，即使文件尾部破损，也很容易修复</li>
+<li>AOF日志文件即使过大的时候，出现后台重写操作，也不会影响客户端的读写。因为在rewrite log的时候，会对其中的指导进行压缩，创建出一份需要恢复数据的最小日志出来。再创建新日志文件的时候，老的日志文件还是照常写入。当新的merge后的日志文件ready的时候，再交换新老日志文件即可。</li>
+<li>AOF日志文件的命令通过非常可读的方式进行记录，这个特性非常适合做灾难性的误删除的紧急恢复。比如某人不小心用flushall命令清空了所有数据，只要这个时候后台rewrite还没有发生，那么就可以立即拷贝AOF文件，将最后一条flushall命令给删了，然后再将该AOF文件放回去，就可以通过恢复机制，自动恢复所有数据</li>
+</ol>
+<p><strong>缺点</strong></p>
+<ol>
+<li>对于同一份数据来说，AOF日志文件通常比RDB数据快照文件更大</li>
+<li>AOF开启后，支持的写QPS会比RDB支持的写QPS低，因为AOF一般会配置成每秒fsync一次日志文件，当然，每秒一次fsync，性能也还是很高的</li>
+<li>以前AOF发生过bug，就是通过AOF记录的日志，进行数据恢复的时候，没有恢复一模一样的数据出来。所以说，类似AOF这种较为复杂的基于命令日志/merge/回放的方式，比基于RDB每次持久化一份完整的数据快照文件的方式，更加脆弱一些，容易有bug。不过AOF就是为了避免rewrite过程导致的bug，因此每次rewrite并不是基于旧的指令日志进行merge的，而是基于当时内存中的数据进行指令的重新构建，这样健壮性会好很多。</li>
+</ol>
+<h2 id="2-5-AOF原理分析"><a href="#2-5-AOF原理分析" class="headerlink" title="2.5 AOF原理分析"></a>2.5 AOF原理分析</h2><p><img src="/images/redis002.png" alt></p>
+<h2 id="2-6-rewrite机制"><a href="#2-6-rewrite机制" class="headerlink" title="2.6 rewrite机制"></a>2.6 rewrite机制</h2><p>开启AOF持久化后，Redis会把所有写操作指令写入AOF文件，那么这个AOF文件会不会无限变大呢？</p>
+<p>答案可定是否定的。<br>rewrite机制：</p>
+<p><img src="/images/redis003.png" alt></p>
+<h1 id="3-RDB和AOF到底该如何选择"><a href="#3-RDB和AOF到底该如何选择" class="headerlink" title="3. RDB和AOF到底该如何选择"></a>3. RDB和AOF到底该如何选择</h1><ol>
+<li>不要仅仅使用RDB，因为那样会导致你丢失很多数据</li>
+<li>也不要仅仅使用AOF，因为那样有两个问题，<br>第一，你通过AOF做冷备，没有RDB做冷备，来的恢复速度更快;<br>第二，RDB每次简单粗暴生成数据快照，更加健壮，可以避免AOF这种复杂的备份和恢复机制的bug</li>
+<li>综合使用AOF和RDB两种持久化机制，用AOF来保证数据不丢失，作为数据恢复的第一选择; 用RDB来做不同程度的冷备，在AOF文件都丢失或损坏不可用的时候，还可以使用RDB来进行快速的数据恢复</li>
+</ol>
+<h1 id="4-RDB和AOF同时工作"><a href="#4-RDB和AOF同时工作" class="headerlink" title="4. RDB和AOF同时工作"></a>4. RDB和AOF同时工作</h1><ol>
+<li><p>果RDB在执行snapshotting操作，那么redis不会执行AOF rewrite; 如果redis再执行AOF rewrite，那么就不会执行RDB snapshotting</p>
+</li>
+<li><p>果RDB在执行snapshotting，此时用户执行BGREWRITEAOF命令，那么等RDB快照生成之后，才会去执行AOF rewrite</p>
+</li>
+<li><p>时有RDB snapshot文件和AOF日志文件，那么redis重启的时候，会优先使用AOF进行数据恢复，因为其中的日志更完整</p>
+<h1 id="5-企业级备份-恢复方案"><a href="#5-企业级备份-恢复方案" class="headerlink" title="5. 企业级备份/恢复方案"></a>5. 企业级备份/恢复方案</h1></li>
+</ol>
+<h1 id="5-1-备份方案"><a href="#5-1-备份方案" class="headerlink" title="5.1 备份方案"></a>5.1 备份方案</h1><ol>
+<li><p>RDB非常适合做冷备，每次生成之后，就不会再有修改了。<br>数据备份方案</p>
+<ol>
+<li>写crontab定时调度脚本去做数据备份</li>
+<li>每小时都copy一份rdb的备份，到一个目录中去，仅仅保留最近48小时的备份</li>
+<li>每天都保留一份当日的rdb的备份，到一个目录中去，仅仅保留最近1个月的备份</li>
+<li>每次copy备份的时候，都把太旧的备份给删了</li>
+<li>每天晚上将当前服务器上所有的数据备份，发送一份到远程的云服务上去</li>
+</ol>
+<p><strong>每小时copy一次备份，删除48小时前的数据</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">crontab -e</span><br><span class="line"></span><br><span class="line">0 * * * * sh /usr/local/redis/copy/redis_rdb_copy_hourly.sh</span><br><span class="line"></span><br><span class="line">redis_rdb_copy_hourly.sh</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/sh </span><br><span class="line"></span><br><span class="line">cur_date=`date +%Y%m%d%k`</span><br><span class="line">rm -rf /usr/local/redis/snapshotting/$cur_date</span><br><span class="line">mkdir /usr/local/redis/snapshotting/$cur_date</span><br><span class="line">cp /var/redis/6379/dump.rdb /usr/local/redis/snapshotting/$cur_date</span><br><span class="line"></span><br><span class="line">del_date=`date -d -48hour +%Y%m%d%k`</span><br><span class="line">rm -rf /usr/local/redis/snapshotting/$del_date</span><br></pre></td></tr></table></figure>
+
+<p>   <strong>每天copy一次备份</strong></p>
+   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">crontab -e</span><br><span class="line"></span><br><span class="line">0 0 * * * sh /usr/local/redis/copy/redis_rdb_copy_daily.sh</span><br><span class="line"></span><br><span class="line">redis_rdb_copy_daily.sh</span><br></pre></td></tr></table></figure>
+
+
+
+   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/sh </span><br><span class="line"></span><br><span class="line">cur_date=`date +%Y%m%d`</span><br><span class="line">rm -rf /usr/local/redis/snapshotting/$cur_date</span><br><span class="line">mkdir /usr/local/redis/snapshotting/$cur_date</span><br><span class="line">cp /var/redis/6379/dump.rdb /usr/local/redis/snapshotting/$cur_date</span><br><span class="line"></span><br><span class="line">del_date=`date -d -1month +%Y%m%d`</span><br><span class="line">rm -rf /usr/local/redis/snapshotting/$del_date</span><br></pre></td></tr></table></figure>
+
+<p>   还可以每天一次将所有数据上传一次到远程的云服务器上去</p>
+<h2 id="5-2-恢复方案"><a href="#5-2-恢复方案" class="headerlink" title="5.2 恢复方案"></a>5.2 恢复方案</h2><ol>
+<li><p>如果是redis进程挂掉，那么重启redis进程即可，直接基于AOF日志文件恢复数据</p>
+</li>
+<li><p>如果是redis进程所在机器挂掉，那么重启机器后，尝试重启redis进程，尝试直接基于AOF日志文件进行数据恢复</p>
+<p>AOF没有破损，也是可以直接基于AOF恢复的</p>
+<p>AOF append-only，顺序写入，如果AOF文件破损，那么用redis-check-aof fix</p>
+</li>
+<li><p>如果redis当前最新的AOF和RDB文件出现了丢失/损坏，那么可以尝试基于该机器上当前的某个最新的RDB数据副本进行数据恢复<br>容灾演练：清空redis中的数据，删除持久化目录下的备份文件，将备份目录下的dump.rdb文件拷到redis持久化目录下。<br>踩坑：进行恢复，发现数据没有恢复回来。<br>原因：同时开启了AOF和RDB，优先用appendonly.aof去恢复数据，但是我们发现redis自动生成的appendonly.aof是没有数据的。<br>删除appendonly.aof，重启，发现还是没有数据，持久化目录下多了一个空的appendonly.aof文件，原因应该明确了，因为我们开启了AOF持久化，重启后redis生成了一个新的aof文件，那这个文件恢复，数据还是没有恢复回来。<br>其实正确的步骤应该：<br>停止redis，关闭aof，拷贝rdb备份，重启redis，确认数据恢复，直接在命令行热修改redis配置，打开aof，这个redis就会将内存中的数据对应的日志，写入aof文件中<br>redis config set热修改配置参数，可能配置文件中的实际的参数没有被持久化的修改，再次停止redis，手动修改配置文件，打开aof的命令，再次重启redis</p>
+</li>
+<li><p>果当前机器上的所有RDB文件全部损坏，那么从远程的云服务上拉取最新的RDB快照回来恢复数据</p>
+</li>
+<li><p>果是发现有重大的数据错误，比如某个小时上线的程序一下子将数据全部污染了，数据全错了，那么可以选择某个更早的时间点，对数据进行恢复<br>举个例子，12点上线了代码，发现代码有bug，导致代码生成的所有的缓存数据，写入redis，全部错了<br>找到一份11点的rdb的冷备，然后按照上面的步骤，去恢复到11点的数据，不就可以了吗</p>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/27/redis/002Redis_数据结构/" rel="next" title="Redis_数据结构">
+                <i class="fa fa-chevron-left"></i> Redis_数据结构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/13/redis/004Redis_主从复制/" rel="prev" title="Redis_主从复制">
+                Redis_主从复制 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JJJ</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">34</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">11</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-RDB"><span class="nav-number">1.</span> <span class="nav-text">1. RDB</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-RDB持久化机制的工作流程"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 RDB持久化机制的工作流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-配置说明"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 配置说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-实操"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 实操</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-优缺点"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 优缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-AOF"><span class="nav-number">2.</span> <span class="nav-text">2. AOF</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-AOF机制的工作流程"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 AOF机制的工作流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-配置说明"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 配置说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-实操"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 实操</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-优缺点"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 优缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-5-AOF原理分析"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 AOF原理分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-6-rewrite机制"><span class="nav-number">2.6.</span> <span class="nav-text">2.6 rewrite机制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-RDB和AOF到底该如何选择"><span class="nav-number">3.</span> <span class="nav-text">3. RDB和AOF到底该如何选择</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-RDB和AOF同时工作"><span class="nav-number">4.</span> <span class="nav-text">4. RDB和AOF同时工作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-企业级备份-恢复方案"><span class="nav-number">5.</span> <span class="nav-text">5. 企业级备份/恢复方案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-1-备份方案"><span class="nav-number">6.</span> <span class="nav-text">5.1 备份方案</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-2-恢复方案"><span class="nav-number">6.1.</span> <span class="nav-text">5.2 恢复方案</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JJJ</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
