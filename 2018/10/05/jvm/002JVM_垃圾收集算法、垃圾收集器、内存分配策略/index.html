@@ -94,13 +94,13 @@
 
 
 
-  <meta name="description" content="1. 对象是否可回收1.1 如何判断对象可回收引用计数 每个对象有一个引用计数属性，新增一个引用时计数加 1 ，引用释放时计数减 1 ，计数为 0 时可以回收。此方法简单，无法解决对象相互循环引用的问题。 可达性分析 从 GC Roots 开始向下搜索，搜索所走过的路径称为引用链。当一个对象到 GC Roots 没有任何引用链相连时，则证明此对象是不可用的。不可达对象。目前在用的有 Java、C#">
+  <meta name="description" content="1 对象是否可回收1.1 如何判断对象可回收引用计数 每个对象有一个引用计数属性，新增一个引用时计数加 1 ，引用释放时计数减 1 ，计数为 0 时可以回收。此方法简单，无法解决对象相互循环引用的问题。 可达性分析 从 GC Roots 开始向下搜索，搜索所走过的路径称为引用链。当一个对象到 GC Roots 没有任何引用链相连时，则证明此对象是不可达对象。 可作为 GC Roots 的对象:">
 <meta name="keywords" content="JVM">
 <meta property="og:type" content="article">
-<meta property="og:title" content="垃圾收集算法、垃圾收集器、内存分配策略">
-<meta property="og:url" content="http://yoursite.com/2018/10/05/jvm/002垃圾收集算法、垃圾收集器、内存分配策略/index.html">
+<meta property="og:title" content="JVM_垃圾收集算法、垃圾收集器、内存分配策略">
+<meta property="og:url" content="http://yoursite.com/2018/10/05/jvm/002JVM_垃圾收集算法、垃圾收集器、内存分配策略/index.html">
 <meta property="og:site_name" content="大海啊全是水">
-<meta property="og:description" content="1. 对象是否可回收1.1 如何判断对象可回收引用计数 每个对象有一个引用计数属性，新增一个引用时计数加 1 ，引用释放时计数减 1 ，计数为 0 时可以回收。此方法简单，无法解决对象相互循环引用的问题。 可达性分析 从 GC Roots 开始向下搜索，搜索所走过的路径称为引用链。当一个对象到 GC Roots 没有任何引用链相连时，则证明此对象是不可用的。不可达对象。目前在用的有 Java、C#">
+<meta property="og:description" content="1 对象是否可回收1.1 如何判断对象可回收引用计数 每个对象有一个引用计数属性，新增一个引用时计数加 1 ，引用释放时计数减 1 ，计数为 0 时可以回收。此方法简单，无法解决对象相互循环引用的问题。 可达性分析 从 GC Roots 开始向下搜索，搜索所走过的路径称为引用链。当一个对象到 GC Roots 没有任何引用链相连时，则证明此对象是不可达对象。 可作为 GC Roots 的对象:">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/images/jvm003.png">
 <meta property="og:image" content="http://yoursite.com/images/jvm004.png">
@@ -113,10 +113,10 @@
 <meta property="og:image" content="http://yoursite.com/images/jvm011.png">
 <meta property="og:image" content="http://yoursite.com/images/jvm012.png">
 <meta property="og:image" content="http://yoursite.com/images/jvm013.png">
-<meta property="og:updated_time" content="2019-07-11T02:37:37.008Z">
+<meta property="og:updated_time" content="2019-07-11T08:11:27.415Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="垃圾收集算法、垃圾收集器、内存分配策略">
-<meta name="twitter:description" content="1. 对象是否可回收1.1 如何判断对象可回收引用计数 每个对象有一个引用计数属性，新增一个引用时计数加 1 ，引用释放时计数减 1 ，计数为 0 时可以回收。此方法简单，无法解决对象相互循环引用的问题。 可达性分析 从 GC Roots 开始向下搜索，搜索所走过的路径称为引用链。当一个对象到 GC Roots 没有任何引用链相连时，则证明此对象是不可用的。不可达对象。目前在用的有 Java、C#">
+<meta name="twitter:title" content="JVM_垃圾收集算法、垃圾收集器、内存分配策略">
+<meta name="twitter:description" content="1 对象是否可回收1.1 如何判断对象可回收引用计数 每个对象有一个引用计数属性，新增一个引用时计数加 1 ，引用释放时计数减 1 ，计数为 0 时可以回收。此方法简单，无法解决对象相互循环引用的问题。 可达性分析 从 GC Roots 开始向下搜索，搜索所走过的路径称为引用链。当一个对象到 GC Roots 没有任何引用链相连时，则证明此对象是不可达对象。 可作为 GC Roots 的对象:">
 <meta name="twitter:image" content="http://yoursite.com/images/jvm003.png">
 
 
@@ -125,7 +125,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2018/10/05/jvm/002垃圾收集算法、垃圾收集器、内存分配策略/">
+  <link rel="canonical" href="http://yoursite.com/2018/10/05/jvm/002JVM_垃圾收集算法、垃圾收集器、内存分配策略/">
 
 
 
@@ -135,7 +135,7 @@
   };
 </script>
 
-  <title>垃圾收集算法、垃圾收集器、内存分配策略 | 大海啊全是水</title>
+  <title>JVM_垃圾收集算法、垃圾收集器、内存分配策略 | 大海啊全是水</title>
   
 
 
@@ -314,7 +314,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/05/jvm/002垃圾收集算法、垃圾收集器、内存分配策略/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/05/jvm/002JVM_垃圾收集算法、垃圾收集器、内存分配策略/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="JJJ">
@@ -331,7 +331,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">垃圾收集算法、垃圾收集器、内存分配策略
+          <h1 class="post-title" itemprop="name headline">JVM_垃圾收集算法、垃圾收集器、内存分配策略
 
               
             
@@ -372,7 +372,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-07-11 10:37:37" itemprop="dateModified" datetime="2019-07-11T10:37:37+08:00">2019-07-11</time>
+                <time title="修改时间：2019-07-11 16:11:27" itemprop="dateModified" datetime="2019-07-11T16:11:27+08:00">2019-07-11</time>
               </span>
             
           
@@ -424,10 +424,10 @@
       
 
       
-        <h1 id="1-对象是否可回收"><a href="#1-对象是否可回收" class="headerlink" title="1. 对象是否可回收"></a>1. 对象是否可回收</h1><h2 id="1-1-如何判断对象可回收"><a href="#1-1-如何判断对象可回收" class="headerlink" title="1.1 如何判断对象可回收"></a>1.1 如何判断对象可回收</h2><p><strong>引用计数</strong></p>
-<p>每个对象有一个引用计数属性，新增一个引用时计数加 1 ，引用释放时计数减 1 ，计数为 0 时可以回收。此方法简单，无法解决对象相互循环引用的问题。</p>
+        <h1 id="1-对象是否可回收"><a href="#1-对象是否可回收" class="headerlink" title="1 对象是否可回收"></a>1 对象是否可回收</h1><h2 id="1-1-如何判断对象可回收"><a href="#1-1-如何判断对象可回收" class="headerlink" title="1.1 如何判断对象可回收"></a>1.1 如何判断对象可回收</h2><p><strong>引用计数</strong></p>
+<p>每个对象有一个引用计数属性，新增一个引用时计数加 1 ，引用释放时计数减 1 ，计数为 0 时可以回收。<br>此方法简单，无法解决对象相互循环引用的问题。</p>
 <p><strong>可达性分析</strong></p>
-<p>从 GC Roots 开始向下搜索，搜索所走过的路径称为引用链。当一个对象到 GC Roots 没有任何引用链相连时，则证明此对象是不可用的。不可达对象。目前在用的有 Java、C# 等语言。</p>
+<p>从 GC Roots 开始向下搜索，搜索所走过的路径称为引用链。当一个对象到 GC Roots 没有任何引用链相连时，则证明此对象是不可达对象。</p>
 <p><strong>可作为 GC Roots 的对象:</strong></p>
 <ol>
 <li>虚拟机栈（栈帧中的本地变量表）中引用的对象。</li>
@@ -436,8 +436,8 @@
 <li>本地方法栈中 JNI(即一般说的 Native 方法)中引用的对象。</li>
 </ol>
 <h2 id="1-2-引用类型"><a href="#1-2-引用类型" class="headerlink" title="1.2 引用类型"></a>1.2 引用类型</h2><p>Java 一共有四种引用类型：</p>
-<p><strong>强引用</strong><br>以前我们使用的大部分引用实际上都是强引用，这是使用最普遍的引用。如果一个对象具有强引用，那就类似于必不可少的生活用品，垃圾回收器绝不会回收它。当内存空间不足，Java 虚拟机宁愿抛出 OutOfMemoryError 错误，使程序异常终止，也不会靠随意回收具有强引用的对象来解决内存不足问题。<br><strong>软引用（SoftReference）</strong><br>如果一个对象只具有软引用，那就类似于可有可物的生活用品。如果内存空间足够，垃圾回收器就不会回收它，如果内存空间不足了，就会回收这些对象的内存。只要垃圾回收器没有回收它，该对象就可以被程序使用。软引用可用来实现内存敏感的高速缓存。<br>软引用可以和一个引用队列（ReferenceQueue）联合使用，如果软引用所引用的对象被垃圾回收，JAVA 虚拟机就会把这个软引用加入到与之关联的引用队列中。<br><strong>弱引用（WeakReference）</strong><br>如果一个对象只具有弱引用，那就类似于可有可物的生活用品。弱引用与软引用的区别在于：只具有弱引用的对象拥有更短暂的生命周期。在垃圾回收器线程扫描它 所管辖的内存区域的过程中，一旦发现了只具有弱引用的对象，不管当前内存空间足够与否，都会回收它的内存。不过，由于垃圾回收器是一个优先级很低的线程， 因此不一定会很快发现那些只具有弱引用的对象。<br>弱引用可以和一个引用队列（ReferenceQueue）联合使用，如果弱引用所引用的对象被垃圾回收，Java虚拟机就会把这个弱引用加入到与之关联的引用队列中。<br><strong>虚引用（PhantomReference）</strong><br>“虚引用”顾名思义，就是形同虚设，与其他几种引用都不同，虚引用并不会决定对象的生命周期。如果一个对象仅持有虚引用，那么它就和没有任何引用一样，在任何时候都可能被垃圾回收。<br>虚引用主要用来跟踪对象被垃圾回收的活动。虚引用与软引用和弱引用的一个区别在于：虚引用必须和引用队列（ReferenceQueue）联合使用。当垃 圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象的内存之前，把这个虚引用加入到与之关联的引用队列中。程序可以通过判断引用队列中是否已经加入了虚引用，来了解被引用的对象是否将要被垃圾回收。程序如果发现某个虚引用已经被加入到引</p>
-<h1 id="2-垃圾收集算法"><a href="#2-垃圾收集算法" class="headerlink" title="2. 垃圾收集算法"></a>2. 垃圾收集算法</h1><p>有四种算法：</p>
+<p><strong>强引用</strong><br>以前我们使用的大部分引用实际上都是强引用，这是使用最普遍的引用。<br>如果一个对象具有强引用，那就类似于必不可少的生活用品，垃圾回收器<strong>绝不会回收它</strong>。当内存空间不足，Java 虚拟机宁愿抛出 OutOfMemoryError 错误，使程序异常终止，也不会靠随意回收具有强引用的对象来解决内存不足问题。<br><strong>软引用（SoftReference）</strong><br>如果一个对象只具有软引用，那就类似于可有可物的生活用品。<br>如果<strong>内存空间足够</strong>，垃圾回收器就不会回收它。<br>如果<strong>内存空间不足了</strong>，就会回收这些对象的内存。只要垃圾回收器没有回收它，该对象就可以被程序使用。<br>软引用可用来实现内存敏感的高速缓存。<br>软引用可以和一个引用队列（ReferenceQueue）联合使用，如果软引用所引用的对象被垃圾回收，JAVA 虚拟机就会把这个软引用加入到与之关联的引用队列中。<br><strong>弱引用（WeakReference）</strong><br>如果一个对象只具有弱引用，那就类似于可有可物的生活用品。<br>弱引用与软引用的区别在于：只具有弱引用的对象拥有更短暂的生命周期。在垃圾回收器线程扫描它 所管辖的内存区域的过程中，一旦发现了只具有弱引用的对象，<strong>不管当前内存空间足够与否，都会回收它的内存</strong>。不过，由于垃圾回收器是一个优先级很低的线程， 因此不一定会很快发现那些只具有弱引用的对象。<br>弱引用可以和一个引用队列（ReferenceQueue）联合使用，如果弱引用所引用的对象被垃圾回收，Java虚拟机就会把这个弱引用加入到与之关联的引用队列中。<br><strong>虚引用（PhantomReference）</strong><br>虚引用顾名思义，就是形同虚设，与其他几种引用都不同，虚引用并不会决定对象的生命周期。如果一个对象仅持有虚引用，那么它就和没有任何引用一样，在任何时候都可能被垃圾回收。<br>虚引用主要用来<strong>跟踪对象被垃圾回收的活动</strong>。虚引用与软引用和弱引用的一个区别在于：虚引用必须和引用队列（ReferenceQueue）联合使用。当垃 圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象的内存之前，把这个虚引用加入到与之关联的引用队列中。程序可以通过判断引用队列中是否已经加入了虚引用，来了解被引用的对象是否将要被垃圾回收。程序如果发现某个虚引用已经被加入到引用队列，那么就可以在所引用的对象的内存被回收之前采取必要的行动。</p>
+<h1 id="2-垃圾收集算法"><a href="#2-垃圾收集算法" class="headerlink" title="2 垃圾收集算法"></a>2 垃圾收集算法</h1><p>有四种算法：</p>
 <ol>
 <li>标记-清除算法</li>
 <li>标记-整理算法</li>
@@ -447,7 +447,7 @@
 <p><strong>1）标记-清除算法</strong></p>
 <p>标记-清除（Mark-Sweep）算法，是现代垃圾回收算法的思想基础。</p>
 <p>标记-清除算法将垃圾回收分为两个阶段：标记阶段和清除阶段。</p>
-<p>一种可行的实现是，在标记阶段，首先通过根节点，标记所有从根节点开始的可达对象。因此，未被标记的对象就是未被引用的垃圾对象（好多资料说标记出要回收的对象，其实明白大概意思就可以了）。然后，在清除阶段，清除所有未被标记的对象。</p>
+<p>一种可行的实现是，在标记阶段，首先标记出所有需要回收的对象。然后，在清除阶段，清除所有未被标记的对象。</p>
 <p><img src="/images/jvm003.png" alt="标记-清除算法"></p>
 <ul>
 <li>缺点：<ul>
@@ -492,21 +492,17 @@
 <li>而老年代中，因为对象存活率高，没有额外空间对它进行分配担保，就必须使用“标记清理”或者“标记整理”算法来进行回收。</li>
 </ul>
 <p><img src="/images/jvm006.png" alt="分代收集算法"></p>
+<p>图的左半部分是未回收前的内存区域，右半部分是回收后的内存区域。</p>
+<p><strong>新生代中改进的复制算法</strong></p>
+<p>上面介绍复制算法的时候我们已经看到了，复制算法将可用内存区域分成大小相等的两块，这样的划为对新生代是不是太浪费了呢？必将每次都只有可用空间的一半可以使用。下面我们来看看新生代中改进的复制算法：</p>
 <ul>
-<li>图的左半部分是未回收前的内存区域，右半部分是回收后的内存区域。</li>
-<li>对象分配策略：<ul>
-<li>对象优先在 Eden 区域分配，如果对象过大直接分配到 Old 区域。</li>
-<li>长时间存活的对象进入到 Old 区域。</li>
-</ul>
-</li>
-<li>改进自复制算法<ul>
-<li>现在的商业虚拟机都采用这种收集算法来回收新生代，IBM 公司的专门研究表明，新生代中的对象 98% 是“朝生夕死”的，所以并不需要按照 <code>1:1</code> 的比例来划分内存空间，而是将内存分为一块较大的 Eden 空间和两块较小的 Survivor 空间，每次使用 Eden 和其中一块 Survivor 。当回收时，将 Eden 和 Survivor 中还存活着的对象一次性地复制到另外一块 Survivor 空间上，最后清理掉 Eden 和刚才用过的 Survivor 空间。</li>
+<li>IBM 公司的专门研究表明，新生代中的对象 98% 是“朝生夕死”的，所以并不需要按照 <code>1:1</code> 的比例来划分内存空间，而是将内存分为一块较大的 Eden 空间和两块较小的 Survivor 空间，每次使用 Eden 和其中一块 Survivor 。当回收时，将 Eden 和 Survivor 中还存活着的对象一次性地复制到另外一块 Survivor 空间上，最后清理掉 Eden 和刚才用过的 Survivor 空间。</li>
 <li>HotSpot 虚拟机默认 Eden 和 2 块 Survivor 的大小比例是 <code>8:1:1</code>，也就是每次新生代中可用内存空间为整个新生代容量的 90%（80%+10%），只有 10% 的内存会被“浪费”。当然，98% 的对象可回收只是一般场景下的数据，我们没有办法保证每次回收都只有不多于 10% 的对象存活，当 Survivor 空间不够用时，需要依赖其他内存（这里指老年代）进行分配担保（Handle Promotion）。</li>
 </ul>
-</li>
-</ul>
-<h1 id="3-HotSpot算法实现"><a href="#3-HotSpot算法实现" class="headerlink" title="3. HotSpot算法实现"></a>3. HotSpot算法实现</h1><p>TODO</p>
-<h1 id="4-垃圾收集器"><a href="#4-垃圾收集器" class="headerlink" title="4. 垃圾收集器"></a>4. 垃圾收集器</h1><h2 id="4-1-垃圾收集器分类"><a href="#4-1-垃圾收集器分类" class="headerlink" title="4.1 垃圾收集器分类"></a>4.1 垃圾收集器分类</h2><ul>
+<h1 id="3-HotSpot算法实现"><a href="#3-HotSpot算法实现" class="headerlink" title="3 HotSpot算法实现"></a>3 HotSpot算法实现</h1><h2 id="3-1-枚举根节点"><a href="#3-1-枚举根节点" class="headerlink" title="3.1 枚举根节点"></a>3.1 枚举根节点</h2><p>从可达性分析中从GC Roots节点找引用为例，可作为GC Roots的节点主要是全局性的引用与执行上下文中，如果要逐个检查引用，必然消耗时间。<br>另外可达性分析对执行时间的敏感还体现在GC停顿上，因为这项分析工作必须在一个能确保一致性的快照中进行——这里的“一致性”的意思是指整个分析期间整个系统执行系统看起来就行被冻结在某个时间点，不可以出现分析过程中对象引用关系还在不断变化的情况，该点不满足的话分析结果的准确性就无法得到保证。这点是导致GC进行时必须暂停所有Java执行线程的其中一个重要原因。<br>由于目前主流的Java虚拟机都是准确式GC，做一档执行系统停顿下来之后，并不需要一个不漏的检查执行上下文和全局的引用位置，虚拟机应当有办法得知哪些地方存放的是对象的引用。在HotSpot的实现中，是使用一组OopMap的数据结构来达到这个目的的。 </p>
+<h2 id="3-2-安全点"><a href="#3-2-安全点" class="headerlink" title="3.2 安全点"></a>3.2 安全点</h2><p>在OopMap的协助下，HotSpot可以快速且准确的完成GC Roots的枚举，但可能导致引用关系变化的指令非常多，如果为每一条指令都生成OopMap，那将会需要大量的额外空间，这样GC的空间成本会变的很高。<br>实际上，HotSpot也的确没有为每条指令生成OopMap，只是在特定的位置记录了这些信息，这些位置被称为安全点（SafePoint）。SafePoint的选定既不能太少，以致让GC等待时间太久，也不能设置的太频繁以至于增大运行时负荷。所以安全点的设置是以让程序“是否具有让程序长时间执行的特征”为标准选定的。“长时间执行”最明显的特征就是指令序列的复用，例如方法调用、循环跳转、异常跳转等，所以具有这些功能的指令才会产生SafePoint。<br>对于SafePoint，另一个问题是如何在GC发生时让所有线程都跑到安全点在停顿下来。这里有两种方案：抢先式中断和主动式中断。抢先式中断不需要线程代码主动配合，当GC发生时，首先把所有线程中断，如果发现线程中断的地方不在安全点上，就恢复线程，让他跑到安全点上。现在几乎没有虚拟机实现采用抢先式中断来暂停线程来响应GC。<br>而主动式中断的思想是当GC需要中断线程的时候，不直接对线程操作，仅仅简单的设置一个标志，各个线程执行时主动去轮询这个标志，发现中断标志为真时就自己中断挂起，轮询标志的地方和安全点是重合的另外再加上创建对象需要分配的内存的地方。 </p>
+<h2 id="3-3-安全区域"><a href="#3-3-安全区域" class="headerlink" title="3.3 安全区域"></a>3.3 安全区域</h2><p>使用安全点似乎已经完美解决了如何进入GC的问题，但实际情况却并不一定，安全点机制保证了程序执行时，在不太长的时间内就会进入到可进入的GC的安全点。但是程序如果不执行呢？所谓的程序不执行就是没有分配cpu时间，典型的例子就是线程处于sleep状态或者blocked状态，这时候线程无法响应jvm中断请求，走到安全的地方中断挂起，jvm显然不太可能等待线程重新分配cpu时间，对于这种情况，我们使用安全区域来解决。<br>安全区域是指在一段代码片段之中，你用关系不会发生变化。在这个区域的任何地方开始GC都是安全的，我们可以把安全区域看做是扩展了的安全点。<br>当线程执行到安全区域中的代码时，首先标识自己已经进入了安全区，那样当在这段时间里，JVM要发起GC时，就不用管标识自己为安全区域状态的线程了。当线程要离开安全区域时，他要检查系统是否完成了根节点枚举，如果完成了，那线程就继续执行，否则他就必须等待，直到收到可以安全离开安全区域的信号为止。</p>
+<h1 id="4-垃圾收集器"><a href="#4-垃圾收集器" class="headerlink" title="4 垃圾收集器"></a>4 垃圾收集器</h1><h2 id="4-1-垃圾收集器分类"><a href="#4-1-垃圾收集器分类" class="headerlink" title="4.1 垃圾收集器分类"></a>4.1 垃圾收集器分类</h2><ul>
 <li><p>新生代收集器</p>
 <ul>
 <li><p>Serial 收集器</p>
@@ -611,16 +607,16 @@
 <p><strong>各垃圾收集器搭配使用情况</strong></p>
 <p><img src="/images/jvm007.png" alt="垃圾收集器搭配"></p>
 <p>上图展示了7种作用于不同分代的收集器，如果两个收集器之间存在连线，就说明它们可以搭配使用。虚拟机所处的区域，则表示它是属于新生代收集器还是老年代收集器。Hotspot实现了如此多的收集器，正是因为目前并无完美的收集器出现，只是选择对具体应用最适合的收集器。</p>
-<h2 id="4-2-垃圾收集器详解"><a href="#4-2-垃圾收集器详解" class="headerlink" title="4.2 垃圾收集器详解"></a>4.2 垃圾收集器详解</h2><h3 id="4-2-1-Serial收集器"><a href="#4-2-1-Serial收集器" class="headerlink" title="4.2.1. Serial收集器"></a>4.2.1. Serial收集器</h3><p><img src="/images/jvm008.png" alt="Serial收集器运行示意图"><br>Serial收集器是最基本、发展历史最悠久的收集器，它是采用复制算法的新生代收集器，曾经（JDK 1.3.1之前）是虚拟机新生代收集的唯一选择。它是一个单线程收集器，只会使用一个CPU或一条收集线程去完成垃圾收集工作，更重要的是它在进行垃圾收集时，必须暂停其他所有的工作线程，直至Serial收集器收集结束为止（“Stop The World”）。这项工作是由虚拟机在后台自动发起和自动完成的，在用户不可见的情况下把用户正常工作的线程全部停掉，这对很多应用来说是难以接收的。</p>
+<h2 id="4-2-垃圾收集器详解"><a href="#4-2-垃圾收集器详解" class="headerlink" title="4.2 垃圾收集器详解"></a>4.2 垃圾收集器详解</h2><h3 id="4-2-1-Serial收集器"><a href="#4-2-1-Serial收集器" class="headerlink" title="4.2.1  Serial收集器"></a>4.2.1  Serial收集器</h3><p><img src="/images/jvm008.png" alt="Serial收集器运行示意图"><br>Serial收集器是最基本、发展历史最悠久的收集器，它是采用复制算法的新生代收集器，曾经（JDK 1.3.1之前）是虚拟机新生代收集的唯一选择。它是一个单线程收集器，只会使用一个CPU或一条收集线程去完成垃圾收集工作，更重要的是它在进行垃圾收集时，必须暂停其他所有的工作线程，直至Serial收集器收集结束为止（“Stop The World”）。这项工作是由虚拟机在后台自动发起和自动完成的，在用户不可见的情况下把用户正常工作的线程全部停掉，这对很多应用来说是难以接收的。</p>
 <p>为了消除或减少工作线程因内存回收而导致的停顿，HotSpot虚拟机开发团队在JDK 1.3之后的Java发展历程中研发出了各种其他的优秀收集器，这些将在稍后介绍。但是这些收集器的诞生并不意味着Serial收集器已经“老而无用”，实际上到现在为止，它依然是HotSpot虚拟机运行在Client模式下的默认的新生代收集器。它也有着优于其他收集器的地方：简单而高效（与其他收集器的单线程相比），对于限定单个CPU的环境来说，Serial收集器由于没有线程交互的开销，专心做垃圾收集自然可以获得更高的单线程收集效率。</p>
-<h3 id="4-2-2-ParNew收集器"><a href="#4-2-2-ParNew收集器" class="headerlink" title="4.2.2. ParNew收集器"></a>4.2.2. ParNew收集器</h3><p><img src="/images/jvm009.png" alt="ParNew收集器运行示意图"><br>ParNew收集器就是Serial收集器的多线程版本，它也是一个新生代收集器。除了使用多线程进行垃圾收集外，其余行为包括Serial收集器可用的所有控制参数、收集算法（复制算法）、Stop The World、对象分配规则、回收策略等与Serial收集器完全相同，两者共用了相当多的代码。</p>
+<h3 id="4-2-2-ParNew收集器"><a href="#4-2-2-ParNew收集器" class="headerlink" title="4.2.2  ParNew收集器"></a>4.2.2  ParNew收集器</h3><p><img src="/images/jvm009.png" alt="ParNew收集器运行示意图"><br>ParNew收集器就是Serial收集器的多线程版本，它也是一个新生代收集器。除了使用多线程进行垃圾收集外，其余行为包括Serial收集器可用的所有控制参数、收集算法（复制算法）、Stop The World、对象分配规则、回收策略等与Serial收集器完全相同，两者共用了相当多的代码。</p>
 <p>ParNew收集器除了使用多线程收集外，其他与Serial收集器相比并无太多创新之处，但它却是许多运行在Server模式下的虚拟机中首选的新生代收集器，其中有一个与性能无关的重要原因是，除了Serial收集器外，目前只有它能和CMS收集器（Concurrent Mark Sweep）配合工作，CMS收集器是JDK 1.5推出的一个具有划时代意义的收集器，具体内容将在稍后进行介绍。</p>
 <p>ParNew 收集器在单CPU的环境中绝对不会有比Serial收集器有更好的效果，甚至由于存在线程交互的开销，该收集器在通过超线程技术实现的两个CPU的环境中都不能百分之百地保证可以超越。在多CPU环境下，随着CPU的数量增加，它对于GC时系统资源的有效利用是很有好处的。它默认开启的收集线程数与CPU的数量相同，在CPU非常多的情况下可使用-XX:ParallerGCThreads参数设置。</p>
-<h3 id="4-2-3-ParNew收集器"><a href="#4-2-3-ParNew收集器" class="headerlink" title="4.2.3. ParNew收集器"></a>4.2.3. ParNew收集器</h3><p>Parallel Scavenge收集器也是一个并行的多线程新生代收集器，它也使用复制算法。Parallel Scavenge收集器的特点是它的关注点与其他收集器不同，CMS等收集器的关注点是尽可能缩短垃圾收集时用户线程的停顿时间，而Parallel Scavenge收集器的目标是达到一个可控制的吞吐量（Throughput）。</p>
+<h3 id="4-2-3-ParNew收集器"><a href="#4-2-3-ParNew收集器" class="headerlink" title="4.2.3 ParNew收集器"></a>4.2.3 ParNew收集器</h3><p>Parallel Scavenge收集器也是一个并行的多线程新生代收集器，它也使用复制算法。Parallel Scavenge收集器的特点是它的关注点与其他收集器不同，CMS等收集器的关注点是尽可能缩短垃圾收集时用户线程的停顿时间，而Parallel Scavenge收集器的目标是达到一个可控制的吞吐量（Throughput）。</p>
 <p>停顿时间越短就越适合需要与用户交互的程序，良好的响应速度能提升用户体验。而高吞吐量则可以高效率地利用CPU时间，尽快完成程序的运算任务，主要适合在后台运算而不需要太多交互的任务。</p>
 <p>Parallel Scavenge收集器除了会显而易见地提供可以精确控制吞吐量的参数，还提供了一个参数-XX:+UseAdaptiveSizePolicy，这是一个开关参数，打开参数后，就不需要手工指定新生代的大小（-Xmn）、Eden和Survivor区的比例（-XX:SurvivorRatio）、晋升老年代对象年龄（-XX:PretenureSizeThreshold）等细节参数了，虚拟机会根据当前系统的运行情况收集性能监控信息，动态调整这些参数以提供最合适的停顿时间或者最大的吞吐量，这种方式称为GC自适应的调节策略（GC Ergonomics）。自适应调节策略也是Parallel Scavenge收集器与ParNew收集器的一个重要区别。</p>
 <p>另外值得注意的一点是，Parallel Scavenge收集器无法与CMS收集器配合使用，所以在JDK 1.6推出Parallel Old之前，如果新生代选择Parallel Scavenge收集器，老年代只有Serial Old收集器能与之配合使用。</p>
-<h3 id="4-2-4-Serial-Old收集器"><a href="#4-2-4-Serial-Old收集器" class="headerlink" title="4.2.4. Serial Old收集器"></a>4.2.4. Serial Old收集器</h3><p><img src="/images/jvm010.png" alt="Serial Old收集器运行示意图"><br>Serial Old 是 Serial收集器的老年代版本，它同样是一个单线程收集器，使用“标记-整理”（Mark-Compact）算法。</p>
+<h3 id="4-2-4-Serial-Old收集器"><a href="#4-2-4-Serial-Old收集器" class="headerlink" title="4.2.4 Serial Old收集器"></a>4.2.4 Serial Old收集器</h3><p><img src="/images/jvm010.png" alt="Serial Old收集器运行示意图"><br>Serial Old 是 Serial收集器的老年代版本，它同样是一个单线程收集器，使用“标记-整理”（Mark-Compact）算法。</p>
 <p>此收集器的主要意义也是在于给Client模式下的虚拟机使用。如果在Server模式下，它还有两大用途：</p>
 <ul>
 <li>在JDK1.5 以及之前版本（Parallel Old诞生以前）中与Parallel Scavenge收集器搭配使用。</li>
@@ -642,7 +638,7 @@
 <p>为了避免全堆扫描的发生，虚拟机为G1中每个Region维护了一个与之对应的Remembered Set。虚拟机发现程序在对Reference类型的数据进行写操作时，会产生一个Write Barrier暂时中断写操作，检查Reference引用的对象是否处于不同的Region之中（在分代的例子中就是检查是否老年代中的对象引用了新生代中的对象），如果是，便通过CardTable把相关引用信息记录到被引用对象所属的Region的Remembered Set之中。当进行内存回收时，在GC根节点的枚举范围中加入Remembered Set即可保证不对全堆扫描也不会有遗漏。</p>
 <p>如果不计算维护Remembered Set的操作，G1收集器的运作大致可划分为以下几个步骤：</p>
 <p>初始标记（Initial Marking） 仅仅只是标记一下GC Roots 能直接关联到的对象，并且修改TAMS（Nest Top Mark Start）的值，让下一阶段用户程序并发运行时，能在正确可以的Region中创建对象，此阶段需要停顿线程，但耗时很短。<br>并发标记（Concurrent Marking） 从GC Root 开始对堆中对象进行可达性分析，找到存活对象，此阶段耗时较长，但可与用户程序并发执行。<br>最终标记（Final Marking） 为了修正在并发标记期间因用户程序继续运作而导致标记产生变动的那一部分标记记录，虚拟机将这段时间对象变化记录在线程的Remembered Set Logs里面，最终标记阶段需要把Remembered Set Logs的数据合并到Remembered Set中，这阶段需要停顿线程，但是可并行执行。<br>筛选回收（Live Data Counting and Evacuation） 首先对各个Region中的回收价值和成本进行排序，根据用户所期望的GC 停顿是时间来制定回收计划。此阶段其实也可以做到与用户程序一起并发执行，但是因为只回收一部分Region，时间是用户可控制的，而且停顿用户线程将大幅度提高收集效率。</p>
-<h1 id="5-内存分配与回收策略"><a href="#5-内存分配与回收策略" class="headerlink" title="5. 内存分配与回收策略"></a>5. 内存分配与回收策略</h1><ul>
+<h1 id="5-内存分配与回收策略"><a href="#5-内存分配与回收策略" class="headerlink" title="5 内存分配与回收策略"></a>5 内存分配与回收策略</h1><ul>
 <li>对象优先在Eden区分配<ul>
 <li>如果 Eden 区无法分配，那么尝试把活着的对象放到 Survivor0 中去（Minor GC）</li>
 <li>如果 Survivor0 可以放入，那么放入之后清除 Eden 区。</li>
@@ -705,8 +701,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/21/jvm/001Java内存区域、内存溢出异常/" rel="next" title="Java内存区域、内存溢出异常">
-                <i class="fa fa-chevron-left"></i> Java内存区域、内存溢出异常
+              <a href="/2018/09/21/zookeeper/001Zookeeper_介绍、安装、命令/" rel="next" title="Zookeeper_介绍、安装、命令">
+                <i class="fa fa-chevron-left"></i> Zookeeper_介绍、安装、命令
               </a>
             
           </div>
@@ -715,8 +711,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/10/20/jvm/003类的加载/" rel="prev" title="类的加载">
-                类的加载 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/10/20/jvm/003JVM_类的加载/" rel="prev" title="JVM_类的加载">
+                JVM_类的加载 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -786,7 +782,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">34</span>
+                    <span class="site-state-item-count">36</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -823,7 +819,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">10</span>
+                      
+                    
+                    <span class="site-state-item-count">11</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -858,7 +856,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">11</span>
+                      
+                    
+                    <span class="site-state-item-count">12</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -896,7 +896,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-对象是否可回收"><span class="nav-number">1.</span> <span class="nav-text">1. 对象是否可回收</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-如何判断对象可回收"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 如何判断对象可回收</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-引用类型"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 引用类型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-垃圾收集算法"><span class="nav-number">2.</span> <span class="nav-text">2. 垃圾收集算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-HotSpot算法实现"><span class="nav-number">3.</span> <span class="nav-text">3. HotSpot算法实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-垃圾收集器"><span class="nav-number">4.</span> <span class="nav-text">4. 垃圾收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-垃圾收集器分类"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 垃圾收集器分类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-垃圾收集器详解"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 垃圾收集器详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-1-Serial收集器"><span class="nav-number">4.2.1.</span> <span class="nav-text">4.2.1. Serial收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-2-ParNew收集器"><span class="nav-number">4.2.2.</span> <span class="nav-text">4.2.2. ParNew收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-3-ParNew收集器"><span class="nav-number">4.2.3.</span> <span class="nav-text">4.2.3. ParNew收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-4-Serial-Old收集器"><span class="nav-number">4.2.4.</span> <span class="nav-text">4.2.4. Serial Old收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-5-Parallel-Old收集器"><span class="nav-number">4.2.5.</span> <span class="nav-text">4.2.5 Parallel Old收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-6-CMS收集器"><span class="nav-number">4.2.6.</span> <span class="nav-text">4.2.6 CMS收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-7-G1收集器"><span class="nav-number">4.2.7.</span> <span class="nav-text">4.2.7 G1收集器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-内存分配与回收策略"><span class="nav-number">5.</span> <span class="nav-text">5. 内存分配与回收策略</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-对象是否可回收"><span class="nav-number">1.</span> <span class="nav-text">1 对象是否可回收</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-如何判断对象可回收"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 如何判断对象可回收</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-引用类型"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 引用类型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-垃圾收集算法"><span class="nav-number">2.</span> <span class="nav-text">2 垃圾收集算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-HotSpot算法实现"><span class="nav-number">3.</span> <span class="nav-text">3 HotSpot算法实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-枚举根节点"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 枚举根节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-安全点"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 安全点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-安全区域"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 安全区域</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-垃圾收集器"><span class="nav-number">4.</span> <span class="nav-text">4 垃圾收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-垃圾收集器分类"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 垃圾收集器分类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-垃圾收集器详解"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 垃圾收集器详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-1-Serial收集器"><span class="nav-number">4.2.1.</span> <span class="nav-text">4.2.1  Serial收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-2-ParNew收集器"><span class="nav-number">4.2.2.</span> <span class="nav-text">4.2.2  ParNew收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-3-ParNew收集器"><span class="nav-number">4.2.3.</span> <span class="nav-text">4.2.3 ParNew收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-4-Serial-Old收集器"><span class="nav-number">4.2.4.</span> <span class="nav-text">4.2.4 Serial Old收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-5-Parallel-Old收集器"><span class="nav-number">4.2.5.</span> <span class="nav-text">4.2.5 Parallel Old收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-6-CMS收集器"><span class="nav-number">4.2.6.</span> <span class="nav-text">4.2.6 CMS收集器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-7-G1收集器"><span class="nav-number">4.2.7.</span> <span class="nav-text">4.2.7 G1收集器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-内存分配与回收策略"><span class="nav-number">5.</span> <span class="nav-text">5 内存分配与回收策略</span></a></li></ol></div>
             
 
           </div>
