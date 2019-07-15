@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="单机的redis几乎不太可能说QPS超过10万+，除非一些特殊情况，比如你的机器性能特别好，配置特别高，物理机，维护做的特别好，而且你的整体的操作不是太复杂。单机的QPS一般在几万。如果你的业务发展的很好，每秒QPS很高，那怎么办呢？此时我们需要读写分离，一般来说，对缓存，一般都是用来支撑读高并发的，写的请求是比较少的，可能写请求也就一秒钟几千，一两千。通过主从架构 -&amp;gt; 读写分离 -&amp;gt">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis_主从复制">
+<meta property="og:url" content="http://yoursite.com/2017/10/13/redis/004Redis_主从复制/index.html">
+<meta property="og:site_name" content="大海啊全是水">
+<meta property="og:description" content="单机的redis几乎不太可能说QPS超过10万+，除非一些特殊情况，比如你的机器性能特别好，配置特别高，物理机，维护做的特别好，而且你的整体的操作不是太复杂。单机的QPS一般在几万。如果你的业务发展的很好，每秒QPS很高，那怎么办呢？此时我们需要读写分离，一般来说，对缓存，一般都是用来支撑读高并发的，写的请求是比较少的，可能写请求也就一秒钟几千，一两千。通过主从架构 -&amp;gt; 读写分离 -&amp;gt">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-10-13T14:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis_主从复制">
+<meta name="twitter:description" content="单机的redis几乎不太可能说QPS超过10万+，除非一些特殊情况，比如你的机器性能特别好，配置特别高，物理机，维护做的特别好，而且你的整体的操作不是太复杂。单机的QPS一般在几万。如果你的业务发展的很好，每秒QPS很高，那怎么办呢？此时我们需要读写分离，一般来说，对缓存，一般都是用来支撑读高并发的，写的请求是比较少的，可能写请求也就一秒钟几千，一两千。通过主从架构 -&amp;gt; 读写分离 -&amp;gt">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2017/10/13/redis/004Redis_主从复制/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Redis_主从复制 | 大海啊全是水</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">大海啊全是水</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/13/redis/004Redis_主从复制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JJJ">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="大海啊全是水">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis_主从复制
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-10-13 22:15:27" itemprop="dateCreated datePublished" datetime="2017-10-13T22:15:27+08:00">2017-10-13</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>单机的redis几乎不太可能说QPS超过10万+，除非一些特殊情况，比如你的机器性能特别好，配置特别高，物理机，维护做的特别好，而且你的整体的操作不是太复杂。<br>单机的QPS一般在几万。<br>如果你的业务发展的很好，每秒QPS很高，那怎么办呢？此时我们需要读写分离，一般来说，对缓存，一般都是用来支撑读高并发的，写的请求是比较少的，可能写请求也就一秒钟几千，一两千。<br>通过主从架构 -&gt; 读写分离 -&gt; 支撑10万+读QPS的架构</p>
+<h1 id="1-核心机制"><a href="#1-核心机制" class="headerlink" title="1. 核心机制"></a>1. 核心机制</h1><ol>
+<li>redis采用异步方式复制数据到slave节点，不过redis 2.8开始，slave node会周期性地确认自己每次复制的数据量</li>
+<li>一个master node是可以配置多个slave node的</li>
+<li>slave node也可以连接其他的slave node</li>
+<li>slave node做复制的时候，是不会block master node的正常工作的</li>
+<li>slave node在做复制的时候，也不会block对自己的查询操作，它会用旧的数据集来提供服务; 但是复制完成的时候，需要删除旧数据集，加载新数据集，这个时候就会暂停对外服务了</li>
+<li>slave node主要用来进行横向扩容，做读写分离，扩容的slave node可以提高读的吞吐量</li>
+</ol>
+<p>通过slave node来完成横向扩容，支持高并发，同时salve，跟高可用性，也有很大的关系。</p>
+<h1 id="2-特性"><a href="#2-特性" class="headerlink" title="2. 特性"></a>2. 特性</h1><p><strong>断点续传</strong><br>从redis 2.8开始，就支持主从复制的断点续传，如果主从复制过程中，网络连接断掉了，那么可以接着上次复制的地方，继续复制下去，而不是从头开始复制一份</p>
+<p>master node会在内存中常见一个backlog，master和slave都会保存一个replica offset还有一个master id，offset就是保存在backlog中的。如果master和slave网络连接断掉了，slave会让master从上次的replica offset开始继续复制</p>
+<p>但是如果没有找到对应的offset，那么就会执行一次resynchronization<br> <strong>无磁盘复制</strong><br> master在内存中直接创建rdb，然后发送给slave，不会在自己本地落地磁盘了</p>
+<p>repl-diskless-sync<br>repl-diskless-sync-delay，等待一定时长再开始复制，因为要等更多slave重新连接过来<br><strong>过期key处理</strong><br>slave不会过期key，只会等待master过期key。如果master过期了一个key，或者通过LRU淘汰了一个key，那么会模拟一条del命令发送给slave。<br><strong>heartbeat</strong><br>主从节点互相都会发送heartbeat信息<br>master默认每隔10秒发送一次heartbeat，salve node每隔1秒发送一个heartbeat</p>
+<h1 id="3-实操"><a href="#3-实操" class="headerlink" title="3. 实操"></a>3. 实操</h1><p><strong>master node配置</strong></p>
+<p>无需特殊配置。</p>
+<p><strong>slave node配置</strong></p>
+<p>修改从服务器上的redis.conf文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> slaveof &lt;masterip&gt; &lt;masterport&gt;</span><br><span class="line">slaveof 192.168.101.3 6379</span><br></pre></td></tr></table></figure>
+
+<p>上边的配置说明当前【从服务器】对应的【主服务器】的IP是192.168.101.3，端口是6379。</p>
+<p><strong>集群安全认证</strong></p>
+<p>master上启用安全认证，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">requirepass yourpassword</span><br></pre></td></tr></table></figure>
+
+<p>slave连接master口令，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">masterauth yourpassword</span><br></pre></td></tr></table></figure>
+
+<h1 id="4-原理分析"><a href="#4-原理分析" class="headerlink" title="4. 原理分析"></a>4. 原理分析</h1><h2 id="4-1-核心原理"><a href="#4-1-核心原理" class="headerlink" title="4.1 核心原理"></a>4.1 核心原理</h2><p>当启动一个slave node的时候，它会发送一个PSYNC命令给master node<br>如果这是slave node重新连接master node，那么master node仅仅会复制给slave部分缺少的数据; 否则如果是slave node第一次连接master node，那么会触发一次full resynchronization<br>开始full resynchronization的时候，master会启动一个后台线程，开始生成一份RDB快照文件，同时还会将从客户端收到的所有写命令缓存在内存中。RDB文件生成完毕之后，master会将这个RDB发送给slave，slave会先写入本地磁盘，然后再从本地磁盘加载到内存中。然后master会将内存中缓存的写命令发送给slave，slave也会同步这些数据。<br>slave node如果跟master node有网络故障，断开了连接，会自动重连。master如果发现有多个slave node都来重新连接，仅仅会启动一个rdb save操作，用一份数据服务所有slave node。</p>
+<h2 id="4-2-完整流程"><a href="#4-2-完整流程" class="headerlink" title="4.2 完整流程"></a>4.2 完整流程</h2><ol>
+<li>slave node启动，仅仅保存master node的信息，包括master node的host和ip，但是复制流程没开始<br>master host和ip是从哪儿来的，redis.conf里面的slaveof配置的</li>
+<li>slave node内部有个定时任务，每秒检查是否有新的master node要连接和复制，如果发现，就跟master node建立socket网络连接</li>
+<li>slave node发送ping命令给master node</li>
+<li>口令认证，如果master设置了requirepass，那么salve node必须发送masterauth的口令过去进行认证</li>
+<li>master node第一次执行全量复制，将所有数据发给slave node</li>
+<li>master node后续持续将写命令，异步复制给slave node</li>
+</ol>
+<h3 id="4-2-1-数据同步核心机制"><a href="#4-2-1-数据同步核心机制" class="headerlink" title="4.2.1 数据同步核心机制"></a>4.2.1 数据同步核心机制</h3><p>指的就是第一次slave连接msater的时候，执行的全量复制，那个过程里面你的一些细节的机制</p>
+<ol>
+<li>master和slave都会维护一个offset<br>master会在自身不断累加offset，slave也会在自身不断累加offset<br>slave每秒都会上报自己的offset给master，同时master也会保存每个slave的offset<br>这个倒不是说特定就用在全量复制的，主要是master和slave都要知道各自的数据的offset，才能知道互相之间的数据不一致的情况</li>
+<li>backlog<br>master node有一个backlog，默认是1MB大小<br>master node给slave node复制数据时，也会将数据在backlog中同步写一份<br>backlog主要是用来做全量复制中断候的增量复制的</li>
+<li>master run id<br>info server，可以看到master run id<br>如果根据host+ip定位master node，是不靠谱的，如果master node重启或者数据出现了变化，那么slave node应该根据不同的run id区分，run id不同就做全量复制<br>如果需要不更改run id重启redis，可以使用redis-cli debug reload命令</li>
+<li>psync<br>从节点使用psync从master node进行复制，psync runid offset<br>master node会根据自身的情况返回响应信息，可能是FULLRESYNC runid offset触发全量复制，可能是CONTINUE触发增量复制</li>
+</ol>
+<h3 id="4-2-2-全量复制"><a href="#4-2-2-全量复制" class="headerlink" title="4.2.2 全量复制"></a>4.2.2 全量复制</h3><ol>
+<li>master执行bgsave，在本地生成一份rdb快照文件</li>
+<li>master node将rdb快照文件发送给salve node，如果rdb复制时间超过60秒（repl-timeout），那么slave node就会认为复制失败，可以适当调节大这个参数</li>
+<li>对于千兆网卡的机器，一般每秒传输100MB，6G文件，很可能超过60s</li>
+<li>master node在生成rdb时，会将所有新的写命令缓存在内存中，在salve node保存了rdb之后，再将新的写命令复制给salve node</li>
+<li>client-output-buffer-limit slave 256MB 64MB 60，如果在复制期间，内存缓冲区持续消耗超过64MB，或者一次性超过256MB，那么停止复制，复制失败</li>
+<li>slave node接收到rdb之后，清空自己的旧数据，然后重新加载rdb到自己的内存中，同时基于旧的数据版本对外提供服务</li>
+<li>如果slave node开启了AOF，那么会立即执行BGREWRITEAOF，重写AOF<br>rdb生成、rdb通过网络拷贝、slave旧数据的清理、slave aof rewrite，很耗费时间<br>如果复制的数据量在4G~6G之间，那么很可能全量复制时间消耗到1分半到2分钟</li>
+</ol>
+<h3 id="4-2-3-增量复制"><a href="#4-2-3-增量复制" class="headerlink" title="4.2.3 增量复制"></a>4.2.3 增量复制</h3><ol>
+<li>如果全量复制过程中，master-slave网络连接断掉，那么salve重新连接master时，会触发增量复制</li>
+<li>master直接从自己的backlog中获取部分丢失的数据，发送给slave node，默认backlog就是1MB</li>
+<li>msater就是根据slave发送的psync中的offset来从backlog中获取数据的</li>
+</ol>
+<h3 id="4-2-4-异步复制"><a href="#4-2-4-异步复制" class="headerlink" title="4.2.4 异步复制"></a>4.2.4 异步复制</h3><p> master每次接收到写命令之后，现在内部写入数据，然后异步发送给slave node</p>
+<h1 id="5-master持久化对于主从架构的安全保障的意义"><a href="#5-master持久化对于主从架构的安全保障的意义" class="headerlink" title="5. master持久化对于主从架构的安全保障的意义"></a>5. master持久化对于主从架构的安全保障的意义</h1><p>如果采用了主从架构，那么建议必须开启master node的持久化！<br>不建议用slave node作为master node的数据热备，因为那样的话，如果你关掉master的持久化，可能在master宕机重启的时候数据是空的，然后可能一经过复制，salve node数据也丢了<br>第二个，master的各种备份方案，要不要做，万一说本地的所有文件丢失了; 从备份中挑选一份rdb去恢复master; 这样才能确保master启动的时候，是有数据的<br>即使采用了后续讲解的高可用机制，slave node可以自动接管master node，但是也可能sentinal还没有检测到master failure，master node就自动重启了，还是可能导致上面的所有slave node数据清空故障</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/27/redis/002Redis_数据结构/" rel="next" title="Redis_数据结构">
+                <i class="fa fa-chevron-left"></i> Redis_数据结构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/19/redis/005Redis_哨兵集群/" rel="prev" title="Redis_哨兵集群">
+                Redis_哨兵集群 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JJJ</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-核心机制"><span class="nav-number">1.</span> <span class="nav-text">1. 核心机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-特性"><span class="nav-number">2.</span> <span class="nav-text">2. 特性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-实操"><span class="nav-number">3.</span> <span class="nav-text">3. 实操</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-原理分析"><span class="nav-number">4.</span> <span class="nav-text">4. 原理分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-核心原理"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 核心原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-完整流程"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 完整流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-1-数据同步核心机制"><span class="nav-number">4.2.1.</span> <span class="nav-text">4.2.1 数据同步核心机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-2-全量复制"><span class="nav-number">4.2.2.</span> <span class="nav-text">4.2.2 全量复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-3-增量复制"><span class="nav-number">4.2.3.</span> <span class="nav-text">4.2.3 增量复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-4-异步复制"><span class="nav-number">4.2.4.</span> <span class="nav-text">4.2.4 异步复制</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-master持久化对于主从架构的安全保障的意义"><span class="nav-number">5.</span> <span class="nav-text">5. master持久化对于主从架构的安全保障的意义</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JJJ</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
