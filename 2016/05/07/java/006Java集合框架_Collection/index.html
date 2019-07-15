@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="1、集合框架引出1.1、对象数组的概述和使用 A:案例演示 需求：我有5个学生，请把这个5个学生的信息存储到数组中，并遍历数组，获取得到每一个学生信息。    123456789101112131415161718192021package com.wangjb.collection;import com.wangjb.bean.Student;public class Demo1_Array &amp;">
+<meta name="keywords" content="集合">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java集合框架_Collection">
+<meta property="og:url" content="http://yoursite.com/2016/05/07/java/006Java集合框架_Collection/index.html">
+<meta property="og:site_name" content="大海啊全是水">
+<meta property="og:description" content="1、集合框架引出1.1、对象数组的概述和使用 A:案例演示 需求：我有5个学生，请把这个5个学生的信息存储到数组中，并遍历数组，获取得到每一个学生信息。    123456789101112131415161718192021package com.wangjb.collection;import com.wangjb.bean.Student;public class Demo1_Array &amp;">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/img/2.png">
+<meta property="og:updated_time" content="2016-05-07T14:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java集合框架_Collection">
+<meta name="twitter:description" content="1、集合框架引出1.1、对象数组的概述和使用 A:案例演示 需求：我有5个学生，请把这个5个学生的信息存储到数组中，并遍历数组，获取得到每一个学生信息。    123456789101112131415161718192021package com.wangjb.collection;import com.wangjb.bean.Student;public class Demo1_Array &amp;">
+<meta name="twitter:image" content="http://yoursite.com/img/2.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2016/05/07/java/006Java集合框架_Collection/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Java集合框架_Collection | 大海啊全是水</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">大海啊全是水</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/07/java/006Java集合框架_Collection/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JJJ">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="大海啊全是水">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java集合框架_Collection
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2016-05-07 22:15:27" itemprop="dateCreated datePublished" datetime="2016-05-07T22:15:27+08:00">2016-05-07</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/集合/" itemprop="url" rel="index"><span itemprop="name">集合</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="1、集合框架引出"><a href="#1、集合框架引出" class="headerlink" title="1、集合框架引出"></a>1、集合框架引出</h1><h2 id="1-1、对象数组的概述和使用"><a href="#1-1、对象数组的概述和使用" class="headerlink" title="1.1、对象数组的概述和使用"></a>1.1、对象数组的概述和使用</h2><ul>
+<li>A:案例演示<ul>
+<li>需求：我有5个学生，请把这个5个学生的信息存储到数组中，并遍历数组，获取得到每一个学生信息。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.wangjb.collection;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.wangjb.bean.Student;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo1_Array</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// int[] arr = new int[5]; //创建基本数据类型数组</span></span><br><span class="line">		Student[] arr = <span class="keyword">new</span> Student[<span class="number">5</span>]; </span><br><span class="line">		arr[<span class="number">0</span>] = <span class="keyword">new</span> Student(<span class="string">"张三"</span>, <span class="number">23</span>); </span><br><span class="line">		arr[<span class="number">1</span>] = <span class="keyword">new</span> Student(<span class="string">"李四"</span>, <span class="number">24</span>); </span><br><span class="line">		arr[<span class="number">2</span>] = <span class="keyword">new</span> Student(<span class="string">"王五"</span>, <span class="number">25</span>); </span><br><span class="line">		arr[<span class="number">3</span>] = <span class="keyword">new</span> Student(<span class="string">"刘能"</span>, <span class="number">24</span>); </span><br><span class="line">		arr[<span class="number">4</span>] = <span class="keyword">new</span> Student(<span class="string">"赵四"</span>, <span class="number">25</span>); </span><br><span class="line">		</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">			System.out.println(arr[i]);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>B:数组存储内存结构</li>
+</ul>
+<ul>
+<li>数组和集合存储引用数据类型,存的都是地址值</li>
+</ul>
+<p>#2、集合的由来及集合继承体系图</p>
+<ul>
+<li><p>A:集合的由来</p>
+<ul>
+<li>数组长度是固定,当添加的元素超过了数组的长度时需要对数组重新定义,太麻烦,java内部给我们提供了集合类,能存储任意对象,长度是可以改变的,随着元素的增加而增加,随着元素的减少而减少</li>
+</ul>
+</li>
+<li><p>B:数组和集合的区别</p>
+<ul>
+<li>区别1 :<ul>
+<li>数组既可以存储基本数据类型,又可以存储引用数据类型,基本数据类型存储的是值,引用数据类型存储的是地址值</li>
+<li>集合只能存储引用数据类型(对象)集合中也可以存储基本数据类型,但是在存储的时候会自动装箱变成对象</li>
+</ul>
+</li>
+<li>区别2:<ul>
+<li>数组长度是固定的,不能自动增长</li>
+<li>集合的长度的是可变的,可以根据元素的增加而增长</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>C:数组和集合什么时候用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">* 1,如果元素个数是固定的推荐用数组</span><br><span class="line">* 2,如果元素个数不是固定的推荐用集合</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>D:集合继承体系图<br><img src="/img/2.png" alt="img"><br>#3、Collection<br>##3.1、Collection集合的基本功能测试</p>
+</li>
+<li><p>A:基本功能</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">boolean add(E e)</span><br><span class="line">boolean remove(Object o)</span><br><span class="line">void clear()</span><br><span class="line">boolean contains(Object o)</span><br><span class="line">boolean isEmpty()</span><br><span class="line">int size()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>B:基本功能演示</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.wangjb.collection;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.Collection;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.wangjb.bean.Student;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SuppressWarnings</span>(&#123; <span class="string">"rawtypes"</span>, <span class="string">"unchecked"</span> &#125;)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo2_Collection</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// demo1();</span></span><br><span class="line">		Collection c = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		c.add(<span class="string">"a"</span>);</span><br><span class="line">		c.add(<span class="string">"b"</span>);</span><br><span class="line">		c.add(<span class="string">"c"</span>);</span><br><span class="line">		c.add(<span class="string">"d"</span>);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// c.remove("b"); //删除指定元素</span></span><br><span class="line">		<span class="comment">// c.clear(); //清空集合</span></span><br><span class="line">		<span class="comment">// System.out.println(c.contains("b")); //判断是否包含</span></span><br><span class="line">		<span class="comment">// System.out.println(c.isEmpty());</span></span><br><span class="line">		System.out.println(c.size()); <span class="comment">// 获取元素的个数</span></span><br><span class="line">		System.out.println(c);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">demo1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		Collection c = <span class="keyword">new</span> ArrayList(); <span class="comment">// 父类引用指向子类对象</span></span><br><span class="line">		<span class="keyword">boolean</span> b1 = c.add(<span class="string">"abc"</span>);</span><br><span class="line">		<span class="keyword">boolean</span> b2 = c.add(<span class="keyword">true</span>); <span class="comment">// 自动装箱new Boolean(true);</span></span><br><span class="line">		<span class="keyword">boolean</span> b3 = c.add(<span class="number">100</span>);</span><br><span class="line">		<span class="keyword">boolean</span> b4 = c.add(<span class="keyword">new</span> Student(<span class="string">"张三"</span>, <span class="number">23</span>));</span><br><span class="line">		<span class="keyword">boolean</span> b5 = c.add(<span class="string">"abc"</span>);</span><br><span class="line"></span><br><span class="line">		System.out.println(b1);</span><br><span class="line">		System.out.println(b2);</span><br><span class="line">		System.out.println(b3);</span><br><span class="line">		System.out.println(b4);</span><br><span class="line">		System.out.println(b5);</span><br><span class="line"></span><br><span class="line">		System.out.println(c.toString());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2、集合的遍历之集合转数组遍历"><a href="#3-2、集合的遍历之集合转数组遍历" class="headerlink" title="3.2、集合的遍历之集合转数组遍历"></a>3.2、集合的遍历之集合转数组遍历</h2><ul>
+<li>A:集合的遍历<ul>
+<li>其实就是依次获取集合中的每一个元素。</li>
+</ul>
+</li>
+<li>B:案例演示<ul>
+<li>把集合转成数组，可以实现集合的遍历</li>
+<li>toArray()</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.wangjb.collection;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.Collection;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.wangjb.bean.Student;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SuppressWarnings</span>(&#123; <span class="string">"rawtypes"</span>, <span class="string">"unchecked"</span> &#125;)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo3_Collection</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// demo1();</span></span><br><span class="line">		Collection c = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		c.add(<span class="keyword">new</span> Student(<span class="string">"张三"</span>, <span class="number">23</span>)); <span class="comment">// Object obj = new Student("张三",23);</span></span><br><span class="line">		c.add(<span class="keyword">new</span> Student(<span class="string">"李四"</span>, <span class="number">24</span>));</span><br><span class="line">		c.add(<span class="keyword">new</span> Student(<span class="string">"王五"</span>, <span class="number">25</span>));</span><br><span class="line">		c.add(<span class="keyword">new</span> Student(<span class="string">"赵六"</span>, <span class="number">26</span>));</span><br><span class="line"></span><br><span class="line">		Object[] arr = c.toArray(); <span class="comment">// 将集合转换成数组</span></span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">			<span class="comment">// System.out.println(arr[i]);</span></span><br><span class="line">			Student s = (Student) arr[i]; <span class="comment">// 向下转型</span></span><br><span class="line">			System.out.println(s.getName() + <span class="string">"..."</span> + s.getAge());</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">demo1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		Collection c = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		c.add(<span class="string">"a"</span>);</span><br><span class="line">		c.add(<span class="string">"b"</span>);</span><br><span class="line">		c.add(<span class="string">"c"</span>);</span><br><span class="line">		c.add(<span class="string">"d"</span>);</span><br><span class="line"></span><br><span class="line">		Object[] arr = c.toArray(); <span class="comment">// 将集合转换成数组</span></span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">			System.out.println(arr[i]);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-3、Collection集合的带All功能测试"><a href="#3-3、Collection集合的带All功能测试" class="headerlink" title="3.3、Collection集合的带All功能测试"></a>3.3、Collection集合的带All功能测试</h2><ul>
+<li><p>A:带All的功能</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">boolean addAll(Collection c)</span><br><span class="line">boolean removeAll(Collection c)</span><br><span class="line">boolean containsAll(Collection c)</span><br><span class="line">boolean retainAll(Collection c)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>B:功能演示</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.wangjb.collection;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.Collection;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SuppressWarnings</span>(&#123; <span class="string">"rawtypes"</span>, <span class="string">"unchecked"</span> &#125;)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo4_CollectionAll</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// demo1();</span></span><br><span class="line">		<span class="comment">// demo2();</span></span><br><span class="line">		<span class="comment">// demo3();</span></span><br><span class="line">		Collection c1 = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		c1.add(<span class="string">"a"</span>);</span><br><span class="line">		c1.add(<span class="string">"b"</span>);</span><br><span class="line">		c1.add(<span class="string">"c"</span>);</span><br><span class="line">		c1.add(<span class="string">"d"</span>);</span><br><span class="line"></span><br><span class="line">		Collection c2 = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		c2.add(<span class="string">"a"</span>);</span><br><span class="line">		c2.add(<span class="string">"b"</span>);</span><br><span class="line">		c2.add(<span class="string">"c"</span>);</span><br><span class="line">		c2.add(<span class="string">"d"</span>);</span><br><span class="line">		c2.add(<span class="string">"e"</span>);</span><br><span class="line">		c2.add(<span class="string">"f"</span>);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 取交集,如果调用的集合改变就返回true,如果调用的集合不变就返回false</span></span><br><span class="line">		<span class="keyword">boolean</span> b = c1.retainAll(c2); <span class="comment">// 取交集</span></span><br><span class="line">		System.out.println(b);</span><br><span class="line">		System.out.println(c1);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">demo3</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		Collection c1 = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		c1.add(<span class="string">"a"</span>);</span><br><span class="line">		c1.add(<span class="string">"b"</span>);</span><br><span class="line">		c1.add(<span class="string">"c"</span>);</span><br><span class="line">		c1.add(<span class="string">"d"</span>);</span><br><span class="line"></span><br><span class="line">		Collection c2 = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		c2.add(<span class="string">"a"</span>);</span><br><span class="line">		c2.add(<span class="string">"b"</span>);</span><br><span class="line">		c2.add(<span class="string">"z"</span>);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">boolean</span> b = c1.containsAll(c2); <span class="comment">// 判断调用的集合是否包含传入的集合</span></span><br><span class="line">		System.out.println(b);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">demo2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		Collection c1 = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		c1.add(<span class="string">"a"</span>);</span><br><span class="line">		c1.add(<span class="string">"b"</span>);</span><br><span class="line">		c1.add(<span class="string">"c"</span>);</span><br><span class="line">		c1.add(<span class="string">"d"</span>);</span><br><span class="line"></span><br><span class="line">		Collection c2 = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		c2.add(<span class="string">"a"</span>);</span><br><span class="line">		c2.add(<span class="string">"b"</span>);</span><br><span class="line">		c2.add(<span class="string">"z"</span>);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">boolean</span> b = c1.removeAll(c2); <span class="comment">// 删除的是交集</span></span><br><span class="line">		System.out.println(b);</span><br><span class="line">		System.out.println(c1);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">demo1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		Collection c1 = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		c1.add(<span class="string">"a"</span>);</span><br><span class="line">		c1.add(<span class="string">"b"</span>);</span><br><span class="line">		c1.add(<span class="string">"c"</span>);</span><br><span class="line">		c1.add(<span class="string">"d"</span>);</span><br><span class="line"></span><br><span class="line">		Collection c2 = <span class="keyword">new</span> ArrayList(); <span class="comment">// alt + shift + r改名</span></span><br><span class="line">		c2.add(<span class="string">"a"</span>);</span><br><span class="line">		c2.add(<span class="string">"b"</span>);</span><br><span class="line">		c2.add(<span class="string">"c"</span>);</span><br><span class="line">		c2.add(<span class="string">"d"</span>);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// c1.addAll(c2); //将c2中的每一个元素添加到c1中</span></span><br><span class="line">		c1.add(c2); <span class="comment">// 将c2看成一个对象添加到c1中</span></span><br><span class="line">		System.out.println(c1);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-4、集合的遍历之迭代器遍历"><a href="#3-4、集合的遍历之迭代器遍历" class="headerlink" title="3.4、集合的遍历之迭代器遍历"></a>3.4、集合的遍历之迭代器遍历</h2><ul>
+<li>A:迭代器概述<ul>
+<li>集合是用来存储元素,存储的元素需要查看,那么就需要迭代(遍历)</li>
+</ul>
+</li>
+<li>B:演示</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.wangjb.collection;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.Collection;</span><br><span class="line"><span class="keyword">import</span> java.util.Iterator;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.wangjb.bean.Student;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo5_Iterator</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// demo1();</span></span><br><span class="line">		Collection c = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		c.add(<span class="keyword">new</span> Student(<span class="string">"张三"</span>, <span class="number">23</span>)); <span class="comment">// Object obj = new Student("张三",23);</span></span><br><span class="line">		c.add(<span class="keyword">new</span> Student(<span class="string">"李四"</span>, <span class="number">24</span>));</span><br><span class="line">		c.add(<span class="keyword">new</span> Student(<span class="string">"王五"</span>, <span class="number">25</span>));</span><br><span class="line">		c.add(<span class="keyword">new</span> Student(<span class="string">"赵六"</span>, <span class="number">26</span>));</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 获取迭代器</span></span><br><span class="line">		Iterator it = c.iterator();</span><br><span class="line">		<span class="keyword">while</span> (it.hasNext()) &#123;</span><br><span class="line">			<span class="comment">// System.out.println(it.next());</span></span><br><span class="line">			Student s = (Student) it.next(); <span class="comment">// 向下转型</span></span><br><span class="line">			System.out.println(s.getName() + <span class="string">"..."</span> + s.getAge());</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">demo1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		Collection c = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		c.add(<span class="string">"a"</span>);</span><br><span class="line">		c.add(<span class="string">"b"</span>);</span><br><span class="line">		c.add(<span class="string">"c"</span>);</span><br><span class="line">		c.add(<span class="string">"d"</span>);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 对集合中的元素迭代(遍历)</span></span><br><span class="line">		Iterator it = c.iterator(); <span class="comment">// 获取迭代器</span></span><br><span class="line"></span><br><span class="line">		<span class="keyword">while</span> (it.hasNext()) &#123;</span><br><span class="line">			System.out.println(it.next());</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/集合/" rel="tag"># 集合</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/02/nginx/002Nginx_请求定位/" rel="next" title="Nginx_请求定位">
+                <i class="fa fa-chevron-left"></i> Nginx_请求定位
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/15/nginx/003Nginx_静态代理/" rel="prev" title="Nginx_静态代理">
+                Nginx_静态代理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JJJ</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1、集合框架引出"><span class="nav-number">1.</span> <span class="nav-text">1、集合框架引出</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1、对象数组的概述和使用"><span class="nav-number">1.1.</span> <span class="nav-text">1.1、对象数组的概述和使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2、集合的遍历之集合转数组遍历"><span class="nav-number">1.2.</span> <span class="nav-text">3.2、集合的遍历之集合转数组遍历</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3、Collection集合的带All功能测试"><span class="nav-number">1.3.</span> <span class="nav-text">3.3、Collection集合的带All功能测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4、集合的遍历之迭代器遍历"><span class="nav-number">1.4.</span> <span class="nav-text">3.4、集合的遍历之迭代器遍历</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JJJ</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

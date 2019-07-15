@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="1 最左匹配特性当 B+Tree 的数据项是复合的数据结构，比如索引 (name, age, sex) 的时候，B+Tree 是按照从左到右的顺序来建立搜索树的。  比如当 (张三, 20, F) 这样的数据来检索的时候，B+Tree 会优先比较 name 来确定下一步的所搜方向，如果 name 相同再依次比较 age 和 sex ，最后得到检索的数据。 但当 (20, F) 这样的没有 name">
+<meta name="keywords" content="Mysql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql_性能优化之索引">
+<meta property="og:url" content="http://yoursite.com/2018/01/03/mysql/002Mysql_性能优化之索引/index.html">
+<meta property="og:site_name" content="大海啊全是水">
+<meta property="og:description" content="1 最左匹配特性当 B+Tree 的数据项是复合的数据结构，比如索引 (name, age, sex) 的时候，B+Tree 是按照从左到右的顺序来建立搜索树的。  比如当 (张三, 20, F) 这样的数据来检索的时候，B+Tree 会优先比较 name 来确定下一步的所搜方向，如果 name 相同再依次比较 age 和 sex ，最后得到检索的数据。 但当 (20, F) 这样的没有 name">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/mysql007.png">
+<meta property="og:image" content="http://yoursite.com/images/mysql008.png">
+<meta property="og:updated_time" content="2018-01-03T14:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mysql_性能优化之索引">
+<meta name="twitter:description" content="1 最左匹配特性当 B+Tree 的数据项是复合的数据结构，比如索引 (name, age, sex) 的时候，B+Tree 是按照从左到右的顺序来建立搜索树的。  比如当 (张三, 20, F) 这样的数据来检索的时候，B+Tree 会优先比较 name 来确定下一步的所搜方向，如果 name 相同再依次比较 age 和 sex ，最后得到检索的数据。 但当 (20, F) 这样的没有 name">
+<meta name="twitter:image" content="http://yoursite.com/images/mysql007.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2018/01/03/mysql/002Mysql_性能优化之索引/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Mysql_性能优化之索引 | 大海啊全是水</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">大海啊全是水</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/03/mysql/002Mysql_性能优化之索引/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JJJ">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="大海啊全是水">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Mysql_性能优化之索引
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-01-03 22:15:27" itemprop="dateCreated datePublished" datetime="2018-01-03T22:15:27+08:00">2018-01-03</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="1-最左匹配特性"><a href="#1-最左匹配特性" class="headerlink" title="1 最左匹配特性"></a>1 最左匹配特性</h1><p>当 B+Tree 的数据项是复合的数据结构，比如索引 <code>(name, age, sex)</code> 的时候，B+Tree 是按照从左到右的顺序来建立搜索树的。</p>
+<ul>
+<li>比如当 <code>(张三, 20, F)</code> 这样的数据来检索的时候，B+Tree 会优先比较 name 来确定下一步的所搜方向，如果 name 相同再依次比较 age 和 sex ，最后得到检索的数据。</li>
+<li>但当 <code>(20, F)</code> 这样的没有 name 的数据来的时候，B+Tree 就不知道下一步该查哪个节点，因为建立搜索树的时候 name 就是第一个比较因子，必须要先根据 name 来搜索才能知道下一步去哪里查询。</li>
+<li>比如当 <code>(张三, F)</code> 这样的数据来检索时，B+Tree 可以用 name 来指定搜索方向，但下一个字段 age 的缺失，所以只能把名字等于张三的数据都找到，然后再匹配性别是 F 的数据了。</li>
+</ul>
+<p>这个是非常重要的性质，即索引的最左匹配特性。</p>
+<h1 id="2-MySQL性能优化之查看执行计划explain"><a href="#2-MySQL性能优化之查看执行计划explain" class="headerlink" title="2 MySQL性能优化之查看执行计划explain"></a>2 MySQL性能优化之查看执行计划explain</h1><p>MySQL 提供了一个 EXPLAIN 命令, 它可以对 SELECT 语句进行分析, 并输出 SELECT 执行的详细信息, 以供开发人员针对性优化.<br>使用explain这个命令来查看一个这些SQL语句的执行计划，查看该SQL语句有没有使用上了索引，有没有做全表扫描，这都可以通过explain命令来查看。<br>可以通过explain命令深入了解MySQL的基于开销的优化器，还可以获得很多可能被优化器考虑到的访问策略的细节，以及当运行SQL语句时哪种策略预计会被优化器采用。<br>EXPLAIN 命令用法十分简单, 在 SELECT 语句前加上 explain 就可以了, 例如:</p>
+<p><img src="/images/mysql007.png" alt></p>
+<h2 id="2-1-参数说明"><a href="#2-1-参数说明" class="headerlink" title="2.1 参数说明"></a>2.1 参数说明</h2><p>expain出来的信息有10列，分别是id、select_type、table、type、possible_keys、key、key_len、ref、rows、Extra,下面对这些字段进行解释：<br>id: SELECT 查询的标识符. 每个 SELECT 都会自动分配一个唯一的标识符.<br>select_type: SELECT 查询的类型.<br>table: 查询的是哪个表<br>type: join 类型<br>possible_keys: 此次查询中可能选用的索引<br>key: 此次查询中确切使用到的索引.<br>key_len：表示查询优化器使用了索引的字节数<br>ref: 哪个字段或常数与 key 一起被使用<br>rows: 显示此查询一共扫描了多少行. 这个是一个估计值.<br>extra: 额外的信息</p>
+<h2 id="2-2-select-type列说明"><a href="#2-2-select-type列说明" class="headerlink" title="2.2 select_type列说明"></a>2.2 select_type列说明</h2><p>SIMPLE, 表示此查询不包含 UNION 查询或子查询<br>PRIMARY, 表示此查询是最外层的查询<br>UNION, 表示此查询是 UNION 的第二或随后的查询<br>DEPENDENT UNION, UNION 中的第二个或后面的查询语句, 取决于外面的查询<br>UNION RESULT, UNION 的结果<br>SUBQUERY, 子查询中的第一个 SELECT<br>DEPENDENT SUBQUERY: 子查询中的第一个 SELECT, 取决于外面的查询. 即子查询依赖于外层查询的结果.</p>
+<h2 id="2-3-type列说明"><a href="#2-3-type列说明" class="headerlink" title="2.3  type列说明"></a>2.3  type列说明</h2><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>system</td>
+<td>表只有一行</td>
+</tr>
+<tr>
+<td>const</td>
+<td>表最多只有一行匹配，通用用于主键或者唯一索引比较时</td>
+</tr>
+<tr>
+<td>eq_ref</td>
+<td>每次与之前的表合并行都只在该表读取一行，这是除了system，const之外最好的一种，特点是使用=，而且索引的所有部分都参与join且索引是主键或非空唯一键的索引</td>
+</tr>
+<tr>
+<td>ref</td>
+<td>如果每次只匹配少数行，那就是比较好的一种，使用=或&lt;=&gt;，可以是左覆盖索引或非主键或非唯一键</td>
+</tr>
+<tr>
+<td>fulltext</td>
+<td>全文搜索</td>
+</tr>
+<tr>
+<td>ref_or_null</td>
+<td>与ref类似，但包括NULL</td>
+</tr>
+<tr>
+<td>index_merge</td>
+<td>表示出现了索引合并优化(包括交集，并集以及交集之间的并集)，但不包括跨表和全文索引。这个比较复杂，目前的理解是合并单表的范围索引扫描（如果成本估算比普通的range要更优的话</td>
+</tr>
+<tr>
+<td>unique_subquery</td>
+<td>在in子查询中，就是value in (select…)把形如“select unique_key_column”的子查询替换。PS：所以不一定in子句中使用子查询就是低效的！</td>
+</tr>
+<tr>
+<td>index_subquery</td>
+<td>同上，但把形如”select non_unique_key_column“的子查询替换</td>
+</tr>
+<tr>
+<td>range</td>
+<td>常数值的范围</td>
+</tr>
+<tr>
+<td>index</td>
+<td>a.当查询是索引覆盖的，即所有数据均可从索引树获取的时候（Extra中有Using Index）b.以索引顺序从索引中查找数据行的全表扫描（无 Using Index）；c.如果Extra中Using Index与Using Where同时出现的话，则是利用索引查找键值的意思；d.如单独出现，则是用读索引来代替读行，但不用于查找</td>
+</tr>
+<tr>
+<td>all</td>
+<td>全表扫描</td>
+</tr>
+</tbody></table>
+<p>通常来说, 不同的 type 类型的性能关系如下:<br>ALL &lt; index &lt; range ~ index_merge &lt; ref &lt; eq_ref &lt; const &lt; system</p>
+<h1 id="3-优化"><a href="#3-优化" class="headerlink" title="3 优化"></a>3 优化</h1><p>表结构:</p>
+<p><img src="/images/mysql008.png" alt></p>
+<p>索引情况:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SHOW</span> <span class="keyword">INDEX</span> <span class="keyword">FROM</span> employees.titles;</span><br><span class="line">+<span class="comment">--------+------------+----------+--------------+-------------+-----------+-------------+------+------------+</span></span><br><span class="line">| Table  | Non_unique | Key_name | Seq_in_index | Column_name | Collation | Cardinality | Null | Index_type |</span><br><span class="line">+<span class="comment">--------+------------+----------+--------------+-------------+-----------+-------------+------+------------+</span></span><br><span class="line">| titles |          0 | PRIMARY  |            1 | emp_no      | A         |        NULL |      | BTREE      |</span><br><span class="line">| titles |          0 | PRIMARY  |            2 | title       | A         |        NULL |      | BTREE      |</span><br><span class="line">| titles |          0 | PRIMARY  |            3 | from_date   | A         |      443308 |      | BTREE      |</span><br><span class="line">| titles |          1 | emp_no   |            1 | emp_no      | A         |      443308 |      | BTREE      |</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-1-全列匹配"><a href="#3-1-全列匹配" class="headerlink" title="3.1 全列匹配"></a>3.1 全列匹配</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles <span class="keyword">WHERE</span> emp_no=<span class="string">'10001'</span> <span class="keyword">AND</span> title=<span class="string">'Senior Engineer'</span> <span class="keyword">AND</span> from_date=<span class="string">'1986-06-26'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+-------------------+------+-------+</span></span><br><span class="line">| id | select_type | table  | type  | possible_keys | key     | key_len | ref               | rows | Extra |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+-------------------+------+-------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | const | PRIMARY       | PRIMARY | 59      | const,const,const |    1 |       |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+-------------------+------+-------+</span></span><br></pre></td></tr></table></figure>
+
+<p>很明显，当按照索引中所有列进行精确匹配（这里精确匹配指“=”或“IN”匹配）时，索引可以被用到。这里有一点需要注意，理论上索引对顺序是敏感的，但是由于MySQL的查询优化器会自动调整where子句的条件顺序以使用适合的索引，如果我们将where中的条件顺序颠倒,结果是一样的。</p>
+<h2 id="3-2-最左前缀匹配"><a href="#3-2-最左前缀匹配" class="headerlink" title="3.2 最左前缀匹配"></a>3.2 最左前缀匹配</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles <span class="keyword">WHERE</span> emp_no=<span class="string">'10001'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------+</span></span><br><span class="line">| id | select_type | table  | type | possible_keys | key     | key_len | ref   | rows | Extra |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | ref  | PRIMARY       | PRIMARY | 4       | const |    1 |       |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------+</span></span><br></pre></td></tr></table></figure>
+
+<p>当查询条件精确匹配索引的左边连续一个或几个列时，如<emp_no>或&lt;emp_no, title&gt;，所以可以被用到，但是只能用到一部分，即条件所组成的最左前缀。上面的查询从分析结果看用到了PRIMARY索引，但是key_len为4，说明只用到了索引的第一列前缀。</emp_no></p>
+<h2 id="3-3-查询条件用到了索引中列的精确匹配，但是中间某个条件未提供"><a href="#3-3-查询条件用到了索引中列的精确匹配，但是中间某个条件未提供" class="headerlink" title="3.3 查询条件用到了索引中列的精确匹配，但是中间某个条件未提供"></a>3.3 查询条件用到了索引中列的精确匹配，但是中间某个条件未提供</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles <span class="keyword">WHERE</span> emp_no=<span class="string">'10001'</span> <span class="keyword">AND</span> from_date=<span class="string">'1986-06-26'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------------+</span></span><br><span class="line">| id | select_type | table  | type | possible_keys | key     | key_len | ref   | rows | Extra       |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | ref  | PRIMARY       | PRIMARY | 4       | const |    1 | Using where |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------------+</span></span><br></pre></td></tr></table></figure>
+
+<p>此时索引使用情况和情况二相同，因为title未提供，所以查询只用到了索引的第一列，而后面的from_date虽然也在索引中，但是由于title不存在而无法和左前缀连接，因此需要对结果进行扫描过滤from_date（这里由于emp_no唯一，所以不存在扫描）。如果想让from_date也使用索引而不是where过滤，可以增加一个辅助索引&lt;emp_no, from_date&gt;，此时上面的查询会使用这个索引。除此之外，还可以使用一种称之为“隔离列”的优化方法，将emp_no与from_date之间的“坑”填上。</p>
+<h2 id="3-4-查询条件没有指定索引第一列。"><a href="#3-4-查询条件没有指定索引第一列。" class="headerlink" title="3.4 查询条件没有指定索引第一列。"></a>3.4 查询条件没有指定索引第一列。</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles <span class="keyword">WHERE</span> from_date=<span class="string">'1986-06-26'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+------+---------+------+--------+-------------+</span></span><br><span class="line">| id | select_type | table  | type | possible_keys | key  | key_len | ref  | rows   | Extra       |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+------+---------+------+--------+-------------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | ALL  | NULL          | NULL | NULL    | NULL | 443308 | Using where |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+------+---------+------+--------+-------------+</span></span><br></pre></td></tr></table></figure>
+
+<p>由于不是最左前缀，索引这样的查询显然用不到索引。</p>
+<h2 id="3-5-匹配某列的前缀字符串。"><a href="#3-5-匹配某列的前缀字符串。" class="headerlink" title="3.5 匹配某列的前缀字符串。"></a>3.5 匹配某列的前缀字符串。</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles <span class="keyword">WHERE</span> emp_no=<span class="string">'10001'</span> <span class="keyword">AND</span> title <span class="keyword">LIKE</span> <span class="string">'Senior%'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br><span class="line">| id | select_type | table  | type  | possible_keys | key     | key_len | ref  | rows | Extra       |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | range | PRIMARY       | PRIMARY | 56      | NULL |    1 | Using where |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br></pre></td></tr></table></figure>
+
+<p>此时可以用到索引，<del>但是如果通配符不是只出现在末尾，则无法使用索引。</del>（原文表述有误，如果通配符%不出现在开头，则可以用到索引，但根据具体情况不同可能只会用其中一个前缀）</p>
+<h2 id="3-6-范围查询。"><a href="#3-6-范围查询。" class="headerlink" title="3.6 范围查询。"></a>3.6 范围查询。</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles <span class="keyword">WHERE</span> emp_no &lt; <span class="string">'10010'</span> <span class="keyword">and</span> title=<span class="string">'Senior Engineer'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br><span class="line">| id | select_type | table  | type  | possible_keys | key     | key_len | ref  | rows | Extra       |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | range | PRIMARY       | PRIMARY | 4       | NULL |   16 | Using where |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br></pre></td></tr></table></figure>
+
+<p>范围列可以用到索引（必须是最左前缀），但是范围列后面的列无法用到索引。同时，索引最多用于一个范围列，因此如果查询条件中有两个范围列则无法全用到索引。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles</span><br><span class="line"><span class="keyword">WHERE</span> emp_no &lt; <span class="string">'10010'</span></span><br><span class="line"><span class="keyword">AND</span> title=<span class="string">'Senior Engineer'</span></span><br><span class="line"><span class="keyword">AND</span> from_date <span class="keyword">BETWEEN</span> <span class="string">'1986-01-01'</span> <span class="keyword">AND</span> <span class="string">'1986-12-31'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br><span class="line">| id | select_type | table  | type  | possible_keys | key     | key_len | ref  | rows | Extra       |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | range | PRIMARY       | PRIMARY | 4       | NULL |   16 | Using where |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到索引对第二个范围索引无能为力。</p>
+<h2 id="3-7-查询条件中含有函数或表达式。"><a href="#3-7-查询条件中含有函数或表达式。" class="headerlink" title="3.7 查询条件中含有函数或表达式。"></a>3.7 查询条件中含有函数或表达式。</h2><p>很不幸，如果查询条件中含有函数或表达式，则MySQL不会为这列使用索引（虽然某些在数学意义上可以使用）。例如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles <span class="keyword">WHERE</span> emp_no=<span class="string">'10001'</span> <span class="keyword">AND</span> <span class="keyword">left</span>(title, <span class="number">6</span>)=<span class="string">'Senior'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------------+</span></span><br><span class="line">| id | select_type | table  | type | possible_keys | key     | key_len | ref   | rows | Extra       |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | ref  | PRIMARY       | PRIMARY | 4       | const |    1 | Using where |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------------+</span></span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Mysql/" rel="tag"># Mysql</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/21/mysql/001Mysql_索引实现分析/" rel="next" title="Mysql_索引实现分析">
+                <i class="fa fa-chevron-left"></i> Mysql_索引实现分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/10/mysql/004Mysql_性能分析语句showprofile/" rel="prev" title="Mysql_性能分析语句show profile">
+                Mysql_性能分析语句show profile <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JJJ</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-最左匹配特性"><span class="nav-number">1.</span> <span class="nav-text">1 最左匹配特性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-MySQL性能优化之查看执行计划explain"><span class="nav-number">2.</span> <span class="nav-text">2 MySQL性能优化之查看执行计划explain</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-参数说明"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 参数说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-select-type列说明"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 select_type列说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-type列说明"><span class="nav-number">2.3.</span> <span class="nav-text">2.3  type列说明</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-优化"><span class="nav-number">3.</span> <span class="nav-text">3 优化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-全列匹配"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 全列匹配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-最左前缀匹配"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 最左前缀匹配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-查询条件用到了索引中列的精确匹配，但是中间某个条件未提供"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 查询条件用到了索引中列的精确匹配，但是中间某个条件未提供</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-查询条件没有指定索引第一列。"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 查询条件没有指定索引第一列。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-5-匹配某列的前缀字符串。"><span class="nav-number">3.5.</span> <span class="nav-text">3.5 匹配某列的前缀字符串。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-6-范围查询。"><span class="nav-number">3.6.</span> <span class="nav-text">3.6 范围查询。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-7-查询条件中含有函数或表达式。"><span class="nav-number">3.7.</span> <span class="nav-text">3.7 查询条件中含有函数或表达式。</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JJJ</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
