@@ -406,9 +406,8 @@
 <h2 id="1-1-RDB持久化机制的工作流程"><a href="#1-1-RDB持久化机制的工作流程" class="headerlink" title="1.1 RDB持久化机制的工作流程"></a>1.1 RDB持久化机制的工作流程</h2><p>1.redis根据配置自己尝试去生成rdb快照文件<br>2.fork一个子进程出来<br>3.子进程尝试将数据dump到临时的rdb快照文件中<br>4.完成rdb快照文件的生成之后，就替换之前的旧的快照文件<br>dump.rdb，每次生成一个新的快照，都会覆盖之前的老快照</p>
 <p>RDB是通过系统的fork()函数fork出一个子进程,通过子进程来进行磁盘IO来完成持久化。</p>
 <h2 id="1-2-配置说明"><a href="#1-2-配置说明" class="headerlink" title="1.2 配置说明"></a>1.2 配置说明</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 触发条件：</span><br><span class="line">save 900 1 </span><br><span class="line">save 300 10</span><br><span class="line">save 60 10000</span><br><span class="line"><span class="meta">#</span> 解释：900秒内有至少1个键被更改则进行快照 </span><br><span class="line">dbfilename #rdb文件名称</span><br><span class="line">dir ./ #rdb文件目录</span><br></pre></td></tr></table></figure>
-
 <h2 id="1-3-实操"><a href="#1-3-实操" class="headerlink" title="1.3 实操"></a>1.3 实操</h2><p>基于RDB持久化机制的数据恢复实验<br>1.在redis中保存几条数据，通过redis-cli SHUTDOWN，立即停掉redis进程，然后重启redis，看看刚才插入的数据还在不在<br>数据还在，为什么？<br>通过redis-cli SHUTDOWN这种方式去停掉redis，其实是一种安全退出的模式，redis在退出的时候会将内存中的数据立即生成一份完整的rdb快照</p>
-<ol start="2">
+<ol>
 <li>在redis中再保存几条新的数据，用kill -9粗暴杀死redis进程，模拟redis故障异常退出，导致内存数据丢失的场景<br>这次就发现，redis进程异常被杀掉，数据没有进dump文件，几条最新的数据就丢失了。<br>修改配置：</li>
 </ol>
 <ul>
@@ -436,7 +435,6 @@
 <li>新的日志文件替换掉旧的日志文件</li>
 </ol>
 <h2 id="2-2-配置说明"><a href="#2-2-配置说明" class="headerlink" title="2.2 配置说明"></a>2.2 配置说明</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">appendonly yes，可以打开AOF持久化机制</span><br><span class="line">有三种fsync策略策略：</span><br><span class="line">一种是每次写入一条数据就执行一次fsync; </span><br><span class="line">一种是每隔一秒执行一次fsync; </span><br><span class="line">一种是不主动执行fsync</span><br><span class="line"> </span><br><span class="line">appendfsync always #每次写入一条数据就执行一次fsync; </span><br><span class="line">appendfsync everysec #每隔一秒执行一次fsync; </span><br><span class="line">appendfsync no #不主动执行fsync， redis s cache就撒手不管了，然后后面os自己会时不时有自己的策略将数据刷入磁盘，不可控了</span><br><span class="line"> </span><br><span class="line">rewrite参数：</span><br><span class="line">auto-aof-rewrite-percentage 100 </span><br><span class="line">auto-aof-rewrite-min-size 64mb</span><br><span class="line">比如说上一次AOF rewrite之后，是128mb</span><br><span class="line">然后就会接着128mb继续写AOF的日志，如果发现增长的比例，超过了之前的100%，256mb，就可能会去触发一次rewrite</span><br><span class="line">但是此时还要去跟min-size，64mb去比较，256mb &gt; 64mb，才会去触发rewrite</span><br></pre></td></tr></table></figure>
-
 <h2 id="2-3-实操"><a href="#2-3-实操" class="headerlink" title="2.3 实操"></a>2.3 实操</h2><p>AOF持久化的数据恢复实验</p>
 <ol>
 <li>先仅仅打开RDB，写入一些数据，然后kill -9杀掉redis进程，接着重启redis，发现数据没了，因为RDB快照还没生成</li>
@@ -467,10 +465,8 @@
 <li>综合使用AOF和RDB两种持久化机制，用AOF来保证数据不丢失，作为数据恢复的第一选择; 用RDB来做不同程度的冷备，在AOF文件都丢失或损坏不可用的时候，还可以使用RDB来进行快速的数据恢复</li>
 </ol>
 <h1 id="4-RDB和AOF同时工作"><a href="#4-RDB和AOF同时工作" class="headerlink" title="4. RDB和AOF同时工作"></a>4. RDB和AOF同时工作</h1><ol>
-<li><p>果RDB在执行snapshotting操作，那么redis不会执行AOF rewrite; 如果redis再执行AOF rewrite，那么就不会执行RDB snapshotting</p>
-</li>
-<li><p>果RDB在执行snapshotting，此时用户执行BGREWRITEAOF命令，那么等RDB快照生成之后，才会去执行AOF rewrite</p>
-</li>
+<li>果RDB在执行snapshotting操作，那么redis不会执行AOF rewrite; 如果redis再执行AOF rewrite，那么就不会执行RDB snapshotting</li>
+<li>果RDB在执行snapshotting，此时用户执行BGREWRITEAOF命令，那么等RDB快照生成之后，才会去执行AOF rewrite</li>
 <li><p>时有RDB snapshot文件和AOF日志文件，那么redis重启的时候，会优先使用AOF进行数据恢复，因为其中的日志更完整</p>
 <h1 id="5-企业级备份-恢复方案"><a href="#5-企业级备份-恢复方案" class="headerlink" title="5. 企业级备份/恢复方案"></a>5. 企业级备份/恢复方案</h1></li>
 </ol>
@@ -485,24 +481,15 @@
 </ol>
 <p><strong>每小时copy一次备份，删除48小时前的数据</strong></p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">crontab -e</span><br><span class="line"></span><br><span class="line">0 * * * * sh /usr/local/redis/copy/redis_rdb_copy_hourly.sh</span><br><span class="line"></span><br><span class="line">redis_rdb_copy_hourly.sh</span><br></pre></td></tr></table></figure>
-
-
-
 </li>
 </ol>
    <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/sh </span><br><span class="line"></span><br><span class="line">cur_date=`date +%Y%m%d%k`</span><br><span class="line">rm -rf /usr/local/redis/snapshotting/$cur_date</span><br><span class="line">mkdir /usr/local/redis/snapshotting/$cur_date</span><br><span class="line">cp /var/redis/6379/dump.rdb /usr/local/redis/snapshotting/$cur_date</span><br><span class="line"></span><br><span class="line">del_date=`date -d -48hour +%Y%m%d%k`</span><br><span class="line">rm -rf /usr/local/redis/snapshotting/$del_date</span><br></pre></td></tr></table></figure>
-
 <p>   <strong>每天copy一次备份</strong></p>
    <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">crontab -e</span><br><span class="line"></span><br><span class="line">0 0 * * * sh /usr/local/redis/copy/redis_rdb_copy_daily.sh</span><br><span class="line"></span><br><span class="line">redis_rdb_copy_daily.sh</span><br></pre></td></tr></table></figure>
-
-
-
    <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/sh </span><br><span class="line"></span><br><span class="line">cur_date=`date +%Y%m%d`</span><br><span class="line">rm -rf /usr/local/redis/snapshotting/$cur_date</span><br><span class="line">mkdir /usr/local/redis/snapshotting/$cur_date</span><br><span class="line">cp /var/redis/6379/dump.rdb /usr/local/redis/snapshotting/$cur_date</span><br><span class="line"></span><br><span class="line">del_date=`date -d -1month +%Y%m%d`</span><br><span class="line">rm -rf /usr/local/redis/snapshotting/$del_date</span><br></pre></td></tr></table></figure>
-
 <p>   还可以每天一次将所有数据上传一次到远程的云服务器上去</p>
 <h2 id="5-2-恢复方案"><a href="#5-2-恢复方案" class="headerlink" title="5.2 恢复方案"></a>5.2 恢复方案</h2><ol>
-<li><p>如果是redis进程挂掉，那么重启redis进程即可，直接基于AOF日志文件恢复数据</p>
-</li>
+<li>如果是redis进程挂掉，那么重启redis进程即可，直接基于AOF日志文件恢复数据</li>
 <li><p>如果是redis进程所在机器挂掉，那么重启机器后，尝试重启redis进程，尝试直接基于AOF日志文件进行数据恢复</p>
 <p>AOF没有破损，也是可以直接基于AOF恢复的</p>
 <p>AOF append-only，顺序写入，如果AOF文件破损，那么用redis-check-aof fix</p>
@@ -511,8 +498,7 @@
 </li>
 <li><p>果当前机器上的所有RDB文件全部损坏，那么从远程的云服务上拉取最新的RDB快照回来恢复数据</p>
 </li>
-<li><p>果是发现有重大的数据错误，比如某个小时上线的程序一下子将数据全部污染了，数据全错了，那么可以选择某个更早的时间点，对数据进行恢复<br>举个例子，12点上线了代码，发现代码有bug，导致代码生成的所有的缓存数据，写入redis，全部错了<br>找到一份11点的rdb的冷备，然后按照上面的步骤，去恢复到11点的数据，不就可以了吗</p>
-</li>
+<li>果是发现有重大的数据错误，比如某个小时上线的程序一下子将数据全部污染了，数据全错了，那么可以选择某个更早的时间点，对数据进行恢复<br>举个例子，12点上线了代码，发现代码有bug，导致代码生成的所有的缓存数据，写入redis，全部错了<br>找到一份11点的rdb的冷备，然后按照上面的步骤，去恢复到11点的数据，不就可以了吗</li>
 </ol>
 
       
@@ -634,7 +620,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -677,7 +663,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -718,7 +706,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -777,7 +767,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

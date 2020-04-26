@@ -416,7 +416,6 @@
 <li>B:演示</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.wangjb.list;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo1_List</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// demo1();</span></span><br><span class="line">		<span class="comment">// demo2();</span></span><br><span class="line">		<span class="comment">// demo3();</span></span><br><span class="line">		<span class="comment">// demo4();</span></span><br><span class="line">		List list = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		list.add(<span class="string">"a"</span>);</span><br><span class="line">		list.add(<span class="string">"b"</span>);</span><br><span class="line">		list.add(<span class="string">"c"</span>);</span><br><span class="line">		list.add(<span class="string">"d"</span>);</span><br><span class="line"></span><br><span class="line">		list.set(<span class="number">1</span>, <span class="string">"z"</span>); <span class="comment">// 将指定位置的元素修改</span></span><br><span class="line">		System.out.println(list);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">demo4</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		List list = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		list.add(<span class="string">"a"</span>);</span><br><span class="line">		list.add(<span class="string">"b"</span>);</span><br><span class="line">		list.add(<span class="string">"c"</span>);</span><br><span class="line">		list.add(<span class="string">"d"</span>);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// Object obj1 = list.get(2);</span></span><br><span class="line">		<span class="comment">// System.out.println(obj1);</span></span><br><span class="line">		<span class="comment">// 通过索引遍历List集合</span></span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; list.size(); i++) &#123;</span><br><span class="line">			System.out.println(list.get(i));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">demo3</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		List list = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		list.add(<span class="number">111</span>);</span><br><span class="line">		list.add(<span class="number">222</span>);</span><br><span class="line">		list.add(<span class="number">333</span>);</span><br><span class="line"></span><br><span class="line">		list.remove(<span class="number">111</span>); <span class="comment">// 删除的时候不会自动装箱,把111当作索引</span></span><br><span class="line">		System.out.println(list);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">demo2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		List list = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		list.add(<span class="string">"a"</span>);</span><br><span class="line">		list.add(<span class="string">"b"</span>);</span><br><span class="line">		list.add(<span class="string">"c"</span>);</span><br><span class="line">		list.add(<span class="string">"d"</span>);</span><br><span class="line"></span><br><span class="line">		Object obj = list.remove(<span class="number">1</span>); <span class="comment">// 通过索引删除元素,将被删除的元素返回</span></span><br><span class="line">		System.out.println(obj);</span><br><span class="line">		System.out.println(list);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">demo1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		List list = <span class="keyword">new</span> ArrayList();</span><br><span class="line">		list.add(<span class="string">"a"</span>);</span><br><span class="line">		list.add(<span class="string">"b"</span>);</span><br><span class="line">		list.add(<span class="string">"c"</span>);</span><br><span class="line">		list.add(<span class="string">"d"</span>);</span><br><span class="line">		list.add(<span class="number">4</span>, <span class="string">"f"</span>); <span class="comment">// index&lt;=size并且index&gt;=0都不会报异常</span></span><br><span class="line">		<span class="comment">// list.add(1,"e");</span></span><br><span class="line">		<span class="comment">// list.add(10, "z");</span></span><br><span class="line">		<span class="comment">// //java.lang.IndexOutOfBoundsException,当存储时使用不存在的索引时</span></span><br><span class="line">		System.out.println(list);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <h1 id="2、List集合存储学生对象并遍历"><a href="#2、List集合存储学生对象并遍历" class="headerlink" title="2、List集合存储学生对象并遍历"></a>2、List集合存储学生对象并遍历</h1><ul>
 <li>A:案例演示<ul>
 <li>通过size()和get()方法结合使用遍历。</li>
@@ -424,7 +423,6 @@
 </li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">	List list = <span class="keyword">new</span> ArrayList();</span><br><span class="line">	list.add(<span class="keyword">new</span> Student(<span class="string">"张三"</span>, <span class="number">23</span>));					<span class="comment">//Object obj = new Student("张三",23);</span></span><br><span class="line">	list.add(<span class="keyword">new</span> Student(<span class="string">"李四"</span>, <span class="number">24</span>));</span><br><span class="line">	list.add(<span class="keyword">new</span> Student(<span class="string">"王五"</span>, <span class="number">25</span>));</span><br><span class="line">	list.add(<span class="keyword">new</span> Student(<span class="string">"赵六"</span>, <span class="number">26</span>));</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; list.size(); i++) &#123;</span><br><span class="line">	<span class="comment">//System.out.println(list.get(i));	 			//通过索引获取每一个元素</span></span><br><span class="line">	Student s = (Student)list.get(i);</span><br><span class="line">	System.out.println(s.getName() + <span class="string">"..."</span> + s.getAge());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <h1 id="3、并发修改异常产生的原因及解决方案"><a href="#3、并发修改异常产生的原因及解决方案" class="headerlink" title="3、并发修改异常产生的原因及解决方案"></a>3、并发修改异常产生的原因及解决方案</h1><ul>
 <li>A:案例演示<ul>
 <li>需求：我有一个集合，请问，我想判断里面有没有”world”这个元素，如果有，我就添加一个”javaee”元素，请写代码实现。</li>
@@ -432,7 +430,6 @@
 </li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">List list = <span class="keyword">new</span> ArrayList();</span><br><span class="line">list.add(<span class="string">"a"</span>);</span><br><span class="line">list.add(<span class="string">"b"</span>);</span><br><span class="line">list.add(<span class="string">"world"</span>);</span><br><span class="line">list.add(<span class="string">"d"</span>);</span><br><span class="line">list.add(<span class="string">"e"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*Iterator it = list.iterator();</span></span><br><span class="line"><span class="comment">while(it.hasNext()) &#123;</span></span><br><span class="line"><span class="comment">	String str = (String)it.next();</span></span><br><span class="line"><span class="comment">		if(str.equals("world")) &#123;</span></span><br><span class="line"><span class="comment">		list.add("javaee");			//这里会抛出ConcurrentModificationException并发修改异常</span></span><br><span class="line"><span class="comment">	&#125;</span></span><br><span class="line"><span class="comment">&#125;*/</span></span><br></pre></td></tr></table></figure>
-
 <ul>
 <li>B:ConcurrentModificationException出现<ul>
 <li>迭代器遍历，集合修改集合</li>
@@ -445,7 +442,6 @@
 </li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ListIterator lit = list.listIterator();		<span class="comment">//获取迭代器(List集合特有的)</span></span><br><span class="line"><span class="keyword">while</span>(lit.hasNext()) &#123;</span><br><span class="line">	String str = (String)lit.next();			</span><br><span class="line">	<span class="keyword">if</span>(<span class="string">"world"</span>.equals(str)) &#123;</span><br><span class="line">		<span class="comment">//list.add("javaee");	//遍历的同时在增加元素,并发修改ConcurrentModificationException</span></span><br><span class="line">		lit.add(<span class="string">"javaee"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <h1 id="4、ListIterator"><a href="#4、ListIterator" class="headerlink" title="4、ListIterator"></a>4、ListIterator</h1><ul>
 <li>boolean hasNext()是否有下一个</li>
 <li>boolean hasPrevious()是否有前一个</li>
@@ -467,7 +463,6 @@
 </li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.wangjb.list;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Enumeration;</span><br><span class="line"><span class="keyword">import</span> java.util.Vector;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo5_Vector</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span> args</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		Vector v = <span class="keyword">new</span> Vector();</span><br><span class="line">		v.addElement(<span class="string">"a"</span>);</span><br><span class="line">		v.addElement(<span class="string">"b"</span>);</span><br><span class="line">		v.addElement(<span class="string">"c"</span>);</span><br><span class="line">		v.addElement(<span class="string">"d"</span>);</span><br><span class="line"></span><br><span class="line">		Enumeration en = v.elements(); <span class="comment">// 获取枚举</span></span><br><span class="line">		<span class="keyword">while</span> (en.hasMoreElements()) &#123; <span class="comment">// 判断集合中是否有元素</span></span><br><span class="line">			System.out.println(en.nextElement()); <span class="comment">// 获取集合中的元素</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <h1 id="6、数据结构之数组和链表"><a href="#6、数据结构之数组和链表" class="headerlink" title="6、数据结构之数组和链表"></a>6、数据结构之数组和链表</h1><ul>
 <li>A:数组<ul>
 <li>查询快修改也快</li>
@@ -483,9 +478,12 @@
 <p>#7、List的三个子类的特点</p>
 <ul>
 <li>A:List的三个子类的特点<br>ArrayList:<pre><code>底层数据结构是数组，查询快，增删慢。
-线程不安全，效率高。</code></pre>LinkedList:<pre><code>底层数据结构是链表，查询慢，增删快。
-线程不安全，效率高。</code></pre>Vector:<pre><code>底层数据结构是数组，查询快，增删慢。
-线程安全，效率低。</code></pre>Vector相对ArrayList查询慢(线程安全的)<br>Vector相对LinkedList增删慢(数组结构)</li>
+线程不安全，效率高。
+</code></pre>LinkedList:<pre><code>底层数据结构是链表，查询慢，增删快。
+线程不安全，效率高。
+</code></pre>Vector:<pre><code>底层数据结构是数组，查询快，增删慢。
+线程安全，效率低。
+</code></pre>Vector相对ArrayList查询慢(线程安全的)<br>Vector相对LinkedList增删慢(数组结构)</li>
 </ul>
 <p>Vector和ArrayList的区别<br>    Vector是线程安全的,效率低<br>    ArrayList是线程不安全的,效率高<br>共同点:都是数组实现的<br>ArrayList和LinkedList的区别<br>    ArrayList底层是数组结果,查询和修改快<br>    LinkedList底层是链表结构的,增和删比较快,查询和修改比较慢<br>共同点:都是线程不安全的</p>
 <ul>
@@ -533,8 +531,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/05/07/java/010Java集合框架_HashSet、LinkedHashSet、TreeSet/" rel="next" title="Java集合框架_HashSet、LinkedHashSet、TreeSet">
-                <i class="fa fa-chevron-left"></i> Java集合框架_HashSet、LinkedHashSet、TreeSet
+              <a href="/2016/05/07/java/006Java集合框架_Collection/" rel="next" title="Java集合框架_Collection">
+                <i class="fa fa-chevron-left"></i> Java集合框架_Collection
               </a>
             
           </div>
@@ -614,7 +612,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -657,7 +655,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -698,7 +698,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -757,7 +759,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

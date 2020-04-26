@@ -411,57 +411,31 @@
 <h1 id="2-ZooKeeper安装"><a href="#2-ZooKeeper安装" class="headerlink" title="2 ZooKeeper安装"></a>2 ZooKeeper安装</h1><p>ZooKeeper服务器是用Java创建的，它在JVM上运行。如果你还没有安装JDK，需要先安装JDK。</p>
 <h2 id="2-1-上传tar"><a href="#2-1-上传tar" class="headerlink" title="2.1 上传tar"></a>2.1 上传tar</h2><p>上传<code>zookeeper-3.4.6.tar.gz</code>到/soft目录下(个人习惯将安装包统一放到/soft目录下，安装一般都安装在/usr/local目录下)</p>
 <h2 id="2-2-解压"><a href="#2-2-解压" class="headerlink" title="2.2 解压"></a>2.2 解压</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zvxf zookeeper-3.4.6.tar.gz -C /usr/local</span><br></pre></td></tr></table></figure>
-
 <h2 id="2-3-创建data目录"><a href="#2-3-创建data目录" class="headerlink" title="2.3 创建data目录"></a>2.3 创建data目录</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/local/zookeeper-3.4.6</span><br><span class="line">mkdir data</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-4：创建配置文件"><a href="#2-4：创建配置文件" class="headerlink" title="2.4：创建配置文件"></a>2.4：创建配置文件</h2><p>conf目录下提供了配置的样例zoo_sample.cfg，要将zk运行起来，需要将其名称修改为zoo.cfg。<br>修改datadir指向上一步中创建的目录</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dataDir = /usr/local/zookeeper-3.4.6/data</span><br></pre></td></tr></table></figure>
-
+<h2 id="2-4：创建配置文件"><a href="#2-4：创建配置文件" class="headerlink" title="2.4：创建配置文件"></a>2.4：创建配置文件</h2><p>conf目录下提供了配置的样例zoo_sample.cfg，要将zk运行起来，需要将其名称修改为zoo.cfg。<br>修改datadir指向上一步中创建的目录<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dataDir = /usr/local/zookeeper-3.4.6/data</span><br></pre></td></tr></table></figure></p>
 <h2 id="2-5：启动ZooKeeper服务器"><a href="#2-5：启动ZooKeeper服务器" class="headerlink" title="2.5：启动ZooKeeper服务器"></a>2.5：启动ZooKeeper服务器</h2><p>执行以下命令</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/zkServer.sh start</span><br></pre></td></tr></table></figure>
-
 <h2 id="2-6-停止ZooKeeper服务器"><a href="#2-6-停止ZooKeeper服务器" class="headerlink" title="2.6 停止ZooKeeper服务器"></a>2.6 停止ZooKeeper服务器</h2><p>连接服务器并执行所有操作后，可以使用以下命令停止zookeeper服务器。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> bin/zkServer.sh stop</span><br></pre></td></tr></table></figure>
-
 <h1 id="3-Zookeeper-CLI"><a href="#3-Zookeeper-CLI" class="headerlink" title="3 Zookeeper CLI"></a>3 Zookeeper CLI</h1><p>ZooKeeper CLI即ZooKeeper命令行界面，用于与ZooKeeper集合进行交互以进行开发。<br>通过以下命令</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> bin/zkCli.sh</span><br></pre></td></tr></table></figure>
-
 <h2 id="3-1-创建Znodes"><a href="#3-1-创建Znodes" class="headerlink" title="3.1 创建Znodes"></a>3.1 创建Znodes</h2><p>用给定的路径创建一个znode。flag参数指定创建的znode是临时的，持久的还是顺序的。默认情况下，所有znode都是持久的。<br>当会话过期或客户端断开连接时，临时节点（flag：-e）将被自动删除。<br>顺序节点保证znode路径将是唯一的。<br>ZooKeeper集合将向znode路径填充10位序列号。例如，znode路径 /myapp 将转换为/myapp0000000001，下一个序列号将为/myapp0000000002。如果没有指定flag，则znode被认为是持久的。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create /FirstZnode “Myfirstzookeeper-app"</span><br></pre></td></tr></table></figure>
-
 <p>/FirstZnode为path  Myfirstzookeeper-app为该节点下的数据</p>
 <p>要创建顺序节点，请添加flag：-s，如下所示。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create -s /path /data</span><br></pre></td></tr></table></figure>
-
 <p>同理<code>-e</code>代表创建临时节点。</p>
 <h2 id="3-2-获取数据"><a href="#3-2-获取数据" class="headerlink" title="3.2 获取数据"></a>3.2 获取数据</h2><p>它返回znode的关联数据和指定znode的元数据。你将获得信息，例如上次修改数据的时间，修改的位置以及数据的相关信息。此CLI还用于分配监视器以显示数据相关的通知。</p>
 <p>它返回znode的关联数据和指定znode的元数据。你将获得信息，例如上次修改数据的时间，修改的位置以及数据的相关信息。此CLI还用于分配监视器以显示数据相关的通知。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get /FirstZnode</span><br></pre></td></tr></table></figure>
-
-<p><strong>输出</strong></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost:2181(CONNECTED) 1] get /FirstZnode</span><br><span class="line">“Myfirstzookeeper-app"</span><br><span class="line">cZxid = 0x7f</span><br><span class="line">ctime = Tue Sep 29 16:15:47 IST 2015</span><br><span class="line">mZxid = 0x7f</span><br><span class="line">mtime = Tue Sep 29 16:15:47 IST 2015</span><br><span class="line">pZxid = 0x7f</span><br><span class="line">cversion = 0</span><br><span class="line">dataVersion = 0</span><br><span class="line">aclVersion = 0</span><br><span class="line">ephemeralOwner = 0x0</span><br><span class="line">dataLength = 22</span><br><span class="line">numChildren = 0</span><br></pre></td></tr></table></figure>
-
-<p>要访问顺序节点，必须输入znode的完整路径。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get /FirstZnode0000000023</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-3-Watch"><a href="#3-3-Watch" class="headerlink" title="3.3 Watch"></a>3.3 Watch</h2><p>当指定的znode或znode的子数据更改时，监视器会显示通知。你只能在 get 命令中设置watch。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get /FirstZnode 1</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-4-设置数据"><a href="#3-4-设置数据" class="headerlink" title="3.4 设置数据"></a>3.4 设置数据</h2><p>设置指定znode的数据。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set /SecondZnode Data-updated</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-5-创建子节点"><a href="#3-5-创建子节点" class="headerlink" title="3.5 创建子节点"></a>3.5 创建子节点</h2><p>创建子节点类似于创建新的znode。唯一的区别是，子znode的路径也将具有父路径。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create /FirstZnode/Child1 firstchildren</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-6-列出子项"><a href="#3-6-列出子项" class="headerlink" title="3.6 列出子项"></a>3.6 列出子项</h2><p>此命令用于列出和显示znode的子项。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls /FirstZnode</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-7-检查状态"><a href="#3-7-检查状态" class="headerlink" title="3.7 检查状态"></a>3.7 检查状态</h2><p>状态描述指定的znode的元数据。它包含时间戳，版本号，ACL，数据长度和子znode等细项。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stat /FirstZnode</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-8-移除Znode"><a href="#3-8-移除Znode" class="headerlink" title="3.8 移除Znode"></a>3.8 移除Znode</h2><p>移除指定的znode并递归其所有子节点。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rmr /FirstZnode</span><br></pre></td></tr></table></figure>
-
+<p><strong>输出</strong><br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost:2181(CONNECTED) 1] get /FirstZnode</span><br><span class="line">“Myfirstzookeeper-app"</span><br><span class="line">cZxid = 0x7f</span><br><span class="line">ctime = Tue Sep 29 16:15:47 IST 2015</span><br><span class="line">mZxid = 0x7f</span><br><span class="line">mtime = Tue Sep 29 16:15:47 IST 2015</span><br><span class="line">pZxid = 0x7f</span><br><span class="line">cversion = 0</span><br><span class="line">dataVersion = 0</span><br><span class="line">aclVersion = 0</span><br><span class="line">ephemeralOwner = 0x0</span><br><span class="line">dataLength = 22</span><br><span class="line">numChildren = 0</span><br></pre></td></tr></table></figure></p>
+<p>要访问顺序节点，必须输入znode的完整路径。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get /FirstZnode0000000023</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-3-Watch"><a href="#3-3-Watch" class="headerlink" title="3.3 Watch"></a>3.3 Watch</h2><p>当指定的znode或znode的子数据更改时，监视器会显示通知。你只能在 get 命令中设置watch。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get /FirstZnode 1</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-4-设置数据"><a href="#3-4-设置数据" class="headerlink" title="3.4 设置数据"></a>3.4 设置数据</h2><p>设置指定znode的数据。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set /SecondZnode Data-updated</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-5-创建子节点"><a href="#3-5-创建子节点" class="headerlink" title="3.5 创建子节点"></a>3.5 创建子节点</h2><p>创建子节点类似于创建新的znode。唯一的区别是，子znode的路径也将具有父路径。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create /FirstZnode/Child1 firstchildren</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-6-列出子项"><a href="#3-6-列出子项" class="headerlink" title="3.6 列出子项"></a>3.6 列出子项</h2><p>此命令用于列出和显示znode的子项。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls /FirstZnode</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-7-检查状态"><a href="#3-7-检查状态" class="headerlink" title="3.7 检查状态"></a>3.7 检查状态</h2><p>状态描述指定的znode的元数据。它包含时间戳，版本号，ACL，数据长度和子znode等细项。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stat /FirstZnode</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-8-移除Znode"><a href="#3-8-移除Znode" class="headerlink" title="3.8 移除Znode"></a>3.8 移除Znode</h2><p>移除指定的znode并递归其所有子节点。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rmr /FirstZnode</span><br></pre></td></tr></table></figure></p>
 <p>删除(delete/path)命令类似于 remove 命令，除了它只适用于没有子节点的znode。</p>
 
       
@@ -583,7 +557,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -626,7 +600,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -667,7 +643,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -726,7 +704,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

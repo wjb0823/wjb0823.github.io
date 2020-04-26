@@ -418,23 +418,18 @@
 <h1 id="3-为什么redis哨兵集群只有2个节点无法正常工作？"><a href="#3-为什么redis哨兵集群只有2个节点无法正常工作？" class="headerlink" title="3. 为什么redis哨兵集群只有2个节点无法正常工作？"></a>3. 为什么redis哨兵集群只有2个节点无法正常工作？</h1><p>哨兵集群必须部署2个以上节点</p>
 <p>如果哨兵集群仅仅部署了个2个哨兵实例，quorum=1</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">+----+         +----+</span><br><span class="line">| M1 |---------| R1 |</span><br><span class="line">| S1 |         | S2 |</span><br><span class="line">+----+         +----+</span><br></pre></td></tr></table></figure>
-
 <p>Configuration: quorum = 1</p>
 <p>master宕机，s1和s2中只要有1个哨兵认为master宕机就可以还行切换，同时s1和s2中会选举出一个哨兵来执行故障转移</p>
 <p>同时这个时候，需要majority，也就是大多数哨兵都是运行的，2个哨兵的majority就是2（2的majority=2，3的majority=2，5的majority=3，4的majority=2），2个哨兵都运行着，就可以允许执行故障转移</p>
 <p>但是如果整个M1和S1运行的机器宕机了，那么哨兵只有1个了，此时就没有majority来允许执行故障转移，虽然另外一台机器还有一个R1，但是故障转移不会执行</p>
 <h1 id="4-经典的3节点哨兵集群"><a href="#4-经典的3节点哨兵集群" class="headerlink" title="4. 经典的3节点哨兵集群"></a>4. 经典的3节点哨兵集群</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">       +----+</span><br><span class="line">       | M1 |</span><br><span class="line">       | S1 |</span><br><span class="line">       +----+</span><br><span class="line">          |</span><br><span class="line">+----+    |    +----+</span><br><span class="line">| R2 |----+----| R3 |</span><br><span class="line">| S2 |         | S3 |</span><br><span class="line">+----+         +----+</span><br></pre></td></tr></table></figure>
-
 <p>Configuration: quorum = 2，majority</p>
 <p>如果M1所在机器宕机了，那么三个哨兵还剩下2个，S2和S3可以一致认为master宕机，然后选举出一个来执行故障转移</p>
 <p>同时3个哨兵的majority是2，所以还剩下的2个哨兵运行着，就可以允许执行故障转移</p>
 <h1 id="5-实操"><a href="#5-实操" class="headerlink" title="5. 实操"></a>5. 实操</h1><h2 id="5-1-哨兵的配置文件"><a href="#5-1-哨兵的配置文件" class="headerlink" title="5.1 哨兵的配置文件"></a>5.1 哨兵的配置文件</h2><p>sentinel.conf</p>
-<p>每一个哨兵都可以去监控多个maser-slaves的主从架构。因为可能你的公司里，为不同的项目，部署了多个master-slaves的redis主从集群。相同的一套哨兵集群，就可以去监控不同的多个redis主从集群。你自己给每个redis主从集群分配一个逻辑的名称。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">sentinel monitor mymaster 127.0.0.1 6379 2</span><br><span class="line">sentinel down-after-milliseconds mymaster 60000</span><br><span class="line">sentinel failover-timeout mymaster 180000</span><br><span class="line">sentinel parallel-syncs mymaster 1</span><br><span class="line"></span><br><span class="line">sentinel monitor resque 192.168.1.3 6380 4</span><br><span class="line">sentinel down-after-milliseconds resque 10000</span><br><span class="line">sentinel failover-timeout resque 180000</span><br><span class="line">sentinel parallel-syncs resque 5</span><br></pre></td></tr></table></figure>
-
+<p>每一个哨兵都可以去监控多个maser-slaves的主从架构。因为可能你的公司里，为不同的项目，部署了多个master-slaves的redis主从集群。相同的一套哨兵集群，就可以去监控不同的多个redis主从集群。你自己给每个redis主从集群分配一个逻辑的名称。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">sentinel monitor mymaster 127.0.0.1 6379 2</span><br><span class="line">sentinel down-after-milliseconds mymaster 60000</span><br><span class="line">sentinel failover-timeout mymaster 180000</span><br><span class="line">sentinel parallel-syncs mymaster 1</span><br><span class="line"></span><br><span class="line">sentinel monitor resque 192.168.1.3 6380 4</span><br><span class="line">sentinel down-after-milliseconds resque 10000</span><br><span class="line">sentinel failover-timeout resque 180000</span><br><span class="line">sentinel parallel-syncs resque 5</span><br></pre></td></tr></table></figure></p>
 <p>这是最小的哨兵配置，如果发生了master-slave故障转移，或者新的哨兵进程加入哨兵集群，那么哨兵会自动更新自己的配置文件</p>
 <h2 id="5-2-配置说明"><a href="#5-2-配置说明" class="headerlink" title="5.2 配置说明"></a>5.2 配置说明</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sentinel monitor master-group-name hostname port quorum</span><br></pre></td></tr></table></figure>
-
 <p><strong>配置中的第三个参数是quorum，quorum的解释如下：</strong></p>
 <ol>
 <li>至少多少个哨兵要一致同意，master进程挂掉了，或者slave进程挂掉了，或者要启动一个故障转移操作</li>
@@ -446,32 +441,18 @@
 <p><strong>parallel-syncs</strong>，新的master别切换之后，同时有多少个slave被切换到去连接新master，重新做同步，数字越低，花费的时间越多</p>
 <p>假设你的redis是1个master，4个slave<br>然后master宕机了，4个slave中有1个切换成了master，剩下3个slave就要挂到新的master上面去<br>这个时候，如果parallel-syncs是1，那么3个slave，一个一个地挂接到新的master上面去，1个挂接完，而且从新的master sync完数据之后，再挂接下一个<br>如果parallel-syncs是3，那么一次性就会把所有slave挂接到新的master上去</p>
 <h2 id="5-3-正式配置"><a href="#5-3-正式配置" class="headerlink" title="5.3 正式配置"></a>5.3 正式配置</h2><h3 id="5-3-1-配置文件"><a href="#5-3-1-配置文件" class="headerlink" title="5.3.1 配置文件"></a>5.3.1 配置文件</h3><p>哨兵默认用26379端口，默认不能跟其他机器在指定端口连通，只能在本地访问.这里使用5000端口</p>
-<p>在3台虚拟机上新建：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /etc/sentinal  #集群配置文件目录</span><br><span class="line">mkdir -p /var/sentinal/5000 #运行目录</span><br></pre></td></tr></table></figure>
-
-<p>将sentinel.con拷贝到/etc/sentinel目录下，改名为5000.conf</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/sentinel/5000.conf</span><br></pre></td></tr></table></figure>
-
-<p>修改配置：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">port 5000</span><br><span class="line">bind 192.168.0.115</span><br><span class="line">dir /var/sentinal/5000</span><br><span class="line">sentinel monitor mymaster 192.168.0.115 6379 2</span><br><span class="line">sentinel down-after-milliseconds mymaster 30000</span><br><span class="line">sentinel failover-timeout mymaster 60000</span><br><span class="line">sentinel parallel-syncs mymaster 1</span><br></pre></td></tr></table></figure>
-
+<p>在3台虚拟机上新建：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /etc/sentinal  #集群配置文件目录</span><br><span class="line">mkdir -p /var/sentinal/5000 #运行目录</span><br></pre></td></tr></table></figure></p>
+<p>将sentinel.con拷贝到/etc/sentinel目录下，改名为5000.conf<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/sentinel/5000.conf</span><br></pre></td></tr></table></figure></p>
+<p>修改配置：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">port 5000</span><br><span class="line">bind 192.168.0.115</span><br><span class="line">dir /var/sentinal/5000</span><br><span class="line">sentinel monitor mymaster 192.168.0.115 6379 2</span><br><span class="line">sentinel down-after-milliseconds mymaster 30000</span><br><span class="line">sentinel failover-timeout mymaster 60000</span><br><span class="line">sentinel parallel-syncs mymaster 1</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">port 5000</span><br><span class="line">bind 192.168.0.116</span><br><span class="line">dir /var/sentinal/5000</span><br><span class="line">sentinel monitor mymaster 192.168.0.115 6379 2</span><br><span class="line">sentinel down-after-milliseconds mymaster 30000</span><br><span class="line">sentinel failover-timeout mymaster 60000</span><br><span class="line">sentinel parallel-syncs mymaster 1</span><br></pre></td></tr></table></figure>
-
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">port 5000</span><br><span class="line">bind 192.168.0.117</span><br><span class="line">dir /var/sentinal/5000</span><br><span class="line">sentinel monitor mymaster 192.168.0.115 6379 2</span><br><span class="line">sentinel down-after-milliseconds mymaster 30000</span><br><span class="line">sentinel failover-timeout mymaster 60000</span><br><span class="line">sentinel parallel-syncs mymaster 1</span><br></pre></td></tr></table></figure>
-
-<h3 id="5-3-2-启动哨兵进程"><a href="#5-3-2-启动哨兵进程" class="headerlink" title="5.3.2 启动哨兵进程"></a>5.3.2 启动哨兵进程</h3><p>在192.168.0.115、192.168.0.116、192.168.0.117三台机器上，分别启动三个哨兵进程，组成一个集群，观察一下日志的输出</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-sentinel /etc/sentinal/5000.conf</span><br></pre></td></tr></table></figure>
-
+<h3 id="5-3-2-启动哨兵进程"><a href="#5-3-2-启动哨兵进程" class="headerlink" title="5.3.2 启动哨兵进程"></a>5.3.2 启动哨兵进程</h3><p>在192.168.0.115、192.168.0.116、192.168.0.117三台机器上，分别启动三个哨兵进程，组成一个集群，观察一下日志的输出<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-sentinel /etc/sentinal/5000.conf</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-server /etc/sentinal/5000.conf --sentinel</span><br></pre></td></tr></table></figure>
-
 <p>日志里会显示出来，每个哨兵都能去监控到对应的redis master，并能够自动发现对应的slave</p>
 <p>哨兵之间，互相会自动进行发现，用的就是之前说的pub/sub，消息发布和订阅channel消息系统和机制</p>
 <h3 id="5-3-3-检查哨兵状态"><a href="#5-3-3-检查哨兵状态" class="headerlink" title="5.3.3 检查哨兵状态"></a>5.3.3 检查哨兵状态</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -h 192.168.0.115 -p 5000</span><br></pre></td></tr></table></figure>
-
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sentinel master mymaster</span><br><span class="line">sentinel slaves mymaster</span><br><span class="line">sentinel sentinels mymaster</span><br><span class="line"></span><br><span class="line">sentinel get-master-addr-by-name mymaster</span><br></pre></td></tr></table></figure>
-
 <h3 id="5-3-4-生产环境下部署"><a href="#5-3-4-生产环境下部署" class="headerlink" title="5.3.4 生产环境下部署"></a>5.3.4 生产环境下部署</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">daemonize yes</span><br><span class="line">logfile /var/log/sentinal/5000</span><br><span class="line"></span><br><span class="line">mkdir -p /var/log/sentinal/5000</span><br></pre></td></tr></table></figure>
-
 <h1 id="6-数据丢失"><a href="#6-数据丢失" class="headerlink" title="6 数据丢失"></a>6 数据丢失</h1><p>前面我们说了，哨兵 + redis主从的部署架构，是不会保证数据零丢失的。那么什么情况下会导致数据丢失呢。</p>
 <hr>
 <h2 id="6-1-两种数据丢失的情况"><a href="#6-1-两种数据丢失的情况" class="headerlink" title="6.1 两种数据丢失的情况"></a>6.1 两种数据丢失的情况</h2><p>主备切换的过程，可能会导致数据丢失</p>
@@ -639,7 +620,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -682,7 +663,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -723,7 +706,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -782,7 +767,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

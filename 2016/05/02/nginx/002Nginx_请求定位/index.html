@@ -94,18 +94,18 @@
 
 
 
-  <meta name="description" content="1. 请求定位12345location / &amp;#123;           root   html;           index  index.html index.htm;       proxy_pass http://myweb; &amp;#125;  /代表的是nginx根目录访问http://192.168.0.109 默认访问nginx目录下html中的index.html页面为了加">
+  <meta name="description" content="1. 请求定位12345location / &amp;#123;           root   html;           index  index.html index.htm;       proxy_pass http://myweb; &amp;#125; /代表的是nginx根目录访问http://192.168.0.109 默认访问nginx目录下html中的index.html页面为了加深">
 <meta name="keywords" content="Nginx">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Nginx_请求定位">
 <meta property="og:url" content="http://yoursite.com/2016/05/02/nginx/002Nginx_请求定位/index.html">
 <meta property="og:site_name" content="大海啊全是水">
-<meta property="og:description" content="1. 请求定位12345location / &amp;#123;           root   html;           index  index.html index.htm;       proxy_pass http://myweb; &amp;#125;  /代表的是nginx根目录访问http://192.168.0.109 默认访问nginx目录下html中的index.html页面为了加">
+<meta property="og:description" content="1. 请求定位12345location / &amp;#123;           root   html;           index  index.html index.htm;       proxy_pass http://myweb; &amp;#125; /代表的是nginx根目录访问http://192.168.0.109 默认访问nginx目录下html中的index.html页面为了加深">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2016-05-02T06:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx_请求定位">
-<meta name="twitter:description" content="1. 请求定位12345location / &amp;#123;           root   html;           index  index.html index.htm;       proxy_pass http://myweb; &amp;#125;  /代表的是nginx根目录访问http://192.168.0.109 默认访问nginx目录下html中的index.html页面为了加">
+<meta name="twitter:description" content="1. 请求定位12345location / &amp;#123;           root   html;           index  index.html index.htm;       proxy_pass http://myweb; &amp;#125; /代表的是nginx根目录访问http://192.168.0.109 默认访问nginx目录下html中的index.html页面为了加深">
 
 
 
@@ -399,10 +399,7 @@
 
       
         <h3 id="1-请求定位"><a href="#1-请求定位" class="headerlink" title="1. 请求定位"></a>1. 请求定位</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">           root   html;</span><br><span class="line">           index  index.html index.htm;</span><br><span class="line">       proxy_pass http://myweb;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
-<p>/代表的是nginx根目录<br>访问<a href="http://192.168.0.109" target="_blank" rel="noopener">http://192.168.0.109</a> 默认访问nginx目录下html中的index.html页面<br>为了加深理解，再举个例子：<br>我们新增一个location</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">location /aaa/bbb &#123;</span><br><span class="line">    root   /opt/mypage;</span><br><span class="line">    index  default.html;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<p>/代表的是nginx根目录<br>访问<a href="http://192.168.0.109" target="_blank" rel="noopener">http://192.168.0.109</a> 默认访问nginx目录下html中的index.html页面<br>为了加深理解，再举个例子：<br>我们新增一个location<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">location /aaa/bbb &#123;</span><br><span class="line">    root   /opt/mypage;</span><br><span class="line">    index  default.html;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>通过路径：<a href="http://192.168.0.109/aaa/bbb访问匹配到该location，会查找到/opt/mypage/aaa/bbb目录下default.html页面" target="_blank" rel="noopener">http://192.168.0.109/aaa/bbb访问匹配到该location，会查找到/opt/mypage/aaa/bbb目录下default.html页面</a>  </p>
 <p><strong>注意/opt/mypage路劲需加上/aaa/bbb才是定位到的路径</strong></p>
 
@@ -525,7 +522,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -568,7 +565,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -609,7 +608,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -668,7 +669,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

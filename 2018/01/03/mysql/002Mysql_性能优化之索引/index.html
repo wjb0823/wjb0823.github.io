@@ -412,14 +412,16 @@
 <p><img src="/images/mysql007.png" alt></p>
 <h2 id="2-1-参数说明"><a href="#2-1-参数说明" class="headerlink" title="2.1 参数说明"></a>2.1 参数说明</h2><p>expain出来的信息有10列，分别是id、select_type、table、type、possible_keys、key、key_len、ref、rows、Extra,下面对这些字段进行解释：<br>id: SELECT 查询的标识符. 每个 SELECT 都会自动分配一个唯一的标识符.<br>select_type: SELECT 查询的类型.<br>table: 查询的是哪个表<br>type: join 类型<br>possible_keys: 此次查询中可能选用的索引<br>key: 此次查询中确切使用到的索引.<br>key_len：表示查询优化器使用了索引的字节数<br>ref: 哪个字段或常数与 key 一起被使用<br>rows: 显示此查询一共扫描了多少行. 这个是一个估计值.<br>extra: 额外的信息</p>
 <h2 id="2-2-select-type列说明"><a href="#2-2-select-type列说明" class="headerlink" title="2.2 select_type列说明"></a>2.2 select_type列说明</h2><p>SIMPLE, 表示此查询不包含 UNION 查询或子查询<br>PRIMARY, 表示此查询是最外层的查询<br>UNION, 表示此查询是 UNION 的第二或随后的查询<br>DEPENDENT UNION, UNION 中的第二个或后面的查询语句, 取决于外面的查询<br>UNION RESULT, UNION 的结果<br>SUBQUERY, 子查询中的第一个 SELECT<br>DEPENDENT SUBQUERY: 子查询中的第一个 SELECT, 取决于外面的查询. 即子查询依赖于外层查询的结果.</p>
-<h2 id="2-3-type列说明"><a href="#2-3-type列说明" class="headerlink" title="2.3  type列说明"></a>2.3  type列说明</h2><table>
+<h2 id="2-3-type列说明"><a href="#2-3-type列说明" class="headerlink" title="2.3  type列说明"></a>2.3  type列说明</h2><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>类型</th>
 <th>含义</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>system</td>
 <td>表只有一行</td>
 </tr>
@@ -467,37 +469,30 @@
 <td>all</td>
 <td>全表扫描</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>通常来说, 不同的 type 类型的性能关系如下:<br>ALL &lt; index &lt; range ~ index_merge &lt; ref &lt; eq_ref &lt; const &lt; system</p>
 <h1 id="3-优化"><a href="#3-优化" class="headerlink" title="3 优化"></a>3 优化</h1><p>表结构:</p>
 <p><img src="/images/mysql008.png" alt></p>
 <p>索引情况:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SHOW</span> <span class="keyword">INDEX</span> <span class="keyword">FROM</span> employees.titles;</span><br><span class="line">+<span class="comment">--------+------------+----------+--------------+-------------+-----------+-------------+------+------------+</span></span><br><span class="line">| Table  | Non_unique | Key_name | Seq_in_index | Column_name | Collation | Cardinality | Null | Index_type |</span><br><span class="line">+<span class="comment">--------+------------+----------+--------------+-------------+-----------+-------------+------+------------+</span></span><br><span class="line">| titles |          0 | PRIMARY  |            1 | emp_no      | A         |        NULL |      | BTREE      |</span><br><span class="line">| titles |          0 | PRIMARY  |            2 | title       | A         |        NULL |      | BTREE      |</span><br><span class="line">| titles |          0 | PRIMARY  |            3 | from_date   | A         |      443308 |      | BTREE      |</span><br><span class="line">| titles |          1 | emp_no   |            1 | emp_no      | A         |      443308 |      | BTREE      |</span><br></pre></td></tr></table></figure>
-
 <h2 id="3-1-全列匹配"><a href="#3-1-全列匹配" class="headerlink" title="3.1 全列匹配"></a>3.1 全列匹配</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles <span class="keyword">WHERE</span> emp_no=<span class="string">'10001'</span> <span class="keyword">AND</span> title=<span class="string">'Senior Engineer'</span> <span class="keyword">AND</span> from_date=<span class="string">'1986-06-26'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+-------------------+------+-------+</span></span><br><span class="line">| id | select_type | table  | type  | possible_keys | key     | key_len | ref               | rows | Extra |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+-------------------+------+-------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | const | PRIMARY       | PRIMARY | 59      | const,const,const |    1 |       |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+-------------------+------+-------+</span></span><br></pre></td></tr></table></figure>
-
 <p>很明显，当按照索引中所有列进行精确匹配（这里精确匹配指“=”或“IN”匹配）时，索引可以被用到。这里有一点需要注意，理论上索引对顺序是敏感的，但是由于MySQL的查询优化器会自动调整where子句的条件顺序以使用适合的索引，如果我们将where中的条件顺序颠倒,结果是一样的。</p>
 <h2 id="3-2-最左前缀匹配"><a href="#3-2-最左前缀匹配" class="headerlink" title="3.2 最左前缀匹配"></a>3.2 最左前缀匹配</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles <span class="keyword">WHERE</span> emp_no=<span class="string">'10001'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------+</span></span><br><span class="line">| id | select_type | table  | type | possible_keys | key     | key_len | ref   | rows | Extra |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | ref  | PRIMARY       | PRIMARY | 4       | const |    1 |       |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------+</span></span><br></pre></td></tr></table></figure>
-
-<p>当查询条件精确匹配索引的左边连续一个或几个列时，如<emp_no>或&lt;emp_no, title&gt;，所以可以被用到，但是只能用到一部分，即条件所组成的最左前缀。上面的查询从分析结果看用到了PRIMARY索引，但是key_len为4，说明只用到了索引的第一列前缀。</emp_no></p>
+<p>当查询条件精确匹配索引的左边连续一个或几个列时，如<emp_no>或<emp_no, title>，所以可以被用到，但是只能用到一部分，即条件所组成的最左前缀。上面的查询从分析结果看用到了PRIMARY索引，但是key_len为4，说明只用到了索引的第一列前缀。</emp_no,></emp_no></p>
 <h2 id="3-3-查询条件用到了索引中列的精确匹配，但是中间某个条件未提供"><a href="#3-3-查询条件用到了索引中列的精确匹配，但是中间某个条件未提供" class="headerlink" title="3.3 查询条件用到了索引中列的精确匹配，但是中间某个条件未提供"></a>3.3 查询条件用到了索引中列的精确匹配，但是中间某个条件未提供</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles <span class="keyword">WHERE</span> emp_no=<span class="string">'10001'</span> <span class="keyword">AND</span> from_date=<span class="string">'1986-06-26'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------------+</span></span><br><span class="line">| id | select_type | table  | type | possible_keys | key     | key_len | ref   | rows | Extra       |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | ref  | PRIMARY       | PRIMARY | 4       | const |    1 | Using where |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------------+</span></span><br></pre></td></tr></table></figure>
-
-<p>此时索引使用情况和情况二相同，因为title未提供，所以查询只用到了索引的第一列，而后面的from_date虽然也在索引中，但是由于title不存在而无法和左前缀连接，因此需要对结果进行扫描过滤from_date（这里由于emp_no唯一，所以不存在扫描）。如果想让from_date也使用索引而不是where过滤，可以增加一个辅助索引&lt;emp_no, from_date&gt;，此时上面的查询会使用这个索引。除此之外，还可以使用一种称之为“隔离列”的优化方法，将emp_no与from_date之间的“坑”填上。</p>
+<p>此时索引使用情况和情况二相同，因为title未提供，所以查询只用到了索引的第一列，而后面的from_date虽然也在索引中，但是由于title不存在而无法和左前缀连接，因此需要对结果进行扫描过滤from_date（这里由于emp_no唯一，所以不存在扫描）。如果想让from_date也使用索引而不是where过滤，可以增加一个辅助索引<emp_no, from_date>，此时上面的查询会使用这个索引。除此之外，还可以使用一种称之为“隔离列”的优化方法，将emp_no与from_date之间的“坑”填上。</emp_no,></p>
 <h2 id="3-4-查询条件没有指定索引第一列。"><a href="#3-4-查询条件没有指定索引第一列。" class="headerlink" title="3.4 查询条件没有指定索引第一列。"></a>3.4 查询条件没有指定索引第一列。</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles <span class="keyword">WHERE</span> from_date=<span class="string">'1986-06-26'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+------+---------+------+--------+-------------+</span></span><br><span class="line">| id | select_type | table  | type | possible_keys | key  | key_len | ref  | rows   | Extra       |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+------+---------+------+--------+-------------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | ALL  | NULL          | NULL | NULL    | NULL | 443308 | Using where |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+------+---------+------+--------+-------------+</span></span><br></pre></td></tr></table></figure>
-
 <p>由于不是最左前缀，索引这样的查询显然用不到索引。</p>
 <h2 id="3-5-匹配某列的前缀字符串。"><a href="#3-5-匹配某列的前缀字符串。" class="headerlink" title="3.5 匹配某列的前缀字符串。"></a>3.5 匹配某列的前缀字符串。</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles <span class="keyword">WHERE</span> emp_no=<span class="string">'10001'</span> <span class="keyword">AND</span> title <span class="keyword">LIKE</span> <span class="string">'Senior%'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br><span class="line">| id | select_type | table  | type  | possible_keys | key     | key_len | ref  | rows | Extra       |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | range | PRIMARY       | PRIMARY | 56      | NULL |    1 | Using where |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br></pre></td></tr></table></figure>
-
 <p>此时可以用到索引，<del>但是如果通配符不是只出现在末尾，则无法使用索引。</del>（原文表述有误，如果通配符%不出现在开头，则可以用到索引，但根据具体情况不同可能只会用其中一个前缀）</p>
 <h2 id="3-6-范围查询。"><a href="#3-6-范围查询。" class="headerlink" title="3.6 范围查询。"></a>3.6 范围查询。</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles <span class="keyword">WHERE</span> emp_no &lt; <span class="string">'10010'</span> <span class="keyword">and</span> title=<span class="string">'Senior Engineer'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br><span class="line">| id | select_type | table  | type  | possible_keys | key     | key_len | ref  | rows | Extra       |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | range | PRIMARY       | PRIMARY | 4       | NULL |   16 | Using where |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br></pre></td></tr></table></figure>
-
 <p>范围列可以用到索引（必须是最左前缀），但是范围列后面的列无法用到索引。同时，索引最多用于一个范围列，因此如果查询条件中有两个范围列则无法全用到索引。</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles</span><br><span class="line"><span class="keyword">WHERE</span> emp_no &lt; <span class="string">'10010'</span></span><br><span class="line"><span class="keyword">AND</span> title=<span class="string">'Senior Engineer'</span></span><br><span class="line"><span class="keyword">AND</span> from_date <span class="keyword">BETWEEN</span> <span class="string">'1986-01-01'</span> <span class="keyword">AND</span> <span class="string">'1986-12-31'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br><span class="line">| id | select_type | table  | type  | possible_keys | key     | key_len | ref  | rows | Extra       |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | range | PRIMARY       | PRIMARY | 4       | NULL |   16 | Using where |</span><br><span class="line">+<span class="comment">----+-------------+--------+-------+---------------+---------+---------+------+------+-------------+</span></span><br></pre></td></tr></table></figure>
-
 <p>可以看到索引对第二个范围索引无能为力。</p>
 <h2 id="3-7-查询条件中含有函数或表达式。"><a href="#3-7-查询条件中含有函数或表达式。" class="headerlink" title="3.7 查询条件中含有函数或表达式。"></a>3.7 查询条件中含有函数或表达式。</h2><p>很不幸，如果查询条件中含有函数或表达式，则MySQL不会为这列使用索引（虽然某些在数学意义上可以使用）。例如：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employees.titles <span class="keyword">WHERE</span> emp_no=<span class="string">'10001'</span> <span class="keyword">AND</span> <span class="keyword">left</span>(title, <span class="number">6</span>)=<span class="string">'Senior'</span>;</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------------+</span></span><br><span class="line">| id | select_type | table  | type | possible_keys | key     | key_len | ref   | rows | Extra       |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------------+</span></span><br><span class="line">|  1 | SIMPLE      | titles | ref  | PRIMARY       | PRIMARY | 4       | const |    1 | Using where |</span><br><span class="line">+<span class="comment">----+-------------+--------+------+---------------+---------+---------+-------+------+-------------+</span></span><br></pre></td></tr></table></figure>
-
 
       
     </div>
@@ -618,7 +613,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -661,7 +656,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -702,7 +699,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -761,7 +760,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

@@ -415,17 +415,13 @@
 <h1 id="3-实操"><a href="#3-实操" class="headerlink" title="3. 实操"></a>3. 实操</h1><p><strong>master node配置</strong></p>
 <p>无需特殊配置。</p>
 <p><strong>slave node配置</strong></p>
-<p>修改从服务器上的redis.conf文件</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> slaveof &lt;masterip&gt; &lt;masterport&gt;</span><br><span class="line">slaveof 192.168.101.3 6379</span><br></pre></td></tr></table></figure>
-
+<p>修改从服务器上的redis.conf文件<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> slaveof &lt;masterip&gt; &lt;masterport&gt;</span><br><span class="line">slaveof 192.168.101.3 6379</span><br></pre></td></tr></table></figure></p>
 <p>上边的配置说明当前【从服务器】对应的【主服务器】的IP是192.168.101.3，端口是6379。</p>
 <p><strong>集群安全认证</strong></p>
 <p>master上启用安全认证，</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">requirepass yourpassword</span><br></pre></td></tr></table></figure>
-
 <p>slave连接master口令，</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">masterauth yourpassword</span><br></pre></td></tr></table></figure>
-
 <h1 id="4-原理分析"><a href="#4-原理分析" class="headerlink" title="4. 原理分析"></a>4. 原理分析</h1><h2 id="4-1-核心原理"><a href="#4-1-核心原理" class="headerlink" title="4.1 核心原理"></a>4.1 核心原理</h2><p>当启动一个slave node的时候，它会发送一个PSYNC命令给master node<br>如果这是slave node重新连接master node，那么master node仅仅会复制给slave部分缺少的数据; 否则如果是slave node第一次连接master node，那么会触发一次full resynchronization<br>开始full resynchronization的时候，master会启动一个后台线程，开始生成一份RDB快照文件，同时还会将从客户端收到的所有写命令缓存在内存中。RDB文件生成完毕之后，master会将这个RDB发送给slave，slave会先写入本地磁盘，然后再从本地磁盘加载到内存中。然后master会将内存中缓存的写命令发送给slave，slave也会同步这些数据。<br>slave node如果跟master node有网络故障，断开了连接，会自动重连。master如果发现有多个slave node都来重新连接，仅仅会启动一个rdb save操作，用一份数据服务所有slave node。</p>
 <h2 id="4-2-完整流程"><a href="#4-2-完整流程" class="headerlink" title="4.2 完整流程"></a>4.2 完整流程</h2><ol>
 <li>slave node启动，仅仅保存master node的信息，包括master node的host和ip，但是复制流程没开始<br>master host和ip是从哪儿来的，redis.conf里面的slaveof配置的</li>
@@ -578,7 +574,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -621,7 +617,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -662,7 +660,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -721,7 +721,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

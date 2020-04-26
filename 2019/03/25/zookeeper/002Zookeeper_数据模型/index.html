@@ -409,9 +409,7 @@
 <li>临时结点(EPHEMERAL)<br>临时结点的生命周期和客户端会话保持一致。客户端段会话存在的话临时结点也存在,客户端会话断开则临时结点会自动被服务端删除。临时结点下不能创建子结点。</li>
 <li>临时顺序结点(EPHEMERAL_SEQUENTIAL)<br>具有临时结点的基本特性,又有顺序性。</li>
 </ol>
-<h2 id="1-2-Znode的结构"><a href="#1-2-Znode的结构" class="headerlink" title="1.2  Znode的结构"></a>1.2  Znode的结构</h2><p>Znode结构主要由存储于其中的数据信息和状态信息两部分构成,通过get 命令获取一个Znode结点的信息如下:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">“Myfirstzookeeper-app"</span><br><span class="line">cZxid = 0x7f</span><br><span class="line">ctime = Tue Sep 29 16:15:47 IST 2015</span><br><span class="line">mZxid = 0x7f</span><br><span class="line">mtime = Tue Sep 29 16:15:47 IST 2015</span><br><span class="line">pZxid = 0x7f</span><br><span class="line">cversion = 0</span><br><span class="line">dataVersion = 0</span><br><span class="line">aclVersion = 0</span><br><span class="line">ephemeralOwner = 0x0</span><br><span class="line">dataLength = 22</span><br><span class="line">numChildren = 0</span><br></pre></td></tr></table></figure>
-
+<h2 id="1-2-Znode的结构"><a href="#1-2-Znode的结构" class="headerlink" title="1.2  Znode的结构"></a>1.2  Znode的结构</h2><p>Znode结构主要由存储于其中的数据信息和状态信息两部分构成,通过get 命令获取一个Znode结点的信息如下:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">“Myfirstzookeeper-app"</span><br><span class="line">cZxid = 0x7f</span><br><span class="line">ctime = Tue Sep 29 16:15:47 IST 2015</span><br><span class="line">mZxid = 0x7f</span><br><span class="line">mtime = Tue Sep 29 16:15:47 IST 2015</span><br><span class="line">pZxid = 0x7f</span><br><span class="line">cversion = 0</span><br><span class="line">dataVersion = 0</span><br><span class="line">aclVersion = 0</span><br><span class="line">ephemeralOwner = 0x0</span><br><span class="line">dataLength = 22</span><br><span class="line">numChildren = 0</span><br></pre></td></tr></table></figure></p>
 <p>第一行存储的是ZNode的数据信息。<br>从cZxid开始就是Znode的状态信息:<br><strong>cZxid：</strong> znode 的创建的事务ID<br><strong>ctime：</strong>znode创建 的时间点<br><strong>mZxid ：</strong>znode的最后修改事务ID<br><strong>mtime ：</strong>znode最后修改的时间<br><strong>pZxid ：</strong>子节点最后修改的事务ID<br><strong>cversion ：</strong>子节点修改的版本号<br><strong>dataVersion：</strong> znode的数据版本<br><strong>aclVersion ：</strong>znode acl数据版本<br><strong>ephemeralOwner ：</strong>当前这个znode属于那个client<br><strong>dataLength ：</strong>当前znode内容的长度<br><strong>numChildren ：</strong>当前znode的子节点个数</p>
 <p><strong>version介绍</strong><br>该Znode结点的版本号。每个Znode结点被创建时版本号都为0,每更新一次都会导致版本号加1,即使更新前后Znode存储的值没有变化版本号也会加1。version值可以形象的理解为Znode结点被更新的次数。Znode状态信息中的版本号信息,使得服务端可以对多个客户端对同一个Znode的更新操作做并发控制。整个过程和java中的CAS有点像,是一种乐观锁的并发控制策略,而version值起到了冲突检测的功能。客户端拿到Znode的version信息,并在更新时附上这个version信息,服务端在更新Znode时必须必须比较客户端的version和Znode的实际version,只有这两个version一致时才会进行修改。</p>
 
@@ -462,6 +460,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/11/03/resolve/RSA premaster secret error/" rel="prev" title>
+                 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -530,7 +532,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -573,7 +575,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -614,7 +618,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -673,7 +679,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

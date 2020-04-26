@@ -441,21 +441,11 @@
 </ul>
 </li>
 </ul>
-<h1 id="3-索引的使用"><a href="#3-索引的使用" class="headerlink" title="3 索引的使用"></a>3 索引的使用</h1><p><strong>创建索引</strong><br>单列索引之普通索引</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> <span class="keyword">table</span>(<span class="keyword">column</span>(<span class="keyword">length</span>)) </span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table_name <span class="keyword">ADD</span> <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> (<span class="keyword">column</span>(<span class="keyword">length</span>))</span><br></pre></td></tr></table></figure>
-
-<p>单列索引之唯一索引</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">UNIQUE</span> <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> <span class="keyword">table</span>(<span class="keyword">column</span>(<span class="keyword">length</span>))</span><br></pre></td></tr></table></figure>
-
-<p>单列索引之全文索引</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> FULLTEXT <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> <span class="keyword">table</span>(<span class="keyword">column</span>(<span class="keyword">length</span>))</span><br></pre></td></tr></table></figure>
-
-<p>联合索引</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> article <span class="keyword">ADD</span> <span class="keyword">INDEX</span> index_titme_time (title(<span class="number">50</span>),<span class="built_in">time</span>(<span class="number">10</span>))</span><br></pre></td></tr></table></figure>
-
-<p><strong>删除索引</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> <span class="keyword">table</span></span><br></pre></td></tr></table></figure>
-
+<h1 id="3-索引的使用"><a href="#3-索引的使用" class="headerlink" title="3 索引的使用"></a>3 索引的使用</h1><p><strong>创建索引</strong><br>单列索引之普通索引<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> <span class="keyword">table</span>(<span class="keyword">column</span>(<span class="keyword">length</span>)) </span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table_name <span class="keyword">ADD</span> <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> (<span class="keyword">column</span>(<span class="keyword">length</span>))</span><br></pre></td></tr></table></figure></p>
+<p>单列索引之唯一索引<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">UNIQUE</span> <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> <span class="keyword">table</span>(<span class="keyword">column</span>(<span class="keyword">length</span>))</span><br></pre></td></tr></table></figure></p>
+<p>单列索引之全文索引<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> FULLTEXT <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> <span class="keyword">table</span>(<span class="keyword">column</span>(<span class="keyword">length</span>))</span><br></pre></td></tr></table></figure></p>
+<p>联合索引<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> article <span class="keyword">ADD</span> <span class="keyword">INDEX</span> index_titme_time (title(<span class="number">50</span>),<span class="built_in">time</span>(<span class="number">10</span>))</span><br></pre></td></tr></table></figure></p>
+<p><strong>删除索引</strong><br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> <span class="keyword">table</span></span><br></pre></td></tr></table></figure></p>
 <h1 id="4-索引的存储结构"><a href="#4-索引的存储结构" class="headerlink" title="4 索引的存储结构"></a>4 索引的存储结构</h1><h2 id="4-1-B-Tree"><a href="#4-1-B-Tree" class="headerlink" title="4.1 B-Tree"></a>4.1 B-Tree</h2><p>B-Tree 中的每个节点根据实际情况可以包含大量的关键字信息和分支，如下图所示为一个 3 阶的 B-Tree：<br><img src="/images/mysql001.png" alt><br><strong>说明:</strong></p>
 <ul>
 <li>每个节点占用一个盘块的磁盘空间，一个节点上有两个升序排序的 key 和三个指向子树根节点的 point ，point 存储的是子节点所在磁盘块的地址。两个 key 划分成的三个范围域，对应三个 point 指向的子树的数据的范围域。</li>
@@ -469,7 +459,7 @@
 <h2 id="4-3-总结"><a href="#4-3-总结" class="headerlink" title="4.3 总结"></a>4.3 总结</h2><p>B-Tree和B+ Tree的特点与区别</p>
 <ul>
 <li>树的高度一般都是在2-4这个高度，树的高度直接影响IO读写的次数。</li>
-<li>如果是三层树结构—支撑的数据可以达到20G，如果是四层树结构—支撑的数据可以达到几十T</li>
+<li>如果是三层树结构—-支撑的数据可以达到20G，如果是四层树结构—-支撑的数据可以达到几十T</li>
 <li>B-Tree和B+ Tree的最大区别在于非叶子节点是否存储数据的问题。<ul>
 <li>B-Tree是非叶子节点和叶子节点都会存储数据。</li>
 <li>B+ Tree只有叶子节点才会存储数据，而且存储的数据都是在一行上，而且这些数据都是有指针指向的，也就是由顺序的。</li>
@@ -622,7 +612,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -665,7 +655,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -706,7 +698,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -765,7 +759,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

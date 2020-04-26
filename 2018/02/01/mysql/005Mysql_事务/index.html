@@ -427,12 +427,9 @@
 <li>Read committed (读已提交)：可避免脏读的发生。</li>
 <li>Repeatable read (可重复读)：可避免脏读、不可重复读的发生。</li>
 <li>Serializable (串行化)：可避免脏读、不可重复读、幻读的发生。<br>默认隔离级别<br>MySQL数据库的默认隔离级别是Repeatable read。<h2 id="4-如何查看和设置隔离级别："><a href="#4-如何查看和设置隔离级别：" class="headerlink" title="4 如何查看和设置隔离级别："></a>4 如何查看和设置隔离级别：</h2>在MySQL数据库中查看当前事务的隔离级别：<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> @@tx_isolation;</span><br></pre></td></tr></table></figure>
-
 </li>
 </ul>
-<p>在MySQL数据库中设置事务的隔离 级别：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span>  [glogal | <span class="keyword">session</span>]  <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> 隔离级别名称;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> tx_isolation=’隔离级别名称;’</span><br></pre></td></tr></table></figure>
-
+<p>在MySQL数据库中设置事务的隔离 级别：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span>  [glogal | <span class="keyword">session</span>]  <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> 隔离级别名称;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> tx_isolation=’隔离级别名称;’</span><br></pre></td></tr></table></figure></p>
 <p>注意事项：<br>隔离级别越高，越能保证数据的完整性和一致性，但是对并发性能的影响也越大。<br>对于多数应用程序，可以优先考虑把数据库系统的隔离级别设为Read Committed。它能够避免脏读取，而且具有较好的并发性能。尽管它会导致不可重复读、幻读这些并发问题，在可能出现这类问题的个别场合，可以由应用程序采用悲观锁或乐观锁来控制。</p>
 
       
@@ -554,7 +551,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -597,7 +594,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -638,7 +637,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -697,7 +698,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

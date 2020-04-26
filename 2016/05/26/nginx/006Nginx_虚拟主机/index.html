@@ -94,18 +94,18 @@
 
 
 
-  <meta name="description" content="准备两台虚拟机，一台安装nginx、一台安装6台tomcat6台tomcat每两台一组部署3个站点，类似58同城的不同城市站点切换tomcat1、tomcat2代码的index.jsp代码：   12345678&amp;lt;html&amp;gt;&amp;lt;body&amp;gt;&amp;lt;h2&amp;gt;68entry&amp;lt;/h2&amp;gt;&amp;lt;a href=&amp;quot;http://hz.68.com&amp;quot;&amp;gt">
+  <meta name="description" content="准备两台虚拟机，一台安装nginx、一台安装6台tomcat6台tomcat每两台一组部署3个站点，类似58同城的不同城市站点切换tomcat1、tomcat2代码的index.jsp代码：12345678&amp;lt;html&amp;gt;&amp;lt;body&amp;gt;&amp;lt;h2&amp;gt;68entry&amp;lt;/h2&amp;gt;&amp;lt;a href=&amp;quot;http://hz.68.com&amp;quot;&amp;gt;Ha">
 <meta name="keywords" content="Nginx">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Nginx_虚拟主机">
 <meta property="og:url" content="http://yoursite.com/2016/05/26/nginx/006Nginx_虚拟主机/index.html">
 <meta property="og:site_name" content="大海啊全是水">
-<meta property="og:description" content="准备两台虚拟机，一台安装nginx、一台安装6台tomcat6台tomcat每两台一组部署3个站点，类似58同城的不同城市站点切换tomcat1、tomcat2代码的index.jsp代码：   12345678&amp;lt;html&amp;gt;&amp;lt;body&amp;gt;&amp;lt;h2&amp;gt;68entry&amp;lt;/h2&amp;gt;&amp;lt;a href=&amp;quot;http://hz.68.com&amp;quot;&amp;gt">
+<meta property="og:description" content="准备两台虚拟机，一台安装nginx、一台安装6台tomcat6台tomcat每两台一组部署3个站点，类似58同城的不同城市站点切换tomcat1、tomcat2代码的index.jsp代码：12345678&amp;lt;html&amp;gt;&amp;lt;body&amp;gt;&amp;lt;h2&amp;gt;68entry&amp;lt;/h2&amp;gt;&amp;lt;a href=&amp;quot;http://hz.68.com&amp;quot;&amp;gt;Ha">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2016-05-26T06:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx_虚拟主机">
-<meta name="twitter:description" content="准备两台虚拟机，一台安装nginx、一台安装6台tomcat6台tomcat每两台一组部署3个站点，类似58同城的不同城市站点切换tomcat1、tomcat2代码的index.jsp代码：   12345678&amp;lt;html&amp;gt;&amp;lt;body&amp;gt;&amp;lt;h2&amp;gt;68entry&amp;lt;/h2&amp;gt;&amp;lt;a href=&amp;quot;http://hz.68.com&amp;quot;&amp;gt">
+<meta name="twitter:description" content="准备两台虚拟机，一台安装nginx、一台安装6台tomcat6台tomcat每两台一组部署3个站点，类似58同城的不同城市站点切换tomcat1、tomcat2代码的index.jsp代码：12345678&amp;lt;html&amp;gt;&amp;lt;body&amp;gt;&amp;lt;h2&amp;gt;68entry&amp;lt;/h2&amp;gt;&amp;lt;a href=&amp;quot;http://hz.68.com&amp;quot;&amp;gt;Ha">
 
 
 
@@ -398,27 +398,10 @@
       
 
       
-        <p>准备两台虚拟机，一台安装nginx、一台安装6台tomcat<br>6台tomcat每两台一组部署3个站点，类似58同城的不同城市站点切换<br>tomcat1、tomcat2代码<br>的index.jsp代码：  </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;h2&gt;68entry&lt;/h2&gt;</span><br><span class="line">&lt;a href=&quot;http://hz.68.com&quot;&gt;Hangzhou&lt;/a&gt;</span><br><span class="line">&lt;a href=&quot;http://sh.68.com&quot;&gt;Shanghai&lt;/a&gt;</span><br><span class="line">tomcat1</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
-
-<p>tomcat3、tomcat4代码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;h2&gt;68Hangzhou&lt;/h2&gt;</span><br><span class="line">&lt;a href=&quot;http://www.68.com&quot;&gt;entry&lt;/a&gt;</span><br><span class="line">&lt;a href=&quot;http://sh.68.com&quot;&gt;Shanghai&lt;/a&gt;</span><br><span class="line">tomcat3</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
-
-<p>tomcat5、tomcat6代码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;h2&gt;68Shanghai&lt;/h2&gt;</span><br><span class="line">&lt;a href=&quot;www.68.com&quot;&gt;entry&lt;/a&gt;</span><br><span class="line">&lt;a href=&quot;hz.68.com&quot;&gt;Hangzhou&lt;/a&gt;</span><br><span class="line">tomcat4</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
-
-<p>nginx配置：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"> upstream hz68.com &#123;</span><br><span class="line">        server 192.168.0.110:8083 weight=5;</span><br><span class="line">        server 192.168.0.110:8084 weight=5;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">   upstream sh68.com &#123;</span><br><span class="line">        server 192.168.0.110:8085 weight=5;</span><br><span class="line">        server 192.168.0.110:8086 weight=5;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">        server_name  hz.68.com;</span><br><span class="line">        location / &#123;</span><br><span class="line">            proxy_pass http://hz68.com;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">        server_name  sh.68.com;</span><br><span class="line">        location / &#123;</span><br><span class="line">            proxy_pass http://sh68.com;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line"> server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">        server_name  68.com;</span><br><span class="line">        location / &#123;</span><br><span class="line">            root   html;</span><br><span class="line">            index  index.html index.htm;</span><br><span class="line">            proxy_pass http://68.com;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-
-
-
-
+        <p>准备两台虚拟机，一台安装nginx、一台安装6台tomcat<br>6台tomcat每两台一组部署3个站点，类似58同城的不同城市站点切换<br>tomcat1、tomcat2代码<br>的index.jsp代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;h2&gt;68entry&lt;/h2&gt;</span><br><span class="line">&lt;a href=&quot;http://hz.68.com&quot;&gt;Hangzhou&lt;/a&gt;</span><br><span class="line">&lt;a href=&quot;http://sh.68.com&quot;&gt;Shanghai&lt;/a&gt;</span><br><span class="line">tomcat1</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure></p>
+<p>tomcat3、tomcat4代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;h2&gt;68Hangzhou&lt;/h2&gt;</span><br><span class="line">&lt;a href=&quot;http://www.68.com&quot;&gt;entry&lt;/a&gt;</span><br><span class="line">&lt;a href=&quot;http://sh.68.com&quot;&gt;Shanghai&lt;/a&gt;</span><br><span class="line">tomcat3</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure></p>
+<p>tomcat5、tomcat6代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;h2&gt;68Shanghai&lt;/h2&gt;</span><br><span class="line">&lt;a href=&quot;www.68.com&quot;&gt;entry&lt;/a&gt;</span><br><span class="line">&lt;a href=&quot;hz.68.com&quot;&gt;Hangzhou&lt;/a&gt;</span><br><span class="line">tomcat4</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure></p>
+<p>nginx配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"> upstream hz68.com &#123;</span><br><span class="line">        server 192.168.0.110:8083 weight=5;</span><br><span class="line">        server 192.168.0.110:8084 weight=5;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">   upstream sh68.com &#123;</span><br><span class="line">        server 192.168.0.110:8085 weight=5;</span><br><span class="line">        server 192.168.0.110:8086 weight=5;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">        server_name  hz.68.com;</span><br><span class="line">        location / &#123;</span><br><span class="line">            proxy_pass http://hz68.com;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">        server_name  sh.68.com;</span><br><span class="line">        location / &#123;</span><br><span class="line">            proxy_pass http://sh68.com;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line"> server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">        server_name  68.com;</span><br><span class="line">        location / &#123;</span><br><span class="line">            root   html;</span><br><span class="line">            index  index.html index.htm;</span><br><span class="line">            proxy_pass http://68.com;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 
       
     </div>
@@ -530,7 +513,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -573,7 +556,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -614,7 +599,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -656,7 +643,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

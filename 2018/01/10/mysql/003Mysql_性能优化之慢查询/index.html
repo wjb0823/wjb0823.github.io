@@ -413,13 +413,9 @@
 <p><img src="/images/mysql009.png" alt="img"> </p>
 <p><strong>参数说明：</strong></p>
 <p>slow_query_log    ：是否开启慢查询日志，ON 为开启，OFF 为关闭，如果为关闭可以开启。<br>slow-query-log-file：MySQL数据库慢查询日志存储路径。可以不设置该参数，系统则会默认给一个缺省的文件host_name-slow.log<br>long_query_time ：慢查询阈值，当查询时间多于设定的阈值时，记录日志，单位为秒。</p>
-<p><strong>临时开启慢查询功能</strong><br>在 MySQL 执行 SQL 语句设置，但是如果重启 MySQL 的话将失效</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span> <span class="keyword">global</span> slow_query_log = <span class="keyword">ON</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">global</span> long_query_time = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-
+<p><strong>临时开启慢查询功能</strong><br>在 MySQL 执行 SQL 语句设置，但是如果重启 MySQL 的话将失效<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span> <span class="keyword">global</span> slow_query_log = <span class="keyword">ON</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">global</span> long_query_time = <span class="number">1</span>;</span><br></pre></td></tr></table></figure></p>
 <p><strong>永久开启慢查询功能</strong></p>
-<p>修改/etc/my.cnf配置文件，重启 MySQL, 这种永久生效.</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line"></span><br><span class="line">slow_query_log = ON</span><br><span class="line"></span><br><span class="line">slow_query_log_file = /var/log/mysql/slow.log</span><br><span class="line"></span><br><span class="line">long_query_time = 1</span><br></pre></td></tr></table></figure>
-
+<p>修改/etc/my.cnf配置文件，重启 MySQL, 这种永久生效.<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line"></span><br><span class="line">slow_query_log = ON</span><br><span class="line"></span><br><span class="line">slow_query_log_file = /var/log/mysql/slow.log</span><br><span class="line"></span><br><span class="line">long_query_time = 1</span><br></pre></td></tr></table></figure></p>
 <p><strong>慢日志格式</strong></p>
 <p><img src="/images/mysql010.png" alt="img"> </p>
 <p><img src="/images/mysql011.png" alt="img"> </p>
@@ -444,13 +440,9 @@
 <li>t    查询时间</li>
 </ul>
 <p>-t：是top n的意思，即为返回前面多少条的数据<br>-g：后边可以写一个正则匹配模式，大小写不敏感的<br>示例：</p>
-<p>得到按照时间排序的前10条里面含有左连接的查询语句。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldumpslow -s t -t 10 -g “left join” /var/lib/mysql/localhost_slow.log</span><br></pre></td></tr></table></figure>
-
+<p>得到按照时间排序的前10条里面含有左连接的查询语句。<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldumpslow -s t -t 10 -g “left join” /var/lib/mysql/localhost_slow.log</span><br></pre></td></tr></table></figure></p>
 <h3 id="1-4-2-使用percona-toolkit工具"><a href="#1-4-2-使用percona-toolkit工具" class="headerlink" title="1.4.2 使用percona-toolkit工具"></a>1.4.2 使用percona-toolkit工具</h3><p>percona-toolkit是一组高级命令行工具的集合，可以查看当前服务的摘要信息，磁盘检测，分析慢查询日志，查找重复索引，实现表同步等等。<br>下载:<a href="https://www.percona.com/downloads/percona-toolkit/3.0.11/binary/tarball/percona-toolkit-3.0.11_x86_64.tar.gz" target="_blank" rel="noopener">https://www.percona.com/downloads/percona-toolkit/3.0.11/binary/tarball/percona-toolkit-3.0.11_x86_64.tar.gz</a></p>
-<p>安装<br>前置安装</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum install -y perl-ExtUtils-CBuilder perl-ExtUtils-MakeMaker</span><br><span class="line">yum install -y perl-Time-HiRes</span><br></pre></td></tr></table></figure>
-
+<p>安装<br>前置安装<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum install -y perl-ExtUtils-CBuilder perl-ExtUtils-MakeMaker</span><br><span class="line">yum install -y perl-Time-HiRes</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">	 tar -xf percona-toolkit-3.0.11_x86_64.tar.gz</span><br><span class="line">	 cd percona-toolkit-3.0.11</span><br><span class="line">	 perl Makefile.PL</span><br><span class="line">	 make</span><br><span class="line">	 make install</span><br><span class="line">···</span><br><span class="line">​```shell</span><br><span class="line">pt-query-digest /var/lib/mysql/localhost-slow.log</span><br></pre></td></tr></table></figure>
       
     </div>
@@ -571,7 +563,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -614,7 +606,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -655,7 +649,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -714,7 +710,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

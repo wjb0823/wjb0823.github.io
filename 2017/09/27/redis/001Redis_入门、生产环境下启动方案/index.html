@@ -410,20 +410,14 @@
 <p>Redis官网:<a href="Redis官网">https://redis.io/</a> </p>
 <h1 id="2-Redis单机安装"><a href="#2-Redis单机安装" class="headerlink" title="2. Redis单机安装"></a>2. Redis单机安装</h1><p>Redis的安装很简单将jar上传到服务器的/soft目录下(个人喜欢在服务器中新建一个soft目录存放上传的安装包，安装目录为/usr/local目录)：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf redis-3.2.8.tar.gz -C /usr/local </span><br><span class="line">cd redis-3.2.8</span><br><span class="line">make &amp;&amp; make test &amp;&amp; make install</span><br></pre></td></tr></table></figure>
-
 <p>如果提示需要安装tcl，采用如下步骤安装</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget http://downloads.sourceforge.net/tcl/tcl8.6.1-src.tar.gz</span><br><span class="line">tar -xzvf tcl8.6.1-src.tar.gz</span><br><span class="line">cd  /usr/local/tcl8.6.1/unix/</span><br><span class="line">./configure  </span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
-
-<h1 id="3-Redis命令初探"><a href="#3-Redis命令初探" class="headerlink" title="3. Redis命令初探"></a>3. Redis命令初探</h1><p>启动redis服务</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./redis-server</span><br></pre></td></tr></table></figure>
-
+<h1 id="3-Redis命令初探"><a href="#3-Redis命令初探" class="headerlink" title="3. Redis命令初探"></a>3. Redis命令初探</h1><p>启动redis服务<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./redis-server</span><br></pre></td></tr></table></figure></p>
 <p>注意这种方式启动redis 使用的是默认配置。也可以通过启动参数告诉redis使用指定配置文件使用下面命令启动。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./redis-server redis.conf</span><br></pre></td></tr></table></figure>
-
 <p><strong>注意</strong>此时还没有作为后台进程启动，你连接服务器的会话关闭，redis服务也停止了。</p>
 <p>我们先通过redis-cli命令来看看Redis命令是如何使用的。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -h 127.0.0.1 -p 6379</span><br></pre></td></tr></table></figure>
-
 <p> -h 表示连接指定的IP，因为现在我们还没有修改redis.conf中bind的相关配置。</p>
 <p>客户端打开之后：</p>
 <p><img src="/images/redis001.png" alt></p>
@@ -447,7 +441,6 @@
 <li>启动redis，执行cd /etc/init.d, chmod 777 redis_6379，./redis_6379 start</li>
 <li>确认redis进程是否启动，ps -ef | grep redis</li>
 <li>让redis跟随系统启动自动启动<br>在redis_6379脚本中，最上面，加入两行注释<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> chkconfig:   2345 90 10</span><br><span class="line"><span class="meta">#</span> description:  Redis is a persistent key-value database</span><br></pre></td></tr></table></figure>
-
 </li>
 </ol>
 <p>加入注释后执行<br>chkconfig redis_6379 on</p>
@@ -572,7 +565,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -615,7 +608,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -656,7 +651,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -715,7 +712,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

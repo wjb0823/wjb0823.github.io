@@ -442,6 +442,7 @@
 <li>注入式AspectJ切面<br>前三种都是Spring AOP的变体。</li>
 </ul>
 <h1 id="4-2-通过切点来选择连接点"><a href="#4-2-通过切点来选择连接点" class="headerlink" title="4.2 通过切点来选择连接点"></a>4.2 通过切点来选择连接点</h1><p>Spring借助AspectJ的切点表达式来定义Spring切面，我们先来看看Spring支持的AspectJ切点指示器</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -449,7 +450,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>arg()</td>
 <td>限制连接点匹配参数为指定类型的执行方法</td>
 </tr>
@@ -485,132 +487,130 @@
 <td>@annotation()</td>
 <td>限制匹配带有指定注解连接点</td>
 </tr>
-<tr>
-<td>———————</td>
-<td></td>
-</tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
+<hr>
 <p><strong>注意</strong>：只有execution()指示器是用来实际执行区配的，其它都是用来限制匹配的。</p>
 <h2 id="4-2-1-编写切点"><a href="#4-2-1-编写切点" class="headerlink" title="4.2.1 编写切点"></a>4.2.1 编写切点</h2><p><img src="/images/spring001.png" alt></p>
 <p>看图我们大概知道了切点表达式各部分的含义，下面来通过一个例子看看各部分都可以如何使用：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">execution (* com.sample.service..*. *(..))</span><br></pre></td></tr></table></figure>
-
 <p>整个表达式可以分为五个部分：</p>
 <ol>
 <li>execution()：表达式主体。</li>
-<li>第一个*号：表示返回类型， *号表示所有的类型。</li>
+<li>第一个<em>号：表示返回类型， </em>号表示所有的类型。</li>
 <li>包名：表示需要拦截的包名，后面的两个句点表示当前包和当前包的所有子包，com.sample.service包、子孙包下所有类的方法。</li>
 <li>第二个*号：表示类名，*号表示所有的类。</li>
-<li><em>(..)*</em>：最后这个星号表示方法名，*号表示所有的方法，后面括弧里面表示方法的参数，两个句点表示任何参数</li>
+<li><em>(..)**：最后这个星号表示方法名，</em>号表示所有的方法，后面括弧里面表示方法的参数，两个句点表示任何参数</li>
 </ol>
 <p>可以使用&amp;&amp; 、||、!结合其他切点表达式使用</p>
 <h2 id="4-2-2-在切点中选择bean"><a href="#4-2-2-在切点中选择bean" class="headerlink" title="4.2.2  在切点中选择bean"></a>4.2.2  在切点中选择bean</h2><p>bean()可以使用 bean 的id 或者 name 来限制切点只匹配特定的bean。</p>
 <p>例如：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">execution(* concert.Perfirmance.perform(..)  <span class="function">and <span class="title">bean</span><span class="params">(<span class="string">'woodstock'</span>)</span>)</span></span><br></pre></td></tr></table></figure>
-
 <p>在这里我们限定了bean的ID为 woodstock。</p>
 <h1 id="4-3-使用注解创建切面"><a href="#4-3-使用注解创建切面" class="headerlink" title="4.3 使用注解创建切面"></a>4.3 使用注解创建切面</h1><h2 id="4-3-1-定义切面"><a href="#4-3-1-定义切面" class="headerlink" title="4.3.1 定义切面"></a>4.3.1 定义切面</h2><p>定义一个切面类：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Audience</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 目标方法执行之前调用</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Before</span>(<span class="string">"execution(** com.spring.aop.service.perform(..))"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">silenceCellPhone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Silencing cell phones"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 目标方法执行之前调用</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Before</span>(<span class="string">"execution(** com.spring.aop.service.perform(..))"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">takeSeats</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Taking seats"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 目标方法执行完后调用</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@AfterReturning</span>(<span class="string">"execution(** com.spring.aop.service.perform(..))"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">applause</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"CLAP CLAP CLAP"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 目标方法发生异常时调用</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@AfterThrowing</span>(<span class="string">"execution(** com.spring.aop.service.perform(..))"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demandRefund</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Demanding a refund"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <h2 id="4-3-2-配置切面"><a href="#4-3-2-配置切面" class="headerlink" title="4.3.2 配置切面"></a>4.3.2 配置切面</h2><p>现在切面类我们有了，但是我们通过如何配置让其生效呢：<br>如果你使用Java Config的配置的话：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableAspectJAutoProxy</span></span><br><span class="line"><span class="meta">@ComponentScan</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcertConfig</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 声明Audience bean</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Audience <span class="title">audience</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Audience();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>声明Audience bean自然是不用说了，我们还需要通过@EnableAspectJAutoProxy注解来启动AspectJ自动代理</p>
-<p>XML的配置也是差不多:</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span> <span class="attr">xmlns:context</span>=<span class="string">"http://www.springframework.org/schema/context"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:mvc</span>=<span class="string">"http://www.springframework.org/schema/mvc"</span> <span class="attr">xmlns:task</span>=<span class="string">"http://www.springframework.org/schema/task"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:aop</span>=<span class="string">"http://www.springframework.org/schema/aop"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:cache</span>=<span class="string">"http://www.springframework.org/schema/cache"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/cache</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/cache/spring-cache.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd"</span>&gt;</span></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"com.spring.aop"</span> /&gt;</span>\</span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 启动AspectJ自动代理 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">aop:aspectj-autoproxy</span>/&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"com.spring.aop.Audience"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
+<p>XML的配置也是差不多:<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span> <span class="attr">xmlns:context</span>=<span class="string">"http://www.springframework.org/schema/context"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:mvc</span>=<span class="string">"http://www.springframework.org/schema/mvc"</span> <span class="attr">xmlns:task</span>=<span class="string">"http://www.springframework.org/schema/task"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:aop</span>=<span class="string">"http://www.springframework.org/schema/aop"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:cache</span>=<span class="string">"http://www.springframework.org/schema/cache"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/cache</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/cache/spring-cache.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd"</span>&gt;</span></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"com.spring.aop"</span> /&gt;</span>\</span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 启动AspectJ自动代理 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">aop:aspectj-autoproxy</span>/&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"com.spring.aop.Audience"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
 <p>XML的配置，启动AspectJ自动代理和bean的声明不容易忘记，关键不要忘了引入AOP命名空间。</p>
 <h3 id="4-3-3-通知类型"><a href="#4-3-3-通知类型" class="headerlink" title="4.3.3 通知类型"></a>4.3.3 通知类型</h3><p>上面我们通过一个简单的例子看到了@Before、@AfterReturning、 @AfterThrowing通知的使用，还有其他哪些通知呢：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">注解</th>
-<th align="center">通知</th>
+<th style="text-align:center">注解</th>
+<th style="text-align:center">通知</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">@After</td>
-<td align="center">通知方法会在目标方法返回或抛出异常后调用</td>
+<tbody>
+<tr>
+<td style="text-align:center">@After</td>
+<td style="text-align:center">通知方法会在目标方法返回或抛出异常后调用</td>
 </tr>
 <tr>
-<td align="center">@AfterRetruening</td>
-<td align="center">通常方法会在目标方法返回后调用</td>
+<td style="text-align:center">@AfterRetruening</td>
+<td style="text-align:center">通常方法会在目标方法返回后调用</td>
 </tr>
 <tr>
-<td align="center">@AfterThrowing</td>
-<td align="center">通知方法会在目标方法抛出异常后调用</td>
+<td style="text-align:center">@AfterThrowing</td>
+<td style="text-align:center">通知方法会在目标方法抛出异常后调用</td>
 </tr>
 <tr>
-<td align="center">@Around</td>
-<td align="center">通知方法将目标方法封装起来</td>
+<td style="text-align:center">@Around</td>
+<td style="text-align:center">通知方法将目标方法封装起来</td>
 </tr>
 <tr>
-<td align="center">@Before</td>
-<td align="center">通知方法会在目标方法执行之前执行</td>
+<td style="text-align:center">@Before</td>
+<td style="text-align:center">通知方法会在目标方法执行之前执行</td>
 </tr>
-</tbody></table>
-<h1 id="4-4-在XML中声明切面"><a href="#4-4-在XML中声明切面" class="headerlink" title="4.4 在XML中声明切面"></a>4.4 在XML中声明切面</h1><h2 id="4-4-1-XML中AOP配置元素"><a href="#4-4-1-XML中AOP配置元素" class="headerlink" title="4.4.1 XML中AOP配置元素"></a>4.4.1 XML中AOP配置元素</h2><table>
+</tbody>
+</table>
+</div>
+<h1 id="4-4-在XML中声明切面"><a href="#4-4-在XML中声明切面" class="headerlink" title="4.4 在XML中声明切面"></a>4.4 在XML中声明切面</h1><h2 id="4-4-1-XML中AOP配置元素"><a href="#4-4-1-XML中AOP配置元素" class="headerlink" title="4.4.1 XML中AOP配置元素"></a>4.4.1 XML中AOP配置元素</h2><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>AOP元素</th>
 <th>用途</th>
 </tr>
 </thead>
-<tbody><tr>
-<td>&lt;aop:advisor&gt;</td>
+<tbody>
+<tr>
+<td>\<aop:advisor\></aop:advisor\></td>
 <td>定义AOP通知器</td>
 </tr>
 <tr>
-<td>&lt;aop:after&gt;</td>
+<td>\<aop:after\></aop:after\></td>
 <td>定义一个后置通知（不管目标方法是否执行成功）</td>
 </tr>
 <tr>
-<td>&lt;aop:after-returning&gt;</td>
+<td>\<aop:after-returning\></aop:after-returning\></td>
 <td>定义AOP返回通知</td>
 </tr>
 <tr>
-<td>&lt;aop:after-throwing&gt;</td>
+<td>\<aop:after-throwing\></aop:after-throwing\></td>
 <td>定义AOP异常通知</td>
 </tr>
 <tr>
-<td>&lt;aop:around&gt;</td>
+<td>\<aop:around\></aop:around\></td>
 <td>定义环绕通知</td>
 </tr>
 <tr>
-<td>&lt;aop:aspect&gt;</td>
+<td>\<aop:aspect\></aop:aspect\></td>
 <td>定义一个切面</td>
 </tr>
 <tr>
-<td>&lt;aop:aspectj-autoproxy&gt;</td>
+<td>\<aop:aspectj-autoproxy\></aop:aspectj-autoproxy\></td>
 <td>启动@AspectJ注解驱动的切面</td>
 </tr>
 <tr>
-<td>&lt;aop:before&gt;</td>
+<td>\<aop:before\></aop:before\></td>
 <td>定义一个AOP前置通知</td>
 </tr>
 <tr>
-<td>&lt;aop:config&gt;</td>
-<td>顶层AOP配置元素。大多数的&lt;aop:*&gt;元素都必须包含在&lt;aop:config&gt;元素内</td>
+<td>\<aop:config\></aop:config\></td>
+<td>顶层AOP配置元素。大多数的\<aop:\*\>元素都必须包含在\<aop:config\>元素内</aop:config\></aop:\*\></td>
 </tr>
 <tr>
-<td>&lt;aop:declare-parents&gt;</td>
+<td>\<aop:declare-parents\></aop:declare-parents\></td>
 <td>以透明的方式为被通知的对象引入额外的接口</td>
 </tr>
 <tr>
-<td>&lt;aop:pointcut&gt;</td>
+<td>\<aop:pointcut\></aop:pointcut\></td>
 <td>定义一个切点</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="4-4-2-XML中的配置"><a href="#4-4-2-XML中的配置" class="headerlink" title="4.4.2 XML中的配置"></a>4.4.2 XML中的配置</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">aop:config</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">aop:aspect</span> <span class="attr">ref</span>=<span class="string">"audience"</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">        <span class="tag">&lt;<span class="name">aop:before</span> <span class="attr">pointcut</span>=<span class="string">"execution(** com.spring.aop.service.Perfomance.perform(..)"</span> </span></span><br><span class="line"><span class="tag">        <span class="attr">method</span>=<span class="string">"silenceCellPhone"</span>/&gt;</span></span><br><span class="line">        </span><br><span class="line">        <span class="tag">&lt;<span class="name">aop:before</span> <span class="attr">pointcut</span>=<span class="string">"execution(** com.spring.aop.service.Perfomance.perform(..)"</span> </span></span><br><span class="line"><span class="tag">        <span class="attr">method</span>=<span class="string">"takeSeats"</span>/&gt;</span></span><br><span class="line">        </span><br><span class="line">        <span class="tag">&lt;<span class="name">aop:after-returning</span> <span class="attr">pointcut</span>=<span class="string">"execution(** com.spring.aop.service.Perfomance.perform(..)"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">method</span>=<span class="string">"applause"</span>/&gt;</span></span><br><span class="line">    </span><br><span class="line">        <span class="tag">&lt;<span class="name">aop:after-throwing</span> <span class="attr">pointcut</span>=<span class="string">"execution(** com.spring.aop.service.Perfomance.perform(..)"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">method</span>=<span class="string">"demandRefund"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">aop:aspect</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">aop:config</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
 <p>忘了一個知識點：@Pointcut</p>
 <p>@Pointcut有什么作用呢：主要是帮我们简化切点表达式的写法.</p>
 <p>定义一个公共的切点</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Pointcut</span>(<span class="string">"execution(** com.spring.aop.service.Perfomance.perform(..))"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">performance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>使用：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Before</span>(<span class="string">"performance()"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">silenceCellPhone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"Silencing cell phones"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>XML的配置使用这里就不给出了，网上挺多的。</p>
 
       
@@ -734,7 +734,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">43</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -777,7 +777,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -818,7 +820,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -877,7 +881,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
