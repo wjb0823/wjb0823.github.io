@@ -99,7 +99,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis_主从复制">
 <meta property="og:url" content="http://yoursite.com/2017/10/13/redis/004Redis_主从复制/index.html">
-<meta property="og:site_name" content="大海啊全是水">
+<meta property="og:site_name" content="努力、积累、重复、坚持、自律">
 <meta property="og:description" content="单机的redis几乎不太可能说QPS超过10万+，除非一些特殊情况，比如你的机器性能特别好，配置特别高，物理机，维护做的特别好，而且你的整体的操作不是太复杂。单机的QPS一般在几万。如果你的业务发展的很好，每秒QPS很高，那怎么办呢？此时我们需要读写分离，一般来说，对缓存，一般都是用来支撑读高并发的，写的请求是比较少的，可能写请求也就一秒钟几千，一两千。通过主从架构 -&amp;gt; 读写分离 -&amp;gt">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2017-10-13T14:15:27.000Z">
@@ -123,7 +123,7 @@
   };
 </script>
 
-  <title>Redis_主从复制 | 大海啊全是水</title>
+  <title>Redis_主从复制 | 努力、积累、重复、坚持、自律</title>
   
 
 
@@ -182,7 +182,7 @@
     <div class="custom-logo-site-title">
       <a href="/" class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">大海啊全是水</span>
+        <span class="site-title">努力、积累、重复、坚持、自律</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -311,7 +311,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="大海啊全是水">
+      <meta itemprop="name" content="努力、积累、重复、坚持、自律">
     </span>
 
     
@@ -700,7 +700,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-核心机制"><span class="nav-number">1.</span> <span class="nav-text">1. 核心机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-特性"><span class="nav-number">2.</span> <span class="nav-text">2. 特性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-实操"><span class="nav-number">3.</span> <span class="nav-text">3. 实操</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-原理分析"><span class="nav-number">4.</span> <span class="nav-text">4. 原理分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-核心原理"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 核心原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-完整流程"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 完整流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-1-数据同步核心机制"><span class="nav-number">4.2.1.</span> <span class="nav-text">4.2.1 数据同步核心机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-2-全量复制"><span class="nav-number">4.2.2.</span> <span class="nav-text">4.2.2 全量复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-3-增量复制"><span class="nav-number">4.2.3.</span> <span class="nav-text">4.2.3 增量复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-4-异步复制"><span class="nav-number">4.2.4.</span> <span class="nav-text">4.2.4 异步复制</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-master持久化对于主从架构的安全保障的意义"><span class="nav-number">5.</span> <span class="nav-text">5. master持久化对于主从架构的安全保障的意义</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-核心机制"><span class="nav-text">1. 核心机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-特性"><span class="nav-text">2. 特性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-实操"><span class="nav-text">3. 实操</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-原理分析"><span class="nav-text">4. 原理分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-核心原理"><span class="nav-text">4.1 核心原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-完整流程"><span class="nav-text">4.2 完整流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-1-数据同步核心机制"><span class="nav-text">4.2.1 数据同步核心机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-2-全量复制"><span class="nav-text">4.2.2 全量复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-3-增量复制"><span class="nav-text">4.2.3 增量复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-4-异步复制"><span class="nav-text">4.2.4 异步复制</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-master持久化对于主从架构的安全保障的意义"><span class="nav-text">5. master持久化对于主从架构的安全保障的意义</span></a></li></ol></div>
             
 
           </div>
@@ -721,7 +721,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
