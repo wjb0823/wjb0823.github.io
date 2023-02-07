@@ -94,13 +94,13 @@
 
 
 
-  <meta name="description" content="1. JVM结构  类加载子系统：在 JVM 启动时或者类运行时将需要的 class 加载到 JVM 中。 运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。 执行引擎：负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。 本地库接口：调用 C 或 C++ 实现的本地方法的代码返回结果。">
+  <meta name="description" content="1. JVM结构  类加载子系统：在 JVM 启动时或者类运行时将需要的 class文件加载到 JVM 中。 运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。 执行引擎：负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。 本地库接口：调用 C 或 C++ 实现的本地方法的代码返回结果">
 <meta name="keywords" content="JVM">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM_类的加载">
-<meta property="og:url" content="http://yoursite.com/2016/06/23/jvm/001.JVM_结构、类加载/index.html">
+<meta property="og:url" content="http://yoursite.com/2016/05/21/jvm/001.JVM_结构、类加载/index.html">
 <meta property="og:site_name" content="生活值得">
-<meta property="og:description" content="1. JVM结构  类加载子系统：在 JVM 启动时或者类运行时将需要的 class 加载到 JVM 中。 运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。 执行引擎：负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。 本地库接口：调用 C 或 C++ 实现的本地方法的代码返回结果。">
+<meta property="og:description" content="1. JVM结构  类加载子系统：在 JVM 启动时或者类运行时将需要的 class文件加载到 JVM 中。 运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。 执行引擎：负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。 本地库接口：调用 C 或 C++ 实现的本地方法的代码返回结果">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/images/jvm001.png">
 <meta property="og:image" content="http://yoursite.com/images/jvm014.png">
@@ -109,7 +109,7 @@
 <meta property="og:updated_time" content="2018-09-21T06:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM_类的加载">
-<meta name="twitter:description" content="1. JVM结构  类加载子系统：在 JVM 启动时或者类运行时将需要的 class 加载到 JVM 中。 运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。 执行引擎：负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。 本地库接口：调用 C 或 C++ 实现的本地方法的代码返回结果。">
+<meta name="twitter:description" content="1. JVM结构  类加载子系统：在 JVM 启动时或者类运行时将需要的 class文件加载到 JVM 中。 运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。 执行引擎：负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。 本地库接口：调用 C 或 C++ 实现的本地方法的代码返回结果">
 <meta name="twitter:image" content="http://yoursite.com/images/jvm001.png">
 
 
@@ -118,7 +118,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2016/06/23/jvm/001.JVM_结构、类加载/">
+  <link rel="canonical" href="http://yoursite.com/2016/05/21/jvm/001.JVM_结构、类加载/">
 
 
 
@@ -307,7 +307,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/23/jvm/001.JVM_结构、类加载/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/jvm/001.JVM_结构、类加载/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -350,7 +350,7 @@
                 
               
 
-              <time title="创建时间：2016-06-23 14:15:27" itemprop="dateCreated datePublished" datetime="2016-06-23T14:15:27+08:00">2016-06-23</time>
+              <time title="创建时间：2016-05-21 14:15:27" itemprop="dateCreated datePublished" datetime="2016-05-21T14:15:27+08:00">2016-05-21</time>
             </span>
           
 
@@ -419,7 +419,7 @@
       
         <h1 id="1-JVM结构"><a href="#1-JVM结构" class="headerlink" title="1. JVM结构"></a>1. JVM结构</h1><p><img src="/images/jvm001.png" alt="JVM结构"></p>
 <ul>
-<li><strong>类加载子系统：</strong>在 JVM 启动时或者类运行时将需要的 class 加载到 JVM 中。</li>
+<li><strong>类加载子系统：</strong>在 JVM 启动时或者类运行时将需要的 class文件加载到 JVM 中。</li>
 <li><strong>运行时数据区：</strong>将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。</li>
 <li><strong>执行引擎：</strong>负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。</li>
 <li><strong>本地库接口：</strong>调用 C 或 C++ 实现的本地方法的代码返回结果。</li>
@@ -556,8 +556,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/06/16/jvm/003.JVM_垃圾收集算法、垃圾收集器、内存分配策略/" rel="next" title="JVM_垃圾收集算法、垃圾收集器、内存分配策略">
-                <i class="fa fa-chevron-left"></i> JVM_垃圾收集算法、垃圾收集器、内存分配策略
+              <a href="/2016/05/21/jvm/006.JVM_内存溢出异常/" rel="next" title="JVM_内存区域、内存溢出异常">
+                <i class="fa fa-chevron-left"></i> JVM_内存区域、内存溢出异常
               </a>
             
           </div>
@@ -566,8 +566,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/09/27/redis/001Redis_入门、生产环境下启动方案/" rel="prev" title="Redis_入门、生产环境下启动方案">
-                Redis_入门、生产环境下启动方案 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/05/25/nginx/005Nginx_动静分离/" rel="prev" title="Nginx_动静分离">
+                Nginx_动静分离 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -637,7 +637,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">46</span>
+                    <span class="site-state-item-count">47</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
