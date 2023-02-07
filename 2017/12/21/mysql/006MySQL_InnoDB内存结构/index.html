@@ -102,23 +102,23 @@
 <meta property="og:site_name" content="生活值得">
 <meta property="og:description" content="InnoDB存储引擎原理与优化从MySQL 5.5版本开始默认   使用InnoDB作为引擎，它擅长处理事务，具有自动崩溃恢复的特性，在日常开发中使用非常广泛。 下面是官方的InnoDB引擎架构图，主要分为内存结构和磁盘结构两大部分。      InnoDB 内存结构1. Buffer PoolBuffer Pool基本概念  ​    Buffer Pool：缓冲池，简称BP。其作用是用来缓存表">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/01.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/03.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/10.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/05.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/07.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/08.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/06.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/02.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/11.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/43.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/12.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/14.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/01.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/03.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/10.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/05.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/07.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/08.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/06.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/02.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/11.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/43.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/12.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/14.jpg">
 <meta property="og:updated_time" content="2017-12-27T14:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mysql_InnoDB内存结构">
 <meta name="twitter:description" content="InnoDB存储引擎原理与优化从MySQL 5.5版本开始默认   使用InnoDB作为引擎，它擅长处理事务，具有自动崩溃恢复的特性，在日常开发中使用非常广泛。 下面是官方的InnoDB引擎架构图，主要分为内存结构和磁盘结构两大部分。      InnoDB 内存结构1. Buffer PoolBuffer Pool基本概念  ​    Buffer Pool：缓冲池，简称BP。其作用是用来缓存表">
-<meta name="twitter:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/01.jpg">
+<meta name="twitter:image" content="http://yoursite.com/images/02_图片/01.jpg">
 
 
 
@@ -427,18 +427,18 @@
       
         <h2 id="InnoDB存储引擎原理与优化"><a href="#InnoDB存储引擎原理与优化" class="headerlink" title="InnoDB存储引擎原理与优化"></a>InnoDB存储引擎原理与优化</h2><p>从MySQL 5.5版本开始默认   使用InnoDB作为引擎，它擅长处理事务，具有自动崩溃恢复的特性，在日常开发中使用非常广泛。</p>
 <p>下面是官方的InnoDB引擎架构图，主要分为<strong>内存结构</strong>和<strong>磁盘结构</strong>两大部分。</p>
-<p><img src="../02_图片/01.jpg" style="width:600px">    </p>
+<p><img src="/images/02_图片/01.jpg" style="width:600px">    </p>
 <h3 id="InnoDB-内存结构"><a href="#InnoDB-内存结构" class="headerlink" title="InnoDB 内存结构"></a>InnoDB 内存结构</h3><h4 id="1-Buffer-Pool"><a href="#1-Buffer-Pool" class="headerlink" title="1. Buffer Pool"></a>1. Buffer Pool</h4><p><strong>Buffer Pool基本概念</strong> </p>
 <p>​    Buffer Pool：缓冲池，简称BP。其作用是用来缓存表数据与索引数据，减少磁盘IO操作，提升效率。</p>
 <p>​    Buffer Pool由 <strong>缓存数据页(Page)</strong> 和 对缓存数据页进行描述的<strong>控制块</strong> 组成, 控制块中存储着对应缓存页的所属的    表空间、数据页的编号、以及对应缓存页在Buffer Pool中的地址等信息.</p>
 <p>​    Buffer Pool默认大小是128M, 以Page页为单位，Page页默认大小16K，而控制块的大小约为数据页的5%，大    概是800字节。</p>
-<p><img src="../02_图片/03.jpg" style="width:600px"> </p>
+<p><img src="/images/02_图片/03.jpg" style="width:600px"> </p>
 <blockquote>
 <p>注:Buffer Pool大小为128M指的就是缓存页的大小，控制块则一般占5%，所以每次会多申请6M的内存空间用于存放控制块</p>
 </blockquote>
 <p><strong>如何判断一个页是否在BufferPool中缓存 ?</strong></p>
 <p>MySQl中有一个哈希表数据结构，它使用表空间号+数据页号，作为一个key，然后缓冲页对应的控制块作为value。</p>
-<p><img src="../02_图片/10.jpg" style="width:400px"> </p>
+<p><img src="/images/02_图片/10.jpg" style="width:400px"> </p>
 <ul>
 <li><p><strong>当需要访问某个页的数据时，先从哈希表中根据表空间号+页号看看是否存在对应的缓冲页。</strong></p>
 </li>
@@ -449,7 +449,7 @@
 <p>BP的底层采用链表数据结构管理Page。在InnoDB访问表记录和索引时会在Page页中缓存，以后使用可以减少磁盘IO操作，提升效率。 </p>
 <ul>
 <li><p>Page根据状态可以分为三种类型：</p>
-<p><img src="../02_图片/05.jpg" style="width:600px">   </p>
+<p><img src="/images/02_图片/05.jpg" style="width:600px">   </p>
 <ul>
 <li><p>free page ： 空闲page，未被使用</p>
 </li>
@@ -468,7 +468,7 @@
 <li>free链表是把所有空闲的缓冲页对应的控制块作为一个个的节点放到一个链表中，这个链表便称之为free链表</li>
 <li>基节点:  free链表中只有一个基节点是不记录缓存页信息(单独申请空间)，它里面就存放了free链表的头节点的地址，尾节点的地址，还有free链表里当前有多少个节点。</li>
 </ul>
-<p><img src="../02_图片/07.jpg" style="width:650px">   </p>
+<p><img src="/images/02_图片/07.jpg" style="width:650px">   </p>
 <p>磁盘加载页的流程: </p>
 <ol>
 <li>从free链表中取出一个空闲的控制块（对应缓冲页）。</li>
@@ -480,7 +480,7 @@
 <li>InnoDB引擎为了提高处理效率，在每次修改缓冲页后，并不是立刻把修改刷新到磁盘上，而是在未来的某个时间点进行刷新操作. 所以需要使用到flush链表存储脏页，凡是被修改过的缓冲页对应的控制块都会作为节点加入到flush链表.</li>
 <li>flush链表的结构与free链表的结构相似</li>
 </ul>
-<p><img src="../02_图片/08.jpg" style="width:750px"> </p>
+<p><img src="/images/02_图片/08.jpg" style="width:750px"> </p>
 <blockquote>
 <p>注: 脏页即存在于flush链表，也在LRU链表中，但是两种互不影响，LRU链表负责管理page的可用性和释放，而flush链表负责管理脏页的刷盘操作。</p>
 </blockquote>
@@ -489,7 +489,7 @@
 <li><strong>普通LRU算法</strong> </li>
 </ul>
 <p>LRU = Least Recently Used（最近最少使用）: 就是末尾淘汰法，新数据从链表头部加入，释放空间时从末尾淘汰.</p>
-<p><img src="../02_图片/06.jpg" style="width:650px; height:320px">     </p>
+<p><img src="/images/02_图片/06.jpg" style="width:650px; height:320px">     </p>
 <ol>
 <li><p>当要访问某个页时，如果不在Buffer Pool，需要把该页加载到缓冲池,并且把该缓冲页对应的控制块作为节点添加到LRU链表的头部。</p>
 </li>
@@ -509,14 +509,14 @@
 <li><p>如果发生全表扫描（比如：没有建立合适的索引 or 查询时使用select * 等），则有很大可能将真正的热数据淘汰掉.    </p>
 </li>
 <li><p>由于MySQL中存在预读机制，很多预读的页都会被放到LRU链表的表头。如果这些预读的页都没有用到的话，这样，会导致很多尾部的缓冲页很快就会被淘汰。</p>
-<p><img src="../02_图片/02.jpg" style="width:550px"> </p>
+<p><img src="/images/02_图片/02.jpg" style="width:550px"> </p>
 </li>
 </ul>
 </li>
 </ul>
 <p><strong>改进型LRU算法</strong></p>
 <p>改性LRU：链表分为new和old两个部分，加入元素时并不是从表头插入，而是从中间midpoint位置插入(就是说从磁盘中新读出的数据会放在冷数据区的头部)，如果数据很快被访问，那么page就会向new列表头部移动，如果数据没有被访问，会逐步向old尾部移动，等待淘汰。</p>
-<p>  <img src="../02_图片/11.jpg" style="width:650px;  height:200px"> </p>
+<p>  <img src="/images/02_图片/11.jpg" style="width:650px;  height:200px"> </p>
 <p>  冷数据区的数据页什么时候会被转到到热数据区呢 ?</p>
 <ol>
 <li>如果该数据页在LRU链表中存在时间超过1s，就将其移动到链表头部  ( 链表指的是整个LRU链表)</li>
@@ -529,7 +529,7 @@
 <p>​    Change Buffer：写缓冲区,是针对二级索引(辅助索引) 页的更新优化措施。</p>
 <p>​    作用:  在进行DML操作时，如果请求的是 辅助索引（非唯一键索引）没有在缓冲池    中时，并不会立刻将磁盘页加载到缓冲池，而是在CB记录缓冲变更，等未来数据被    读取时，再将数据合并恢复到BP中。</p>
 <p>​    ChangeBuffer占用BufferPool空间，默认占25%，最大允许占50%，可以根据读写    业务量来进行调整。参数<code>innodb_change_buffer_max_size</code>; </p>
-<p> <img src="../02_图片/43.jpg" style="width:550px;  height:400px"> </p>
+<p> <img src="/images/02_图片/43.jpg" style="width:550px;  height:400px"> </p>
 <ol>
 <li>ChangeBuffer用于存储SQL变更操作，比如Insert/Update/Delete等SQL语句</li>
 <li>ChangeBuffer中的每个变更操作都有其对应的数据页，并且该数据页未加载到缓存中；</li>
@@ -549,7 +549,7 @@
 </ol>
 </li>
 </ol>
-<p><img src="../02_图片/12.jpg" style="width:650px;  height:300px"></p>
+<p><img src="/images/02_图片/12.jpg" style="width:650px;  height:300px"></p>
 <ul>
 <li><p><strong>写缓冲区，仅适用于非唯一普通索引页，为什么？</strong></p>
 <p>如果在索引设置唯一性，在进行修改时，InnoDB必须要做唯一性校验，因此必须查询磁盘，做一次IO操作。会直接将记录查询到BufferPool中，然后在缓冲池修改，不会在ChangeBuffer操作。</p>
@@ -575,7 +575,7 @@
 </ul>
 <h4 id="4-Log-Buffer"><a href="#4-Log-Buffer" class="headerlink" title="4. Log Buffer"></a>4. Log Buffer</h4><p>Log Buffer：日志缓冲区，用来保存要写入磁盘上log文件（Redo/Undo）的数据，日志缓冲区的内容定期刷新到磁盘log文件中。日志缓冲区满时会自动将其刷新到磁盘，当遇到BLOB或多行更新的大事务操作时，增加日志缓冲区可以节省磁盘I/O。</p>
 <p>LogBuffer主要作用是: 用来优化每次更新操作之后都要写入redo log 而产生的磁盘IO问题.</p>
-<p><img src="../02_图片/14.jpg" style="width:550px;  height:400px"> </p>
+<p><img src="/images/02_图片/14.jpg" style="width:550px;  height:400px"> </p>
 <p>LogBuffer空间满了，会自动写入磁盘。可以通过将innodb_log_buffer_size参数调大，减少磁盘IO频率</p>
 
       
