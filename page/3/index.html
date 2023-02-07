@@ -468,7 +468,7 @@ Redis不仅仅支持简单的k
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/23/jvm/003.JVM_结构、类加载/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/23/jvm/001.JVM_结构、类加载/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -488,7 +488,7 @@ Redis不仅仅支持简单的k
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2016/06/23/jvm/003.JVM_结构、类加载/" class="post-title-link" itemprop="url">JVM_类的加载</a>
+                <a href="/2016/06/23/jvm/001.JVM_结构、类加载/" class="post-title-link" itemprop="url">JVM_类的加载</a>
               
             
           </h1>
@@ -528,7 +528,7 @@ Redis不仅仅支持简单的k
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2018-09-22 14:15:27" itemprop="dateModified" datetime="2018-09-22T14:15:27+08:00">2018-09-22</time>
+                <time title="修改时间：2023-02-07 16:32:43" itemprop="dateModified" datetime="2023-02-07T16:32:43+08:00">2023-02-07</time>
               </span>
             
           
@@ -583,17 +583,17 @@ Redis不仅仅支持简单的k
         
           
             <p>
-              JVM结构
+              1. JVM结构
 
 类加载子系统：在 JVM 启动时或者类运行时将需要的 class 加载到 JVM 中。
 运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。
-执行引擎：负责执行 class 文件中包含的字节码指令，相
+执行引擎：负责执行 class 文件中包含的字节码指
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2016/06/23/jvm/003.JVM_结构、类加载/#more" rel="contents">
+              <a class="btn" href="/2016/06/23/jvm/001.JVM_结构、类加载/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -653,7 +653,7 @@ Redis不仅仅支持简单的k
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/16/jvm/002.JVM_垃圾收集算法、垃圾收集器、内存分配策略/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/16/jvm/003.JVM_垃圾收集算法、垃圾收集器、内存分配策略/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -673,7 +673,7 @@ Redis不仅仅支持简单的k
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2016/06/16/jvm/002.JVM_垃圾收集算法、垃圾收集器、内存分配策略/" class="post-title-link" itemprop="url">JVM_垃圾收集算法、垃圾收集器、内存分配策略</a>
+                <a href="/2016/06/16/jvm/003.JVM_垃圾收集算法、垃圾收集器、内存分配策略/" class="post-title-link" itemprop="url">JVM_垃圾收集算法、垃圾收集器、内存分配策略</a>
               
             
           </h1>
@@ -777,7 +777,7 @@ Redis不仅仅支持简单的k
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2016/06/16/jvm/002.JVM_垃圾收集算法、垃圾收集器、内存分配策略/#more" rel="contents">
+              <a class="btn" href="/2016/06/16/jvm/003.JVM_垃圾收集算法、垃圾收集器、内存分配策略/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1173,7 +1173,7 @@ service01 ngin
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/jvm/006.JVM_OOM/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/jvm/006.JVM_内存溢出异常/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -1193,7 +1193,7 @@ service01 ngin
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2016/05/21/jvm/006.JVM_OOM/" class="post-title-link" itemprop="url">JVM_调优</a>
+                <a href="/2016/05/21/jvm/006.JVM_内存溢出异常/" class="post-title-link" itemprop="url">JVM_内存区域、内存溢出异常</a>
               
             
           </h1>
@@ -1288,24 +1288,203 @@ service01 ngin
         
           
             <p>
-              JVM运行情况监测指标我们分析线上的JVM进程，最想要知道的信息有哪些？包括如下：
+              3 内存溢出异常
+Java 堆溢出Java 堆溢出的原因，有可能是内存泄露，可以使用 MAT 进行分析。
 
-新生代对象增长的速率
+虚拟机栈和本地方法栈溢出关于虚拟机栈和本地方法栈，在 Java 虚拟机规范中描述了两种异常：
 
-Young GC的触发频率
-
-Young GC的耗时
-
-每次Young GC后有多少对象是存活下来的
-每次Young GC过后有多少对象进入了老年代
-老年代对象增长的速率
-Full GC的触
+如果线程请求的栈深度大于虚拟机所允许的最大深度，将抛出 StackOverflowError 异
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2016/05/21/jvm/006.JVM_OOM/#more" rel="contents">
+              <a class="btn" href="/2016/05/21/jvm/006.JVM_内存溢出异常/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/jvm/002.JVM_内存区域/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2016/05/21/jvm/002.JVM_内存区域/" class="post-title-link" itemprop="url">JVM_内存区域、内存溢出异常</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2016-05-21 14:15:27" itemprop="dateCreated datePublished" datetime="2016-05-21T14:15:27+08:00">2016-05-21</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-09-21 14:15:27" itemprop="dateModified" datetime="2018-09-21T14:15:27+08:00">2018-09-21</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>
+              1 JVM结构
+
+类加载子系统：在 JVM 启动时或者类运行时将需要的 class 加载到 JVM 中。
+运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。
+执行引擎：负责执行 class 文件中包含的字节码指令
+              ...
+            </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2016/05/21/jvm/002.JVM_内存区域/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1684,191 +1863,6 @@ Full GC的触
           
             <div class="post-button text-center">
               <a class="btn" href="/2016/05/21/jvm/005.JVM_调优/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/jvm/001.JVM_内存区域、内存溢出异常/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="最光阴">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="生活值得">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2016/05/21/jvm/001.JVM_内存区域、内存溢出异常/" class="post-title-link" itemprop="url">JVM_内存区域、内存溢出异常</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-
-          
-          
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2016-05-21 14:15:27" itemprop="dateCreated datePublished" datetime="2016-05-21T14:15:27+08:00">2016-05-21</time>
-            </span>
-          
-
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-09-21 14:15:27" itemprop="dateModified" datetime="2018-09-21T14:15:27+08:00">2018-09-21</time>
-              </span>
-            
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          <br>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>
-              1 JVM结构
-
-类加载子系统：在 JVM 启动时或者类运行时将需要的 class 加载到 JVM 中。
-运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。
-执行引擎：负责执行 class 文件中包含的字节码指令
-              ...
-            </p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2016/05/21/jvm/001.JVM_内存区域、内存溢出异常/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
