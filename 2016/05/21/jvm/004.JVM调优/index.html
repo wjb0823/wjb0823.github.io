@@ -102,13 +102,13 @@
 <meta property="og:site_name" content="生活值得">
 <meta property="og:description" content="[TOC] JVM运行情况监测指标我们分析线上的JVM进程，最想要知道的信息有哪些？包括如下：  新生代对象增长的速率  Young GC的触发频率  Young GC的耗时  每次Young GC后有多少对象是存活下来的 每次Young GC过后有多少对象进入了老年代 老年代对象增长的速率 Full GC的触发频率 Full GC的耗时  只要知道了这些信息，其实我们就合理分配内存空间，尽可能让">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="d:/hexo/source/images/jvm019.png">
+<meta property="og:image" content="http://yoursite.com/images/jvm019.png">
 <meta property="og:image" content="http://yoursite.com/images/jvm020.png">
 <meta property="og:updated_time" content="2018-09-21T06:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM_调优">
 <meta name="twitter:description" content="[TOC] JVM运行情况监测指标我们分析线上的JVM进程，最想要知道的信息有哪些？包括如下：  新生代对象增长的速率  Young GC的触发频率  Young GC的耗时  每次Young GC后有多少对象是存活下来的 每次Young GC过后有多少对象进入了老年代 老年代对象增长的速率 Full GC的触发频率 Full GC的耗时  只要知道了这些信息，其实我们就合理分配内存空间，尽可能让">
-<meta name="twitter:image" content="d:/hexo/source/images/jvm019.png">
+<meta name="twitter:image" content="http://yoursite.com/images/jvm019.png">
 
 
 
@@ -434,7 +434,7 @@
 <h1 id="jstat分析内存和GC情况"><a href="#jstat分析内存和GC情况" class="headerlink" title="jstat分析内存和GC情况"></a>jstat分析内存和GC情况</h1><p>使用jstat摸清JVM内存和GC情况，命令：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gc PID 1000 10</span><br></pre></td></tr></table></figure>
 <p>这行命令，它的意思就是每隔1秒钟更新出来最新的一行jstat统计信息，一共执行10次jstat统计</p>
-<p><img src="D:\hexo\source\images\jvm019.png" alt></p>
+<p><img src="/images/jvm019.png" alt></p>
 <ol>
 <li><p>SOC：这是From Survivor区的大小</p>
 </li>
