@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="InnoDB 数据文件1.表空间文件结构InnoDB表空间文件结构分为: Tablespace(表空间) —&amp;gt;  Segment（段）—&amp;gt;Extent（区）—&amp;gt;Page（页）—&amp;gt; Row（行）   1) Tablesapce  表空间能够看作是InnoDB 存储引擎逻辑结构的最高层，用于存储多个ibd数据文件，用于存储表的记录和索引。一个文件包含多个段。 表空间分为：系统表">
+<meta property="og:type" content="article">
+<meta property="og:title" content="生活值得">
+<meta property="og:url" content="http://yoursite.com/2023/02/07/mysql/009MySQL_InnoDB数据文件/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="InnoDB 数据文件1.表空间文件结构InnoDB表空间文件结构分为: Tablespace(表空间) —&amp;gt;  Segment（段）—&amp;gt;Extent（区）—&amp;gt;Page（页）—&amp;gt; Row（行）   1) Tablesapce  表空间能够看作是InnoDB 存储引擎逻辑结构的最高层，用于存储多个ibd数据文件，用于存储表的记录和索引。一个文件包含多个段。 表空间分为：系统表">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/34.jpg">
+<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/36.jpg">
+<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/37.jpg">
+<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/38.jpg">
+<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/39.jpg">
+<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/50.jpg">
+<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/51.jpg">
+<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/53.jpg">
+<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/53.jpg">
+<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/52.jpg">
+<meta property="og:updated_time" content="2023-02-07T15:37:45.082Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="生活值得">
+<meta name="twitter:description" content="InnoDB 数据文件1.表空间文件结构InnoDB表空间文件结构分为: Tablespace(表空间) —&amp;gt;  Segment（段）—&amp;gt;Extent（区）—&amp;gt;Page（页）—&amp;gt; Row（行）   1) Tablesapce  表空间能够看作是InnoDB 存储引擎逻辑结构的最高层，用于存储多个ibd数据文件，用于存储表的记录和索引。一个文件包含多个段。 表空间分为：系统表">
+<meta name="twitter:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/34.jpg">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2023/02/07/mysql/009MySQL_InnoDB数据文件/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title> | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/02/07/mysql/009MySQL_InnoDB数据文件/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2023-02-07 23:37:45" itemprop="dateCreated datePublished" datetime="2023-02-07T23:37:45+08:00">2023-02-07</time>
+            </span>
+          
+
+          
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="InnoDB-数据文件"><a href="#InnoDB-数据文件" class="headerlink" title="InnoDB 数据文件"></a>InnoDB 数据文件</h3><h4 id="1-表空间文件结构"><a href="#1-表空间文件结构" class="headerlink" title="1.表空间文件结构"></a>1.表空间文件结构</h4><p>InnoDB表空间文件结构分为: Tablespace(表空间) —&gt;  Segment（段）—&gt;Extent（区）—&gt;Page（页）—&gt; Row（行）</p>
+<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/34.jpg" style="width:650px;  "> </p>
+<p><strong>1) Tablesapce</strong></p>
+<ol>
+<li>表空间能够看作是InnoDB 存储引擎逻辑结构的最高层，用于存储多个ibd数据文件，用于存储表的记录和索引。一个文件包含多个段。</li>
+<li>表空间分为：系统表空间、独占表空间、通用表空间、 临时表空间、Undo 表空间。</li>
+</ol>
+<p><strong>2) 段 (Segment)</strong> </p>
+<ol>
+<li>段是磁盘上空间分配和回收的申请者，是一个逻辑概念，用来管理物理文件,段是为了保持叶子节点在磁盘上的连续，可以实现更好的顺序I/O操作。</li>
+<li><p>常见的段有数据段、索引段、回滚段等. 其中索引段就是非叶子结点部分，而数据段就是叶子结点部分，回滚段用于数据的回滚和多版本控制。</p>
+<p><strong>3) 区 ( Extend )</strong>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 </p>
+</li>
+<li><p>区是由连续页组成的空间，每个区的默认大小都是1MB，一个区中有64个连续的页。为了保证区中页的连续性，扩展的时候InnoDB存储引擎一次从磁盘申请4~5个区。</p>
+</li>
+</ol>
+<p><strong>4) 页 (Page)</strong> </p>
+<ol>
+<li>区是由连续的页（Page） 组成的空间，默认每一个页的存储大小为16k </li>
+<li>页，用于存储多个Row行记录。包含很多种页类型，比如数据页，undo页，系统页，事务数据页，大的BLOB对象页。</li>
+</ol>
+<p><strong>5) 行 (Row)</strong> </p>
+<ol>
+<li><p>InnoDB的数据是按行进行存放的，每个页存放的行记录最多允许存放16KB / 2 -200行的记录，即7992行记录。每行记录根据不同的行格式、不同的数据类型，会有不同的存储方式。</p>
+</li>
+<li><p>行，包含了记录的字段值，事务ID（DB_TRX_ID）、回滚指针（DB_ROLLPTR）、字段指针（Field pointers）等信息。</p>
+</li>
+</ol>
+<h4 id="2-Page结构"><a href="#2-Page结构" class="headerlink" title="2.Page结构"></a>2.Page结构</h4><p>Page是整个InnoDB存储的最基本构件，也是InnoDB磁盘管理的最小单位，与数据库相关的所有内容都存储在这种Page结构里。</p>
+<p>Page分为几种类型，常见的页类型有数据页（B+tree Node）Undo页（Undo Log Page）系统页（System Page） 事务数据页（Transaction System Page）等</p>
+<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/36.jpg" style="width:450px;  "> </p>
+<p><strong>Page 各部分说明</strong>   </p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>占用大小</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>File Header</td>
+<td>38字节</td>
+<td>文件头, 描述页信息</td>
+</tr>
+<tr>
+<td>Page Header</td>
+<td>56字节</td>
+<td>页头,页的状态</td>
+</tr>
+<tr>
+<td>Infimum + Supremum</td>
+<td>26字节</td>
+<td>最大和最小记录,这是两个虚拟的行记录</td>
+</tr>
+<tr>
+<td>User Records</td>
+<td>不确定</td>
+<td>用户记录,存储数据行记录</td>
+</tr>
+<tr>
+<td>Free Space</td>
+<td>不确定</td>
+<td>空闲空间,页中还没有被使用的空间</td>
+</tr>
+<tr>
+<td>Page Directory</td>
+<td>不确定</td>
+<td>页目录,存储用户记录的相对位置</td>
+</tr>
+<tr>
+<td>File Trailer</td>
+<td>8字节</td>
+<td>文件尾,校验页是否完整</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><p>File Header 字段用于记录 Page 的头信息，其中比较重要的是 FIL_PAGE_PREV 和 FIL_PAGE_NEXT 字段，通过这两个字段，我们可以找到该页的上一页和下一页，实际上所有页通过两个字段可以形成一条双向链表</p>
+</li>
+<li><p>Page Header 字段用于记录 Page 的状态信息。</p>
+</li>
+<li><p>Infimum 和 Supremum 是两个伪行记录，Infimum（下确界）记录比该页中任何主键值都要小的值，Supremum （上确界）记录比该页中任何主键值都要大的值，这个伪记录分别构成了页中记录的边界。</p>
+</li>
+<li><p>User Records 中存放的是实际的数据行记录</p>
+</li>
+<li><p>Free Space 中存放的是空闲空间，被删除的行记录会被记录成空闲空间</p>
+</li>
+<li><p>Page Directory 记录着与二叉查找相关的信息</p>
+</li>
+<li><p>File Trailer 存储用于检测数据完整性的校验和等数据。</p>
+</li>
+</ul>
+<p>页结构整体上可以分为三大部分，分别为通用部分(文件头、文件尾)、存储记录空间、索引部分。</p>
+<p><strong>1) 通用部分 (File Header&amp;File Trailer )</strong> </p>
+<p>通用部分 : 主要指文件头和文件尾，将页的内容进行封装，通过文件头和文件尾校验的CheckSum方式来确保页的传输是完整的。</p>
+<p>其中比较重要的是在文件头中的 <code>FIL_PAGE_PREV</code> 和 <code>FIL_PAGE_NEXT</code> 字段，通过这两个字段，我们可以找到该页的上一页和下一页，实际上所有页通过两个字段可以形成一条双向链表</p>
+<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/37.jpg" style="width:550px;  ">  </p>
+<p><strong>2) 记录部分(User Records&amp;Free Space)</strong> </p>
+<p>页的主要作用是存储记录，所以“最小和最大记录”和“用户记录”部分占了页结构的主要空间。另外空闲空间是个灵活的部分，当有新的记录插入时，会从空闲空间中进行分配用于存储新记录</p>
+<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/38.jpg" style="width:450px;  "> </p>
+<p><strong>3)数据目录部分 (Page Directory)</strong>  </p>
+<p>数据页中行记录按照主键值由小到大顺序串联成一个单链表(<strong>页中记录是以单向链表的形式进行存储的</strong>)，且单链表的链表头为最小记录，链表尾为最大记录。并且为了更快速地定位到指定的行记录，通过<code>Page Directory</code>实现目录的功能，借助<code>Page Directory</code>使用二分法快速找到需要查找的行记录。</p>
+<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/39.jpg" style="width:650px;  "> </p>
+<h4 id="3-行记录格式"><a href="#3-行记录格式" class="headerlink" title="3.行记录格式"></a>3.行记录格式</h4><p><strong>1) 行格式分类</strong> </p>
+<p>表的行格式决定了它的行是如何物理存储的，这反过来又会影响查询和DML操作的性能。如果在单个page页中容纳更多行，查询和索引查找可以更快地工作，缓冲池中所需的内存更少，写入更新时所需的I/O更少。</p>
+<p>InnoDB存储引擎支持四种行格式：Redundant、Compact、Dynamic 和 Compressed . </p>
+<p>查询MySQL使用的行格式,默认为: dynamic</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_default_row_format';</span><br><span class="line">+<span class="comment">---------------------------+---------+</span></span><br><span class="line">| Variable_name             | Value   |</span><br><span class="line">+<span class="comment">---------------------------+---------+</span></span><br><span class="line">| innodb_default_row_format | dynamic |</span><br><span class="line">+<span class="comment">---------------------------+---------+</span></span><br></pre></td></tr></table></figure>
+<p>指定行格式语法</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> &lt;table_name(column_name)&gt; ROW_FORMAT=行格式名称</span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> &lt;table_name&gt; ROW_FORMAT=行格式名称</span><br></pre></td></tr></table></figure>
+<p><strong>2) COMPACT 行记录格式</strong> </p>
+<p>Compact 设计目标是高效地存储数据，一个页中存放的行数据越多，其性能就越高。</p>
+<p>compact行记录由两部分组成: 记录放入额外信息 和  记录的真实数据.<br><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/50.jpg" style="width:650px; height:120px "> </p>
+<ul>
+<li><p><strong>记录额外信息部分</strong> </p>
+<p>服务器为了描述一条记录而添加了一些额外信息(元数据信息)，这些额外信息分为3类，分别是: 变长字段长度列表<strong>、</strong>NULL值列表和记录头信息.</p>
+<ul>
+<li><p><strong>变长字段长度列表</strong></p>
+<p>MySQL支持一些变长的数据类型，比如VARCHAR(M)、VARBINARY(M)、各种TEXT类型，各种BLOB类型，这些变长的数据类型占用的存储空间分为两部分：</p>
+<ol>
+<li>真正的数据内容</li>
+<li>占用的字节数</li>
+</ol>
+<p>变长字段的长度是不固定的，所以在存储数据的时候要把这些数据占用的字节数也存起来，读取数据的时候才能根据这个长度列表去读取对应长度的数据。</p>
+<p>在<code>Compact</code>行格式中，把所有变长类型的列的长度都存放在记录的开头部位形成一个列表，按照列的顺序逆序存放,这个列表就是 <strong>变长字段长度列表</strong>。</p>
+</li>
+<li><p><strong>NULL值列表</strong></p>
+<p>表中的某些列可能会存储NULL值，如果把这些NULL值都放到记录的真实数据中会比较浪费空间，所以Compact行格式把这些值为NULL的列存储到NULL值列表中。( 如果表中所有列都不允许为 NULL，就不存在NULL值列表 )</p>
+</li>
+<li><p><strong>记录头信息</strong></p>
+<p>记录头信息是由固定的5个字节组成，5个字节也就是40个二进制位，不同的位代表不同的意思，这些头信息会在后面的一些功能中看到。</p>
+<p>| 名称         | 大小(单位:bit) | 描述                                                         |<br>| —————— | ——————— | —————————————————————————————— |<br>| 预留位1      | 1              | 没有使用                                                     |<br>| 预留位2      | 1              | 没有使用                                                     |<br>| delete_mask  | 1              | 标记该记录是否被删除                                         |<br>| min_rec_mask | 1              | 标记该记录是否是本层B+树的非叶子节点中的最小记录             |<br>| n_owned      | 4              | 表示当前分组中管理的记录数                                   |<br>| heap_no      | 13             | 表示当前记录在记录堆中的位置信息                             |<br>| record_type  | 3              | 表示当前记录的类型:<br>0 表示普通记录,<br>1 表示B+树非叶子节点记录,<br>2 表示最小记录,3表示最大记录 |<br>| next_record  | 16             | 表示下一条记录的相对位置                                     |</p>
+<ol>
+<li><p>delete_mask</p>
+<p>这个属性标记着当前记录是否被删除，占用1个二进制位，值为0 的时候代表记录并没有被删除，为1 的时候代表记录被删除掉了</p>
+</li>
+<li><p>min_rec_mask</p>
+<p>B+树的每层非叶子节点中的最小记录都会添加该标记。</p>
+</li>
+<li><p>n_owned</p>
+<p>代表每个分组里，所拥有的记录的数量，一般是分组里主键最大值才有的。</p>
+</li>
+<li><p>heap_no</p>
+<p>在数据页的User Records中插入的记录是一条一条紧凑的排列的，这种紧凑排列的结构又被称为堆。为了便于管理这个堆，把记录在堆中的相对位置给定一个编号——heap_no。所以heap_no这个属性表示当前记录在本页中的位置。</p>
+</li>
+<li><p>record_type</p>
+<p>这个属性表示当前记录的类型，一共有4种类型的记录， 0 表示普通用户记录， 1 表示B+树非叶节点记录， 2 表示最小记录， 3 表示最大记录。</p>
+</li>
+<li><p>next_record</p>
+<p>表示从当前记录的真实数据到下一条记录的真实数据的地址偏移量，可以理解为指向下一条记录地址的指针。值为正数说明下一条记录在当前记录后面，为负数说明下一条记录在当前记录的前面。</p>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong>记录真实数据部分</strong> </p>
+<p>记录的真实数据除了插入的那些列的数据，MySQL会为每个记录默认的添加一些列（也称为隐藏列），具体的列如下： </p>
+<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/51.jpg" style="width:450px; height:130px">  </p>
+<p>| 列名           | 是否必须 | 占用空间 | 描述                  |<br>| ——————— | ———— | ———— | ——————————- |<br>| row_id         | 否       | 6字节    | 行ID,唯一标识一条记录 |<br>| transaction_id | 是       | 6字节    | 事务ID                |<br>| roll_pointer   | 是       | 7字节    | 回滚指针              |</p>
+<p>生成隐藏主键列的方式有:</p>
+<ol>
+<li>服务器会在内存中维护一个全局变量，每当向某个包含隐藏的row_id列的表中插入一条记录时，就会把该变量的值当作新记录的row_id列的值，并且把该变量自增1。</li>
+<li>每当这个变量的值为256的倍数时，就会将该变量的值刷新到系统表空间的页号为7的页面中一个Max Row ID的属性处。</li>
+<li>当系统启动时，会将页中的Max Row ID属性加载到内存中，并将该值加上256之后赋值给全局变量，因为在上次关机时该全局变量的值可能大于页中Max Row ID属性值。</li>
+<li></li>
+</ol>
+<p><strong>3) Compact中的行溢出机制</strong> </p>
+<p><strong>什么是行溢出 ?</strong> </p>
+<p>MySQL中是以页为基本单位,进行磁盘与内存之间的数据交互的,我们知道一个页的大小是16KB,16KB = 16384字节.而一个varchar(m) 类型列最多可以存储65532个字节,一些大的数据类型比如TEXT可以存储更多.</p>
+<p>如果一个表中存在这样的大字段,那么一个页就无法存储一条完整的记录.这时就会发生行溢出,多出的数据就会存储在另外的溢出页中.</p>
+<p>总结: 如果某些字段信息过长，无法存储在B树节点中，这时候会被单独分配空间，此时被称为溢出页，该字段被称为页外列。</p>
+<p><strong>Compact中的行溢出机制</strong></p>
+<p>InnoDB 规定一页至少存储两条记录(B+树特点)，如果页中只能存放下一条记录，InnoDB存储引擎会自动将行数据存放到溢出页中.<br>当发生行溢出时，数据页只保存了前768字节的前缀数据，接着是20个字节的偏移量，指向行溢出页.</p>
+<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/53.jpg" style="width:550px; height:230px"> </p>
+</li>
+</ul>
+<p>  <strong>4) 其他行记录格式</strong> </p>
+<ol>
+<li><p>DYNAMIC 和 COMPRESSED 行记录格式</p>
+<p>DYNAMIC 和 COMPRESSED新格式引入的功能有：数据压缩、增强型长列数据的页外存储和大索引前缀。</p>
+<p>Compressed 和 Dynamic 行记录格式与 Compact 行记录格式是类似的，区别是在处理行溢出时,数据页不会存储真实数据的前768字节(完全溢出)，只存储20个字节的指针来指向溢出页。</p>
+<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/53.jpg" style="width:650px; height:220px "> </p>
+<blockquote>
+<p>Compressed 与 Dynamic 相比，Compressed 存储的行数据会以zlib的算法进行压缩以节省空间，因此对于 BLOB、TEXT、VARCHAR 这类大长度类型的数据能够进行非常有效的存储。</p>
+<p>MySQL5.7 默认的行记录格式是 <code>Dynamic</code>。</p>
+</blockquote>
+</li>
+<li><p>Redundant</p>
+<p>Redundant是 MySQL5.0 版本之前 InnoDB 的行记录存储方式。</p>
+<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/52.jpg" style="width:650px; height:120px "> </p>
+<p>Redundant 行记录格式的首部是一个字段长度偏移列表，同样是按照列的顺序逆序放置的。该条记录中所有列（包括隐藏列、NULL值列）的长度信息都按照逆序存储到字段长度偏移列表。</p>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/02/07/mysql/008MySQL_InnoDB线程模型/" rel="next" title>
+                <i class="fa fa-chevron-left"></i> 
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">52</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-数据文件"><span class="nav-text">InnoDB 数据文件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-表空间文件结构"><span class="nav-text">1.表空间文件结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Page结构"><span class="nav-text">2.Page结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-行记录格式"><span class="nav-text">3.行记录格式</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

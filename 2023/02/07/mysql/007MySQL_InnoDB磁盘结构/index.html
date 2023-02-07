@@ -97,7 +97,7 @@
   <meta name="description" content="InnoDB存储引擎原理与优化从MySQL 5.5版本开始默认   使用InnoDB作为引擎，它擅长处理事务，具有自动崩溃恢复的特性，在日常开发中使用非常广泛。 下面是官方的InnoDB引擎架构图，主要分为内存结构和磁盘结构两大部分。      InnoDB 内存结构1. Buffer PoolBuffer Pool基本概念  ​    Buffer Pool：缓冲池，简称BP。其作用是用来缓存表">
 <meta property="og:type" content="article">
 <meta property="og:title" content="生活值得">
-<meta property="og:url" content="http://yoursite.com/2023/02/07/mysql/MySQL_InnoDB存储引擎原理与优化/index.html">
+<meta property="og:url" content="http://yoursite.com/2023/02/07/mysql/007MySQL_InnoDB磁盘结构/index.html">
 <meta property="og:site_name" content="生活值得">
 <meta property="og:description" content="InnoDB存储引擎原理与优化从MySQL 5.5版本开始默认   使用InnoDB作为引擎，它擅长处理事务，具有自动崩溃恢复的特性，在日常开发中使用非常广泛。 下面是官方的InnoDB引擎架构图，主要分为内存结构和磁盘结构两大部分。      InnoDB 内存结构1. Buffer PoolBuffer Pool基本概念  ​    Buffer Pool：缓冲池，简称BP。其作用是用来缓存表">
 <meta property="og:locale" content="zh-CN">
@@ -144,9 +144,7 @@
 <meta property="og:image" content="http://yoursite.com/2023/02/07/mysql/02_图片/53.jpg">
 <meta property="og:image" content="http://yoursite.com/2023/02/07/mysql/02_图片/53.jpg">
 <meta property="og:image" content="http://yoursite.com/2023/02/07/mysql/02_图片/52.jpg">
-<meta property="og:image" content="http://yoursite.com/2023/02/07/mysql/02_图片/55.jpg">
-<meta property="og:image" content="http://yoursite.com/2023/02/07/mysql/02_图片/56.jpg">
-<meta property="og:updated_time" content="2023-02-07T15:27:40.996Z">
+<meta property="og:updated_time" content="2023-02-07T15:33:49.944Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="生活值得">
 <meta name="twitter:description" content="InnoDB存储引擎原理与优化从MySQL 5.5版本开始默认   使用InnoDB作为引擎，它擅长处理事务，具有自动崩溃恢复的特性，在日常开发中使用非常广泛。 下面是官方的InnoDB引擎架构图，主要分为内存结构和磁盘结构两大部分。      InnoDB 内存结构1. Buffer PoolBuffer Pool基本概念  ​    Buffer Pool：缓冲池，简称BP。其作用是用来缓存表">
@@ -158,7 +156,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2023/02/07/mysql/MySQL_InnoDB存储引擎原理与优化/">
+  <link rel="canonical" href="http://yoursite.com/2023/02/07/mysql/007MySQL_InnoDB磁盘结构/">
 
 
 
@@ -347,7 +345,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/02/07/mysql/MySQL_InnoDB存储引擎原理与优化/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/02/07/mysql/007MySQL_InnoDB磁盘结构/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -390,10 +388,14 @@
                 
               
 
-              <time title="创建时间：2023-02-07 23:27:40" itemprop="dateCreated datePublished" datetime="2023-02-07T23:27:40+08:00">2023-02-07</time>
+              <time title="创建时间：2023-02-07 23:34:13 / 修改时间：23:33:49" itemprop="dateCreated datePublished" datetime="2023-02-07T23:34:13+08:00">2023-02-07</time>
             </span>
           
 
+          
+            
+
+            
           
 
           
@@ -1459,251 +1461,6 @@
 <p>Redundant 行记录格式的首部是一个字段长度偏移列表，同样是按照列的顺序逆序放置的。该条记录中所有列（包括隐藏列、NULL值列）的长度信息都按照逆序存储到字段长度偏移列表。</p>
 </li>
 </ol>
-<h3 id="InnoDB-参数优化"><a href="#InnoDB-参数优化" class="headerlink" title="InnoDB 参数优化"></a>InnoDB 参数优化</h3><h4 id="1-内存相关参数优化"><a href="#1-内存相关参数优化" class="headerlink" title="1.内存相关参数优化"></a>1.内存相关参数优化</h4><p><strong>1.Buffer Pool参数优化</strong> </p>
-<p><strong>1.1 缓冲池内存大小配置</strong>    </p>
-<p>一个大的日志缓冲区允许大量的事务在提交之前不写日志到磁盘。因此，如果你有很多事务的更新，插入或删除操作，通过设置这个参数会大量的减少磁盘I/O的次数数。<br>建议: 在专用数据库服务器上，可以将缓冲池大小设置为服务器物理内存的60% - 80%.</p>
-<ul>
-<li><p>查看缓冲池大小</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_buffer_pool_size%';</span><br><span class="line">+<span class="comment">-------------------------+-----------+</span></span><br><span class="line">| Variable_name           | Value     |</span><br><span class="line">+<span class="comment">-------------------------+-----------+</span></span><br><span class="line">| innodb_buffer_pool_size | 134217728 |</span><br><span class="line">+<span class="comment">-------------------------+-----------+</span></span><br><span class="line"></span><br><span class="line">mysql&gt; select 134217728 / 1024 / 1024;</span><br><span class="line">+<span class="comment">-------------------------+</span></span><br><span class="line">| 134217728 / 1024 / 1024 |</span><br><span class="line">+<span class="comment">-------------------------+</span></span><br><span class="line">|            128.00000000 |</span><br><span class="line">+<span class="comment">-------------------------+</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>在线调整InnoDB缓冲池大小</p>
-<p>innodb_buffer_pool_size可以动态设置，允许在不重新启动服务器的情况下调整缓冲池的大小.</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SET GLOBAL innodb_buffer_pool_size = 268435456; -- 512</span><br><span class="line">Query OK, 0 rows affected (0.10 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; show variables like '%innodb_buffer_pool_size%';</span><br><span class="line">+<span class="comment">-------------------------+-----------+</span></span><br><span class="line">| Variable_name           | Value     |</span><br><span class="line">+<span class="comment">-------------------------+-----------+</span></span><br><span class="line">| innodb_buffer_pool_size | 268435456 |</span><br><span class="line">+<span class="comment">-------------------------+-----------+</span></span><br></pre></td></tr></table></figure>
-<p>监控在线调整缓冲池的进度</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SHOW STATUS WHERE Variable_name='InnoDB_buffer_pool_resize_status';</span><br><span class="line">+<span class="comment">----------------------------------+----------------------------------------------------------------------+</span></span><br><span class="line">| Variable_name                    | Value                                                        |</span><br><span class="line">+<span class="comment">----------------------------------+----------------------------------------------------------------------+</span></span><br><span class="line">| Innodb_buffer_pool_resize_status | Size did not <span class="keyword">change</span> (<span class="keyword">old</span> <span class="keyword">size</span> = <span class="keyword">new</span> <span class="keyword">size</span> = <span class="number">268435456.</span> <span class="keyword">Nothing</span> <span class="keyword">to</span> do. |</span><br><span class="line">+<span class="comment">----------------------------------+----------------------------------------------------------------------+</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p><strong>1.2 配置多个buffer pool实例</strong> </p>
-<p>当buffer pool的大小是GB级别时，将一个buffer pool分割成几个独立的实例能降低多个线程同时读写缓存页的竞争性而提高并发性。</p>
-<p>通过innodb_buffer_pool_instances参数可以调整实例个数。如果有多个实例，则缓存的数据页会随机放置到任意的实例中，且每个实例都有独立的buffer pool所有的特性。</p>
-<p>buffer pool 可以存放多个 instance，每个instance由多个chunk组成。instance的数量范围和chunk的总数量范围分别为1-64，1-1000。</p>
-<p><img src="../02_图片/55.jpg" style="width:450px; height:250px ">  </p>
-<ul>
-<li><p><code>Innodb_buffer_pool_instances</code> 的默认值是1，最大可以调整成64</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_buffer_pool_instances';</span><br><span class="line">+<span class="comment">------------------------------+-------+</span></span><br><span class="line">| Variable_name                | Value |</span><br><span class="line">+<span class="comment">------------------------------+-------+</span></span><br><span class="line">| innodb_buffer_pool_instances | 1     |</span><br><span class="line">+<span class="comment">------------------------------+-------+</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p><strong>1.3 chunk(块)大小配置</strong>   </p>
-<p>增大或减小缓冲池大小时，将以chunk的形式执行操作.chunk 大小由 <code>innodb_buffer_pool_chunk_size</code> 决定引入chunk 是为了方便在线修改缓冲池大小，修改时以 chunk 为单位拷贝 buffer pool。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_buffer_pool_chunk_size';</span><br><span class="line">+<span class="comment">-------------------------------+-----------+</span></span><br><span class="line">| Variable_name                 | Value     |</span><br><span class="line">+<span class="comment">-------------------------------+-----------+</span></span><br><span class="line">| innodb_buffer_pool_chunk_size | 134217728 | </span><br><span class="line">+<span class="comment">-------------------------------+-----------+</span></span><br></pre></td></tr></table></figure>
-<p>缓冲池大小<code>innodb_buffer_pool_size</code>必须始终等于或者是</p>
-<p> <code>chunk_size * instances</code>的倍数(不等于则MySQL会自动调整)。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">假设</span><br><span class="line"> innodb_buffer_pool_chunk_size=128MB </span><br><span class="line"> innodb_buffer_pool_instances=16</span><br><span class="line">那么</span><br><span class="line"> innodb_buffer_pool_chunk_size * innodb_buffer_pool_instances=2GB </span><br><span class="line"></span><br><span class="line">如果我们设置innodb_buffer_pool_size=9GB，则会被自动调整为10GB</span><br></pre></td></tr></table></figure>
-<p><strong>1.4 InnoDB 缓存性能评估</strong>   </p>
-<p>当前配置的innodb_buffer_pool_size是否合适，可以通过分析InnoDB缓冲池的缓存命中率来验证。</p>
-<ul>
-<li><p>以下公式计算InnoDB buffer pool 命中率:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">命中率 = innodb_buffer_pool_read_requests / (innodb_buffer_pool_read_requests+innodb_buffer_pool_reads)* 100</span><br><span class="line"></span><br><span class="line">参数1: innodb_buffer_pool_reads：表示InnoDB缓冲池无法满足的请求数。需要从磁盘中读取。</span><br><span class="line">参数2: innodb_buffer_pool_read_requests：表示从内存中读取页的请求数。</span><br></pre></td></tr></table></figure>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show status like 'innodb_buffer_pool_read%';</span><br><span class="line">+<span class="comment">---------------------------------------+-------+</span></span><br><span class="line">| Variable_name                         | Value |</span><br><span class="line">+<span class="comment">---------------------------------------+-------+</span></span><br><span class="line">| Innodb_buffer_pool_read_ahead_rnd     | 0     |</span><br><span class="line">| Innodb_buffer_pool_read_ahead         | 0     |</span><br><span class="line">| Innodb_buffer_pool_read_ahead_evicted | 0     |</span><br><span class="line">| Innodb_buffer_pool_read_requests      | 12701 |</span><br><span class="line">| Innodb_buffer_pool_reads              | 455   |</span><br><span class="line">+<span class="comment">---------------------------------------+-------+</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 此值低于90%，则可以考虑增加innodb_buffer_pool_size。</span></span><br><span class="line">mysql&gt; select 12701 / (455 + 12701) * 100 ;</span><br><span class="line">+<span class="comment">-----------------------------+</span></span><br><span class="line">| 12701 / (455 + 12701) * 100 |</span><br><span class="line">+<span class="comment">-----------------------------+</span></span><br><span class="line">|                     96.5415 |</span><br><span class="line">+<span class="comment">-----------------------------+</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p><strong>1.5 Page管理相关参数</strong> </p>
-<p>查看Page页的大小(默认16KB),<code>innodb_page_size</code>只能在初始化MySQL实例之前配置，不能在之后修改。如果没有指定值，则使用默认页面大小初始化实例。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_page_size%'; </span><br><span class="line">+<span class="comment">------------------+-------+</span></span><br><span class="line">| Variable_name    | Value |</span><br><span class="line">+<span class="comment">------------------+-------+</span></span><br><span class="line">| innodb_page_size | 16384 |</span><br><span class="line">+<span class="comment">------------------+-------+</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>Page页管理状态相关参数</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show global status like '%innodb_buffer_pool_pages%';</span><br><span class="line">+<span class="comment">----------------------------------+-------+</span></span><br><span class="line">| Variable_name                    | Value |</span><br><span class="line">+<span class="comment">----------------------------------+-------+</span></span><br><span class="line">| Innodb_buffer_pool_pages_data    | 515   |</span><br><span class="line">| Innodb_buffer_pool_pages_dirty   | 0     |</span><br><span class="line">| Innodb_buffer_pool_pages_flushed | 334   |</span><br><span class="line">| Innodb_buffer_pool_pages_free    | 15868 |</span><br><span class="line">| Innodb_buffer_pool_pages_misc    | 0     |</span><br><span class="line">| Innodb_buffer_pool_pages_total   | 16383 |</span><br><span class="line">+<span class="comment">----------------------------------+-------+</span></span><br></pre></td></tr></table></figure>
-<p><strong>pages_data</strong>: InnoDB缓冲池中包含数据的页数。 该数字包括脏页面和干净页面。</p>
-<p><strong>pages_dirty</strong>: 显示在内存中修改但尚未写入数据文件的InnoDB缓冲池数据页的数量（脏页刷新）。</p>
-<p><strong>pages_flushed</strong>: 表示从InnoDB缓冲池中刷新脏页的请求数。</p>
-<p><strong>pages_free</strong>: 显示InnoDB缓冲池中的空闲页面</p>
-<p><strong>pages_misc</strong>: 缓存池中当前已经被用作管理用途或hash index而不能用作为普通数据页的数目</p>
-<p><strong>pages_total</strong>: 缓存池的页总数目。单位是page。</p>
-</li>
-</ul>
-<ul>
-<li><p><strong>优化建议</strong></p>
-<p>innodb_page_size的官方描述:</p>
-<p><img src="../02_图片/56.jpg" style="width:550px; height:350px ">   </p>
-<p>MySQL 5.7增加了对32KB和64KB页面大小的支持。默认的16KB或更大的页面大小适用于各种工作负载，特别是涉及表扫描的查询和涉及批量更新的DML操作。对于涉及许多小写操作的OLTP工作负载，较小的页面大小可能更有效.</p>
-<ul>
-<li><p>Page大小对于行存储的影响</p>
-<p>对于4KB、8KB、16KB和32KB的页大小，最大行大小(不包括存储在页外的任何可变长度的列)略小于页大小的一半。</p>
-</li>
-<li><p>Page大小对于索引的影响</p>
-<p>如果在创建MySQL实例时通过指定innodb_page_size选项将InnoDB页面大小减少到8KB或4KB，索引键的最大长度将按比例降低，这是基于16KB页面大小的3072字节限制。也就是说，当页面大小为8KB时，最大索引键长度为1536字节，而当页面大小为4KB时，最大索引键长度为768字节。</p>
-</li>
-</ul>
-</li>
-</ul>
-<p><strong>1.6 Change Buffer相关参数优化</strong> </p>
-<p>change buffering是MySQL5.5加入的新特性，change buffering是insert buffer的加强，insert buffer只针对insert有效，change buffering对insert、delete、update(delete+insert)、purge都有效。</p>
-<ul>
-<li><p><strong>配置change buffer使用模式</strong> </p>
-<p><strong>innodb_change_buffering</strong> 配置参数说明</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_change_buffering%';</span><br><span class="line">+<span class="comment">-------------------------+-------+</span></span><br><span class="line">| Variable_name           | Value |</span><br><span class="line">+<span class="comment">-------------------------+-------+</span></span><br><span class="line">| innodb_change_buffering | all   |</span><br><span class="line">+<span class="comment">-------------------------+-------+</span></span><br></pre></td></tr></table></figure>
-<p>| 选项    | 说明                         |<br>| ———- | —————————————— |<br>| inserts | 插入缓冲                     |<br>| deletes | 删除标记缓冲                 |<br>| changes | 更新缓冲,由两个缓冲区组成    |<br>| purges  | 缓冲在后台发生的物理删除操作 |<br>| all     | 表示启用上面所有配置(默认)   |<br>| none    | 表示不启用任何配置           |</p>
-</li>
-<li><p><strong>配置change buffer 大小</strong></p>
-<p>ChangeBuffer占用BufferPool空间，默认占25%，最大允许占50%，可以根据读写业务量来进行调整。参数<code>innodb_change_buffer_max_size</code>;</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_change_buffer_max_size';</span><br><span class="line">+<span class="comment">-------------------------------+-------+</span></span><br><span class="line">| Variable_name                 | Value |</span><br><span class="line">+<span class="comment">-------------------------------+-------+</span></span><br><span class="line">| innodb_change_buffer_max_size | 25    |</span><br><span class="line">+<span class="comment">-------------------------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>查看change buffer的工作状态</strong> </p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查看change buffer的工作状态</span></span><br><span class="line"><span class="comment">-------------------------------------</span></span><br><span class="line"><span class="keyword">INSERT</span> BUFFER <span class="keyword">AND</span> ADAPTIVE <span class="keyword">HASH</span> <span class="keyword">INDEX</span></span><br><span class="line"><span class="comment">-------------------------------------</span></span><br><span class="line">Ibuf: <span class="keyword">size</span> <span class="number">1</span>, free <span class="keyword">list</span> <span class="keyword">len</span> <span class="number">0</span>, seg <span class="keyword">size</span> <span class="number">2</span>, <span class="number">0</span> merges</span><br><span class="line">merged <span class="keyword">operations</span>:</span><br><span class="line"> <span class="keyword">insert</span> <span class="number">0</span>, <span class="keyword">delete</span> mark <span class="number">0</span>, <span class="keyword">delete</span> <span class="number">0</span></span><br><span class="line">discarded <span class="keyword">operations</span>:</span><br><span class="line"> <span class="keyword">insert</span> <span class="number">0</span>, <span class="keyword">delete</span> mark <span class="number">0</span>, <span class="keyword">delete</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>size:</strong> 表示已经合并到辅助索引页的数量；</p>
-</li>
-<li><p><strong>free list len:</strong> 表示空闲列表长度；</p>
-</li>
-<li><p><strong>seg size：</strong>表示当前Change Buffer的大小，2*16KB；</p>
-</li>
-<li><p><strong>merges</strong>：表示合并的次数；</p>
-</li>
-<li><p><strong>merged operations：</strong>表示每个具体操作合并的次数；</p>
-<ul>
-<li>insert：表示插入操作；</li>
-<li>delete mark：表示删除标记操作；</li>
-<li>delete：表示物理删除操作；</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h4 id="2-日志相关参数优化"><a href="#2-日志相关参数优化" class="headerlink" title="2.日志相关参数优化"></a>2.日志相关参数优化</h4><p><strong>1.日志缓冲区相关参数配置</strong>  </p>
-<p>日志缓冲区的大小。一般默认值16MB是够用的，但如果事务之中含有blog/text等大字段，这个缓冲区会被很快填满会引起额外的IO负载。配置更大的日志缓冲区,可以有效的提高MySQL的效率.</p>
-<ul>
-<li><p><strong>innodb_log_buffer_size 缓冲区大小</strong> </p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_log_buffer_size';</span><br><span class="line">+<span class="comment">------------------------+----------+</span></span><br><span class="line">| Variable_name          | Value    |</span><br><span class="line">+<span class="comment">------------------------+----------+</span></span><br><span class="line">| innodb_log_buffer_size | 16777216 |</span><br><span class="line">+<span class="comment">------------------------+----------+</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>innodb_log_files_in_group 日志组文件个数</strong></p>
-<p>日志组根据需要来创建。而日志组的成员则需要至少2个，实现循环写入并作为冗余策略。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_log_files_in_group';</span><br><span class="line">+<span class="comment">---------------------------+-------+</span></span><br><span class="line">| Variable_name             | Value |</span><br><span class="line">+<span class="comment">---------------------------+-------+</span></span><br><span class="line">| innodb_log_files_in_group | 2     |</span><br><span class="line">+<span class="comment">---------------------------+-------+</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<ul>
-<li><p><strong>innodb_log_file_size 日志文件大小</strong></p>
-<p>参数innodb_log_file_size用于设定MySQL日志组中每个日志文件的大小(默认48M)。此参数是一个全局的静态参数，不能动态修改。</p>
-<p>参数innodb_log_file_size的最大值，二进制日志文件大小（innodb_log_file_size * innodb_log_files_in_group）不能超过512GB.所以单个日志文件的大小不能超过256G.</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_log_file_size';</span><br><span class="line">+<span class="comment">----------------------+----------+</span></span><br><span class="line">| Variable_name        | Value    |</span><br><span class="line">+<span class="comment">----------------------+----------+</span></span><br><span class="line">| innodb_log_file_size | 50331648 |</span><br><span class="line">+<span class="comment">----------------------+----------+</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p><strong>2.日志文件参数优化</strong>  </p>
-<p>首先我们先来看一下日志文件大小设置对性能的影响</p>
-<ul>
-<li><p>设置过小</p>
-<ol>
-<li><p>参数<code>innodb_log_file_size</code>设置太小，就会导致MySQL的日志文件( redo log）频繁切换，频繁的触发数据库的检查点（Checkpoint），导致刷新脏页到磁盘的次数增加。从而影响IO性能。</p>
-</li>
-<li><p>处理大事务时，将所有的日志文件写满了，事务内容还没有写完，这样就会导致日志不能切换.</p>
-</li>
-</ol>
-</li>
-</ul>
-<ul>
-<li><p>设置过大</p>
-<p>参数<code>innodb_log_file_size</code>如果设置太大，虽然可以提升IO性能，但是当MySQL由于意外宕机时，二进制日志很大，那么恢复的时间必然很长。而且这个恢复时间往往不可控，受多方面因素影响。</p>
-</li>
-</ul>
-<p><strong>优化建议: </strong> </p>
-<ul>
-<li><p>如何设置合适的日志文件大小 ?</p>
-<p>根据实际生产场景的优化经验,一般是计算一段时间内生成的事务日志（redo log）的大小， 而MySQL的日志文件的大小最少应该承载一个小时的业务日志量(官网文档中有说明)。</p>
-<ol>
-<li><p>想要估计一下InnoDB redo log的大小，需要抓取一段时间内Log <a href="https://so.csdn.net/so/search?q=Sequence&amp;spm=1001.2101.3001.7020" target="_blank" rel="noopener">Sequence</a> Number的数据,来计算日志一小时内的日志大小.</p>
-<blockquote>
-<p>Log sequence number</p>
-<p>自系统修改开始，就不断的修改页面，也就不断的生成redo日志。为了记录一共生成了多少日志，于是mysql设计了全局变量log sequence number，简称lsn，但不是从0开始，是从8704字节开始。</p>
-</blockquote>
-</li>
-</ol>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- pager分页工具, 只获取 sequence的信息</span></span><br><span class="line">mysql&gt; pager grep sequence;</span><br><span class="line">PAGER <span class="keyword">set</span> <span class="keyword">to</span> <span class="string">'grep sequence'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查询状态,并倒计时一分钟</span></span><br><span class="line">mysql&gt; <span class="keyword">show</span> <span class="keyword">engine</span> <span class="keyword">innodb</span> <span class="keyword">status</span>\G <span class="keyword">select</span> <span class="keyword">sleep</span>(<span class="number">60</span>);</span><br><span class="line">Log sequence number 5399154</span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> <span class="keyword">row</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">1</span> <span class="keyword">min</span> <span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 一分时间内所生成的数据量 5406150</span></span><br><span class="line">mysql&gt; <span class="keyword">show</span> <span class="keyword">engine</span> <span class="keyword">innodb</span> <span class="keyword">status</span>\G <span class="keyword">select</span> <span class="keyword">sleep</span>(<span class="number">60</span>);</span><br><span class="line">Log sequence number 5406150</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 关闭pager</span></span><br><span class="line">mysql&gt; nopager;</span><br><span class="line">PAGER <span class="keyword">set</span> <span class="keyword">to</span> stdout</span><br></pre></td></tr></table></figure>
-<ol>
-<li>有了一分钟的日志量,据此推算一小时内的日志量</li>
-</ol>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select (5406150 - 5399154) / 1024 as kb_per_min;</span><br><span class="line">+<span class="comment">------------+</span></span><br><span class="line">| kb_per_min |</span><br><span class="line">+<span class="comment">------------+</span></span><br><span class="line">|     6.8320 |</span><br><span class="line">+<span class="comment">------------+</span></span><br><span class="line"></span><br><span class="line">mysql&gt; select (5406150 - 5399154) / 1024 * 60 as kb_per_min;</span><br><span class="line">+<span class="comment">------------+</span></span><br><span class="line">| kb_per_min |</span><br><span class="line">+<span class="comment">------------+</span></span><br><span class="line">|   409.9219 |</span><br><span class="line">+<span class="comment">------------+</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h4 id="3-IO线程相关参数优化"><a href="#3-IO线程相关参数优化" class="headerlink" title="3.IO线程相关参数优化"></a>3.IO线程相关参数优化</h4><p>数据库属于 IO 密集型的应用程序，其主要职责就是数据的管理及存储工作。从内存中读取一个数据库数据的时间是微秒级别，而从一块普通硬盘上读取一个IO是在毫秒级别。要优化数据库，IO操作是必须要优化的，尽可能将磁盘IO转化为内存IO。</p>
-<ul>
-<li><p><strong>1) 参数: query_cache_size&amp;have_query_cache</strong> </p>
-<p>MySQL查询缓存保存查询返回的完整结果。当查询命中该缓存，会立刻返回结果，跳过了解析，优化和执行阶段。<br>查询缓存会跟踪查询中涉及的每个表，如果这写表发生变化，那么和这个表相关的所有缓存都将失效。 </p>
-<ol>
-<li>查看查询缓存是否开启</li>
-</ol>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查询是否支持查询缓存</span></span><br><span class="line">mysql&gt; show variables like 'have_query_cache';</span><br><span class="line">+<span class="comment">------------------+-------+</span></span><br><span class="line">| Variable_name    | Value |</span><br><span class="line">+<span class="comment">------------------+-------+</span></span><br><span class="line">| have_query_cache | YES   |</span><br><span class="line">+<span class="comment">------------------+-------+</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查询是否开启查询缓存 默认关闭</span></span><br><span class="line">mysql&gt; show variables like '%query_cache_type%';</span><br><span class="line">+<span class="comment">------------------+-------+</span></span><br><span class="line">| Variable_name    | Value |</span><br><span class="line">+<span class="comment">------------------+-------+</span></span><br><span class="line">| query_cache_type | OFF   |</span><br><span class="line">+<span class="comment">------------------+-------+</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<ol>
-<li><p>开启缓存,在my.ini中添加下面一行参数</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">query_cache_size=128M</span><br><span class="line">query_cache_type=1</span><br><span class="line"></span><br><span class="line">query_cache_type:</span><br><span class="line">	设置为0，OFF,缓存禁用</span><br><span class="line">	设置为1，ON,缓存所有的结果</span><br><span class="line">	设置为2，DENAND,只缓存在select语句中通过SQL_CACHE指定需要缓存的查询</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">  </span><br><span class="line"></span><br><span class="line">  </span><br><span class="line">3. 测试能否缓存查询</span><br><span class="line">  </span><br><span class="line">  ```sql</span><br><span class="line">  mysql&gt; show status like &apos;%Qcache%&apos;;</span><br><span class="line">  +-------------------------+---------+</span><br><span class="line">  | Variable_name           | Value   |</span><br><span class="line">  +-------------------------+---------+</span><br><span class="line">  | Qcache_free_blocks      | 1       |</span><br><span class="line">  | Qcache_free_memory      | 1031832 |</span><br><span class="line">  | Qcache_hits             | 0       |</span><br><span class="line">  | Qcache_inserts          | 0       |</span><br><span class="line">  | Qcache_lowmem_prunes    | 0       |</span><br><span class="line">  | Qcache_not_cached       | 1       |</span><br><span class="line">  | Qcache_queries_in_cache | 0       |</span><br><span class="line">  | Qcache_total_blocks     | 1       |</span><br><span class="line">  +-------------------------+---------+</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>Qcache_free_blocks</strong>:缓存中目前剩余的blocks数量（如果值较大，则查询缓存中的内存碎片过多）</li>
-<li><strong>Qcache_free_memory</strong>:空闲缓存的内存大小</li>
-<li><strong>Qcache_hits</strong>:命中缓存次数</li>
-<li><strong>Qcache_inserts</strong>: 未命中然后进行正常查询</li>
-<li><strong>Qcache_lowmem_prunes</strong>:查询因为内存不足而被移除出查询缓存记录</li>
-<li><strong>Qcache_not_cached</strong>: 没有被缓存的查询数量</li>
-<li><strong>Qcache_queries_in_cache</strong>:当前缓存中缓存的查询数量<ul>
-<li><strong>Qcache_total_blocks</strong>:当前缓存的block数量</li>
-</ul>
-</li>
-</ul>
-<p><strong>优化建议</strong>: Query Cache的使用需要多个参数配合，其中最为关键的是 query_cache_size 和 query_cache_type ，前者设置用于缓存 ResultSet 的内存大小，后者设置在何场景下使用 Query Cache。</p>
-<p>MySQL数据库数据变化相对不多，query_cache_size 一般设置为256MB比较合适 ,也可以通过计算Query Cache的命中率来进行调整</p>
-  <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">( Qcache_hits / ( Qcache_hits + Qcache_inserts ) * 100) )</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>2) 参数: innodb_max_dirty_pages_pct</strong> </p>
-<p>该参数是InnoDB 存储引擎用来控制buffer pool中脏页的百分比，当脏页数量占比超过这个参数设置的值时，InnoDB会启动刷脏页的操作。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- innodb_max_dirty_pages_pct 参数可以动态调整，最小值为0， 最大值为99.99，默认值为 75。</span></span><br><span class="line">mysql&gt; show variables like 'innodb_max_dirty_pages_pct';</span><br><span class="line">+<span class="comment">----------------------------+-----------+</span></span><br><span class="line">| Variable_name              | Value     |</span><br><span class="line">+<span class="comment">----------------------------+-----------+</span></span><br><span class="line">| innodb_max_dirty_pages_pct | 75.000000 |</span><br><span class="line">+<span class="comment">----------------------------+-----------+</span></span><br></pre></td></tr></table></figure>
-<p><strong>优化建议</strong>: 该参数比例值越大，从内存到磁盘的写入操作就会相对减少，所以能够一定程度下减少写入操作的磁盘IO。但是，如果这个比例值过大，当数据库 Crash 之后重启的时间可能就会很长，因为会有大量的事务数据需要从日志文件恢复出来写入数据文件中.最大不建议超过90,一般重启恢复的数据在超过1GB的话,启动速度就会变慢.</p>
-</li>
-</ul>
-<ul>
-<li><p><strong>3) 参数: innodb_old_blocks_pct&amp;innodb_old_blocks_time</strong></p>
-<p><code>innodb_old_blocks_pct</code> 用来确定LRU链表中old sublist所占比例,默认占用37%</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_old_blocks_pct%';</span><br><span class="line">+<span class="comment">-----------------------+-------+</span></span><br><span class="line">| Variable_name         | Value |</span><br><span class="line">+<span class="comment">-----------------------+-------+</span></span><br><span class="line">| innodb_old_blocks_pct | 37    |</span><br><span class="line">+<span class="comment">-----------------------+-------+</span></span><br></pre></td></tr></table></figure>
-<p><code>innodb_old_blocks_time</code>  用来控制old sublist中page的转移策略，新的page页在进入LRU链表中时，会先插入到old sublist的头部，然后page需要在old sublist中停留innodb_old_blocks_time这么久后，下一次对该page的访问才会使其移动到new sublist的头部，默认值1秒.</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_old_blocks_time%';</span><br><span class="line">+<span class="comment">------------------------+-------+</span></span><br><span class="line">| Variable_name          | Value |</span><br><span class="line">+<span class="comment">------------------------+-------+</span></span><br><span class="line">| innodb_old_blocks_time | 1000  |</span><br><span class="line">+<span class="comment">------------------------+-------+</span></span><br></pre></td></tr></table></figure>
-<p><strong>优化建议</strong>: 在没有大表扫描的情况下，并且数据多为频繁使用的数据时，我们可以增加innodb_old_blocks_pct的值，并且减小innodb_old_blocks_time的值。让数据页能够更快和更多的进入的热点数据区。</p>
-</li>
-</ul>
-<ul>
-<li><p><strong>4) 参数: innodb_io_capacity&amp;innodb_io_capacity_max</strong></p>
-<p><code>innodb_io_capacity</code>: InnoDB1.0.x版本开始提供该参数 ,它的作用在两个方面:</p>
-<ol>
-<li>合并插入缓冲时,每秒合并插入缓冲的数量为 innodb_io_capacity值的5%，默认就是 200*5%=10</li>
-<li>在从缓冲区刷新脏页时（checkpoint）,每秒刷新脏页的数量就等于innodb_io_capacity的值，默认200</li>
-</ol>
-<p><code>innodb_io_capacity_max</code> : 若用户使用了SSD类的磁盘,或者将几块磁盘做了RAID,当存储设备拥有更高的 IO速度时,可以将 innodbio_capacity_max的值调高,直到符合磁盘IO的吞吐量 为止。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_io_capacity%';</span><br><span class="line">+<span class="comment">------------------------+-------+</span></span><br><span class="line">| Variable_name          | Value |</span><br><span class="line">+<span class="comment">------------------------+-------+</span></span><br><span class="line">| innodb_io_capacity     | 200   |</span><br><span class="line">| innodb_io_capacity_max | 2000  |</span><br><span class="line">+<span class="comment">------------------------+-------+</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>  <strong>优化建议</strong>: 在有频繁写入的操作时,对该参数进行调整.并且该参数设置的大小取决于硬盘的IOPS，即每秒的输入输出量（或读写次数）。</p>
-<p>  什么样的磁盘配置应该设置innodb_io_capacity参数的值是多少,下面是一些参考:</p>
-<blockquote>
-<p>仅供参考,建议通过sysbench或者其他基准工具对磁盘吞吐量进行测试</p>
-</blockquote>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th>innodb_io_capacity</th>
-<th>硬盘配置</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>200</td>
-<td>单盘 SAS/SATA</td>
-</tr>
-<tr>
-<td>2000</td>
-<td>SAS*12 RAID10</td>
-</tr>
-<tr>
-<td>8000</td>
-<td>SSD</td>
-</tr>
-<tr>
-<td>50000</td>
-<td>FUSON-IO()</td>
-</tr>
-</tbody>
-</table>
-</div>
 
       
     </div>
@@ -1734,7 +1491,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2023/02/07/jvm/对象的创建/" rel="next" title>
+              <a href="/2023/02/07/mysql/010MySQL_InnoDB参数优化/" rel="next" title>
                 <i class="fa fa-chevron-left"></i> 
               </a>
             
@@ -1743,6 +1500,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/02/07/mysql/008MySQL_InnoDB线程模型/" rel="prev" title>
+                 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -1811,7 +1572,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">48</span>
+                    <span class="site-state-item-count">52</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1937,7 +1698,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB存储引擎原理与优化"><span class="nav-text">InnoDB存储引擎原理与优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-内存结构"><span class="nav-text">InnoDB 内存结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Buffer-Pool"><span class="nav-text">1. Buffer Pool</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Page管理机制"><span class="nav-text">2.Page管理机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Change-Buffer"><span class="nav-text">3. Change Buffer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Log-Buffer"><span class="nav-text">4. Log Buffer</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-磁盘结构"><span class="nav-text">InnoDB 磁盘结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-表空间-Tablespaces"><span class="nav-text">1. 表空间 ( Tablespaces )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-数据字典-Data-Dictionary"><span class="nav-text">2. 数据字典 ( Data Dictionary )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-双写缓冲区-Doublewrite-Buffer-Files"><span class="nav-text">3. 双写缓冲区  ( Doublewrite Buffer Files)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-重做日志-redo-log"><span class="nav-text">4. 重做日志 ( redo log )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-撤销日志-undo-log"><span class="nav-text">5. 撤销日志 ( undo log )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-二进制日志-binlog"><span class="nav-text">6. 二进制日志 ( binlog )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-新版本结构演变"><span class="nav-text">7. 新版本结构演变</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-线程模型"><span class="nav-text">InnoDB 线程模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-IO-Thread"><span class="nav-text">1. IO Thread</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Purge-Thread"><span class="nav-text">2. Purge Thread</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Page-Cleaner-Thread"><span class="nav-text">3. Page Cleaner Thread</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Master-Thread"><span class="nav-text">4. Master Thread</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-数据文件"><span class="nav-text">InnoDB 数据文件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-表空间文件结构"><span class="nav-text">1.表空间文件结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Page结构"><span class="nav-text">2.Page结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-行记录格式"><span class="nav-text">3.行记录格式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-参数优化"><span class="nav-text">InnoDB 参数优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-内存相关参数优化"><span class="nav-text">1.内存相关参数优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-日志相关参数优化"><span class="nav-text">2.日志相关参数优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-IO线程相关参数优化"><span class="nav-text">3.IO线程相关参数优化</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB存储引擎原理与优化"><span class="nav-text">InnoDB存储引擎原理与优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-内存结构"><span class="nav-text">InnoDB 内存结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Buffer-Pool"><span class="nav-text">1. Buffer Pool</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Page管理机制"><span class="nav-text">2.Page管理机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Change-Buffer"><span class="nav-text">3. Change Buffer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Log-Buffer"><span class="nav-text">4. Log Buffer</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-磁盘结构"><span class="nav-text">InnoDB 磁盘结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-表空间-Tablespaces"><span class="nav-text">1. 表空间 ( Tablespaces )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-数据字典-Data-Dictionary"><span class="nav-text">2. 数据字典 ( Data Dictionary )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-双写缓冲区-Doublewrite-Buffer-Files"><span class="nav-text">3. 双写缓冲区  ( Doublewrite Buffer Files)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-重做日志-redo-log"><span class="nav-text">4. 重做日志 ( redo log )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-撤销日志-undo-log"><span class="nav-text">5. 撤销日志 ( undo log )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-二进制日志-binlog"><span class="nav-text">6. 二进制日志 ( binlog )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-新版本结构演变"><span class="nav-text">7. 新版本结构演变</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-线程模型"><span class="nav-text">InnoDB 线程模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-IO-Thread"><span class="nav-text">1. IO Thread</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Purge-Thread"><span class="nav-text">2. Purge Thread</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Page-Cleaner-Thread"><span class="nav-text">3. Page Cleaner Thread</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Master-Thread"><span class="nav-text">4. Master Thread</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-数据文件"><span class="nav-text">InnoDB 数据文件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-表空间文件结构"><span class="nav-text">1.表空间文件结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Page结构"><span class="nav-text">2.Page结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-行记录格式"><span class="nav-text">3.行记录格式</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
