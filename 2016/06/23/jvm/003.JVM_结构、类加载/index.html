@@ -94,21 +94,22 @@
 
 
 
-  <meta name="description" content="1 类的生命周期  第一阶段，加载(Loading)，是找到 .class 文件并把这个文件包含的字节码加载到内存中。 第二阶段，连接(Linking)，又可以分为三个步骤，分别是字节码验证、Class 类数据结构分析及相应的内存分配、最后的符号表的解析。 第三阶段，Initialization(类中静态属性和初始化赋值)，以及Using(静态块的执行)等。  1.1 类加载的时机对于加载阶段，虚">
+  <meta name="description" content="JVM结构  类加载子系统：在 JVM 启动时或者类运行时将需要的 class 加载到 JVM 中。 运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。 执行引擎：负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。 本地库接口：调用 C 或 C++ 实现的本地方法的代码返回结果。  运">
 <meta name="keywords" content="JVM">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM_类的加载">
-<meta property="og:url" content="http://yoursite.com/2016/06/23/jvm/003JVM_类的加载/index.html">
+<meta property="og:url" content="http://yoursite.com/2016/06/23/jvm/003.JVM_结构、类加载/index.html">
 <meta property="og:site_name" content="生活值得">
-<meta property="og:description" content="1 类的生命周期  第一阶段，加载(Loading)，是找到 .class 文件并把这个文件包含的字节码加载到内存中。 第二阶段，连接(Linking)，又可以分为三个步骤，分别是字节码验证、Class 类数据结构分析及相应的内存分配、最后的符号表的解析。 第三阶段，Initialization(类中静态属性和初始化赋值)，以及Using(静态块的执行)等。  1.1 类加载的时机对于加载阶段，虚">
+<meta property="og:description" content="JVM结构  类加载子系统：在 JVM 启动时或者类运行时将需要的 class 加载到 JVM 中。 运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。 执行引擎：负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。 本地库接口：调用 C 或 C++ 实现的本地方法的代码返回结果。  运">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="d:/hexo/source/images/jvm001.png">
 <meta property="og:image" content="http://yoursite.com/images/jvm014.png">
 <meta property="og:image" content="http://yoursite.com/images/jvm015.png">
 <meta property="og:updated_time" content="2018-09-22T06:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM_类的加载">
-<meta name="twitter:description" content="1 类的生命周期  第一阶段，加载(Loading)，是找到 .class 文件并把这个文件包含的字节码加载到内存中。 第二阶段，连接(Linking)，又可以分为三个步骤，分别是字节码验证、Class 类数据结构分析及相应的内存分配、最后的符号表的解析。 第三阶段，Initialization(类中静态属性和初始化赋值)，以及Using(静态块的执行)等。  1.1 类加载的时机对于加载阶段，虚">
-<meta name="twitter:image" content="http://yoursite.com/images/jvm014.png">
+<meta name="twitter:description" content="JVM结构  类加载子系统：在 JVM 启动时或者类运行时将需要的 class 加载到 JVM 中。 运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。 执行引擎：负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。 本地库接口：调用 C 或 C++ 实现的本地方法的代码返回结果。  运">
+<meta name="twitter:image" content="d:/hexo/source/images/jvm001.png">
 
 
 
@@ -116,7 +117,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2016/06/23/jvm/003JVM_类的加载/">
+  <link rel="canonical" href="http://yoursite.com/2016/06/23/jvm/003.JVM_结构、类加载/">
 
 
 
@@ -305,7 +306,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/23/jvm/003JVM_类的加载/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/23/jvm/003.JVM_结构、类加载/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -415,7 +416,21 @@
       
 
       
-        <h1 id="1-类的生命周期"><a href="#1-类的生命周期" class="headerlink" title="1 类的生命周期"></a>1 类的生命周期</h1><p><img src="/images/jvm014.png" alt="类加载器是如何加载 class 文件"></p>
+        <h1 id="JVM结构"><a href="#JVM结构" class="headerlink" title="JVM结构"></a>JVM结构</h1><p><img src="D:\hexo\source\images\jvm001.png" alt="JVM结构"></p>
+<ul>
+<li><strong>类加载子系统：</strong>在 JVM 启动时或者类运行时将需要的 class 加载到 JVM 中。</li>
+<li><strong>运行时数据区：</strong>将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。</li>
+<li><strong>执行引擎：</strong>负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。</li>
+<li><strong>本地库接口：</strong>调用 C 或 C++ 实现的本地方法的代码返回结果。</li>
+</ul>
+<h2 id="运行机制"><a href="#运行机制" class="headerlink" title="运行机制"></a>运行机制</h2><p>首先通过编译器把 Java 代码转换成字节码，<strong>类加载子系统</strong>再把字节码加载到内存中，将其放在<strong>运行时数据区</strong>的方法区内。</p>
+<p>而字节码文件只是 JVM 的一套指令集规范，并不能直接交给底层操作系统去执行，因此需要特定的命令 </p>
+<p>解析器-<strong>执行引擎</strong>，将字节码翻译成底层系统指令，再交由 CPU 去执行。</p>
+<p>此外，Java代码中，可以调用其它语言的<strong>本地库接口</strong>来，进行一些系统调用或者c函数调用。</p>
+<h1 id="类加载子系统的作用"><a href="#类加载子系统的作用" class="headerlink" title="类加载子系统的作用"></a>类加载子系统的作用</h1><p>类加载器子系统负责从文件系统或者网络中加载Class文件，Class文件在文件开头有特定的文件标识。</p>
+<p>类加载器只负责Class文件的加载，至于它是否可以运行，则由Execution Engine决定。</p>
+<p>加载的类信息存放于一块称为方法区的内存空间。除了类的信息外，方法区中还会存放运行时常量池信息，可能还包括字符串字面量和数字常量（这部分常量信息是Class文件中常量池部分的内存映射）</p>
+<h1 id="1-类的生命周期"><a href="#1-类的生命周期" class="headerlink" title="1 类的生命周期"></a>1 类的生命周期</h1><p><img src="/images/jvm014.png" alt="类加载器是如何加载 class 文件"></p>
 <ul>
 <li>第一阶段，加载(Loading)，是找到 <code>.class</code> 文件并把这个文件包含的字节码加载到内存中。</li>
 <li>第二阶段，连接(Linking)，又可以分为三个步骤，分别是字节码验证、Class 类数据结构分析及相应的内存分配、最后的符号表的解析。</li>
@@ -529,7 +544,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/06/16/jvm/002JVM_垃圾收集算法、垃圾收集器、内存分配策略/" rel="next" title="JVM_垃圾收集算法、垃圾收集器、内存分配策略">
+              <a href="/2016/06/16/jvm/002.JVM_垃圾收集算法、垃圾收集器、内存分配策略/" rel="next" title="JVM_垃圾收集算法、垃圾收集器、内存分配策略">
                 <i class="fa fa-chevron-left"></i> JVM_垃圾收集算法、垃圾收集器、内存分配策略
               </a>
             
@@ -610,7 +625,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-count">46</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -736,7 +751,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-类的生命周期"><span class="nav-text">1 类的生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-类加载的时机"><span class="nav-text">1.1 类加载的时机</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-各过程详解"><span class="nav-text">2 各过程详解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-加载"><span class="nav-text">2.1 加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-连接"><span class="nav-text">2.2 连接</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-1-验证：确保被加载的类的正确性"><span class="nav-text">2.2.1 验证：确保被加载的类的正确性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-2-准备：为类的静态变量分配内存，并将其初始化为默认值"><span class="nav-text">2.2.2 准备：为类的静态变量分配内存，并将其初始化为默认值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-3-解析：把类中的符号引用转换为直接引用"><span class="nav-text">2.2.3 解析：把类中的符号引用转换为直接引用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-初始化"><span class="nav-text">2.3 初始化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-类加载器"><span class="nav-text">3 类加载器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-1-双亲委派模型"><span class="nav-text">3.1 双亲委派模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-2-破坏双亲委派模型"><span class="nav-text">3.2 破坏双亲委派模型</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#JVM结构"><span class="nav-text">JVM结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#运行机制"><span class="nav-text">运行机制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#类加载子系统的作用"><span class="nav-text">类加载子系统的作用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-类的生命周期"><span class="nav-text">1 类的生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-类加载的时机"><span class="nav-text">1.1 类加载的时机</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-各过程详解"><span class="nav-text">2 各过程详解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-加载"><span class="nav-text">2.1 加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-连接"><span class="nav-text">2.2 连接</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-1-验证：确保被加载的类的正确性"><span class="nav-text">2.2.1 验证：确保被加载的类的正确性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-2-准备：为类的静态变量分配内存，并将其初始化为默认值"><span class="nav-text">2.2.2 准备：为类的静态变量分配内存，并将其初始化为默认值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-3-解析：把类中的符号引用转换为直接引用"><span class="nav-text">2.2.3 解析：把类中的符号引用转换为直接引用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-初始化"><span class="nav-text">2.3 初始化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-类加载器"><span class="nav-text">3 类加载器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-1-双亲委派模型"><span class="nav-text">3.1 双亲委派模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-2-破坏双亲委派模型"><span class="nav-text">3.2 破坏双亲委派模型</span></a></li></ol></div>
             
 
           </div>

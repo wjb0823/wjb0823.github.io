@@ -94,20 +94,20 @@
 
 
 
-  <meta name="description" content="[TOC] JVM运行情况监测指标我们分析线上的JVM进程，最想要知道的信息有哪些？包括如下：  新生代对象增长的速率  Young GC的触发频率  Young GC的耗时  每次Young GC后有多少对象是存活下来的 每次Young GC过后有多少对象进入了老年代 老年代对象增长的速率 Full GC的触发频率 Full GC的耗时  只要知道了这些信息，其实我们就合理分配内存空间，尽可能让">
+  <meta name="description" content="JVM运行情况监测指标我们分析线上的JVM进程，最想要知道的信息有哪些？包括如下：  新生代对象增长的速率  Young GC的触发频率  Young GC的耗时  每次Young GC后有多少对象是存活下来的 每次Young GC过后有多少对象进入了老年代 老年代对象增长的速率 Full GC的触发频率 Full GC的耗时  只要知道了这些信息，其实我们就合理分配内存空间，尽可能让对象留在年轻">
 <meta name="keywords" content="JVM">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM_调优">
-<meta property="og:url" content="http://yoursite.com/2016/05/21/jvm/004.JVM调优/index.html">
+<meta property="og:url" content="http://yoursite.com/2016/05/21/jvm/005.JVM_调优/index.html">
 <meta property="og:site_name" content="生活值得">
-<meta property="og:description" content="[TOC] JVM运行情况监测指标我们分析线上的JVM进程，最想要知道的信息有哪些？包括如下：  新生代对象增长的速率  Young GC的触发频率  Young GC的耗时  每次Young GC后有多少对象是存活下来的 每次Young GC过后有多少对象进入了老年代 老年代对象增长的速率 Full GC的触发频率 Full GC的耗时  只要知道了这些信息，其实我们就合理分配内存空间，尽可能让">
+<meta property="og:description" content="JVM运行情况监测指标我们分析线上的JVM进程，最想要知道的信息有哪些？包括如下：  新生代对象增长的速率  Young GC的触发频率  Young GC的耗时  每次Young GC后有多少对象是存活下来的 每次Young GC过后有多少对象进入了老年代 老年代对象增长的速率 Full GC的触发频率 Full GC的耗时  只要知道了这些信息，其实我们就合理分配内存空间，尽可能让对象留在年轻">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/images/jvm019.png">
 <meta property="og:image" content="http://yoursite.com/images/jvm020.png">
 <meta property="og:updated_time" content="2018-09-21T06:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM_调优">
-<meta name="twitter:description" content="[TOC] JVM运行情况监测指标我们分析线上的JVM进程，最想要知道的信息有哪些？包括如下：  新生代对象增长的速率  Young GC的触发频率  Young GC的耗时  每次Young GC后有多少对象是存活下来的 每次Young GC过后有多少对象进入了老年代 老年代对象增长的速率 Full GC的触发频率 Full GC的耗时  只要知道了这些信息，其实我们就合理分配内存空间，尽可能让">
+<meta name="twitter:description" content="JVM运行情况监测指标我们分析线上的JVM进程，最想要知道的信息有哪些？包括如下：  新生代对象增长的速率  Young GC的触发频率  Young GC的耗时  每次Young GC后有多少对象是存活下来的 每次Young GC过后有多少对象进入了老年代 老年代对象增长的速率 Full GC的触发频率 Full GC的耗时  只要知道了这些信息，其实我们就合理分配内存空间，尽可能让对象留在年轻">
 <meta name="twitter:image" content="http://yoursite.com/images/jvm019.png">
 
 
@@ -116,7 +116,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2016/05/21/jvm/004.JVM调优/">
+  <link rel="canonical" href="http://yoursite.com/2016/05/21/jvm/005.JVM_调优/">
 
 
 
@@ -305,7 +305,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/jvm/004.JVM调优/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/jvm/005.JVM_调优/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -415,8 +415,7 @@
       
 
       
-        <p>[TOC]</p>
-<h1 id="JVM运行情况监测指标"><a href="#JVM运行情况监测指标" class="headerlink" title="JVM运行情况监测指标"></a>JVM运行情况监测指标</h1><p>我们分析线上的JVM进程，最想要知道的信息有哪些？包括如下：</p>
+        <h1 id="JVM运行情况监测指标"><a href="#JVM运行情况监测指标" class="headerlink" title="JVM运行情况监测指标"></a>JVM运行情况监测指标</h1><p>我们分析线上的JVM进程，最想要知道的信息有哪些？包括如下：</p>
 <ul>
 <li><p>新生代对象增长的速率</p>
 </li>
@@ -551,8 +550,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/05/15/nginx/004Nginx_负载均衡/" rel="next" title="Nginx_负载均衡">
-                <i class="fa fa-chevron-left"></i> Nginx_负载均衡
+              <a href="/2016/05/21/jvm/001.JVM_内存区域、内存溢出异常/" rel="next" title="JVM_内存区域、内存溢出异常">
+                <i class="fa fa-chevron-left"></i> JVM_内存区域、内存溢出异常
               </a>
             
           </div>
@@ -561,8 +560,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/05/21/jvm/001JVM_内存区域、内存溢出异常/" rel="prev" title="JVM_内存区域、内存溢出异常">
-                JVM_内存区域、内存溢出异常 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/05/21/jvm/004.JVM_参数/" rel="prev" title="JVM_参数总结">
+                JVM_参数总结 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -632,7 +631,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-count">46</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
