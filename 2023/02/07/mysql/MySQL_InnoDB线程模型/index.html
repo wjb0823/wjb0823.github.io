@@ -94,20 +94,20 @@
 
 
 
-  <meta name="description" content="1 Zookeeper的数据模型Zookeeper将数据存储于内存中,具体而言,Znode是存储数据的最小单元。而Znode被以层次化的结构进行组织,形容一棵树。其对外提供的视图类似于Unix文件系统。树的根Znode节点相当于Unix文件系统的根路径。正如Unix中目录下可以有子目录一样,Znode结点下也可以挂载子结点,最终形成如下所示结构。 以文件系统进行类比的话,Znode天然具有目录和文">
-<meta name="keywords" content="Zookeeper">
+  <meta name="description" content="InnoDB 线程模型   InnoDB存储引擎是多线程的模型，因此其后台有多个不同的后台线程，负责处理不同的任务. 后台线程的主要作用是负责刷新内存池中的数据，保证缓冲池中的内存缓存的是最近的数据。此外将已修改的数据文件刷新到磁盘文件，同时保证在数据库发生异常的情况下InnoDB能恢复到正常运行状态。 1. IO Thread在InnoDB中使用了大量的AIO（Async IO）来做读写处理，这">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Zookeeper_数据模型">
-<meta property="og:url" content="http://yoursite.com/2019/03/25/zookeeper/002Zookeeper_数据模型/index.html">
+<meta property="og:title" content="生活值得">
+<meta property="og:url" content="http://yoursite.com/2023/02/07/mysql/MySQL_InnoDB线程模型/index.html">
 <meta property="og:site_name" content="生活值得">
-<meta property="og:description" content="1 Zookeeper的数据模型Zookeeper将数据存储于内存中,具体而言,Znode是存储数据的最小单元。而Znode被以层次化的结构进行组织,形容一棵树。其对外提供的视图类似于Unix文件系统。树的根Znode节点相当于Unix文件系统的根路径。正如Unix中目录下可以有子目录一样,Znode结点下也可以挂载子结点,最终形成如下所示结构。 以文件系统进行类比的话,Znode天然具有目录和文">
+<meta property="og:description" content="InnoDB 线程模型   InnoDB存储引擎是多线程的模型，因此其后台有多个不同的后台线程，负责处理不同的任务. 后台线程的主要作用是负责刷新内存池中的数据，保证缓冲池中的内存缓存的是最近的数据。此外将已修改的数据文件刷新到磁盘文件，同时保证在数据库发生异常的情况下InnoDB能恢复到正常运行状态。 1. IO Thread在InnoDB中使用了大量的AIO（Async IO）来做读写处理，这">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/images/zookeeper001.png">
-<meta property="og:updated_time" content="2019-03-25T14:15:27.000Z">
+<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/42.jpg">
+<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/49.jpg">
+<meta property="og:updated_time" content="2023-02-07T15:44:19.212Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Zookeeper_数据模型">
-<meta name="twitter:description" content="1 Zookeeper的数据模型Zookeeper将数据存储于内存中,具体而言,Znode是存储数据的最小单元。而Znode被以层次化的结构进行组织,形容一棵树。其对外提供的视图类似于Unix文件系统。树的根Znode节点相当于Unix文件系统的根路径。正如Unix中目录下可以有子目录一样,Znode结点下也可以挂载子结点,最终形成如下所示结构。 以文件系统进行类比的话,Znode天然具有目录和文">
-<meta name="twitter:image" content="http://yoursite.com/images/zookeeper001.png">
+<meta name="twitter:title" content="生活值得">
+<meta name="twitter:description" content="InnoDB 线程模型   InnoDB存储引擎是多线程的模型，因此其后台有多个不同的后台线程，负责处理不同的任务. 后台线程的主要作用是负责刷新内存池中的数据，保证缓冲池中的内存缓存的是最近的数据。此外将已修改的数据文件刷新到磁盘文件，同时保证在数据库发生异常的情况下InnoDB能恢复到正常运行状态。 1. IO Thread在InnoDB中使用了大量的AIO（Async IO）来做读写处理，这">
+<meta name="twitter:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/42.jpg">
 
 
 
@@ -115,7 +115,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2019/03/25/zookeeper/002Zookeeper_数据模型/">
+  <link rel="canonical" href="http://yoursite.com/2023/02/07/mysql/MySQL_InnoDB线程模型/">
 
 
 
@@ -125,7 +125,7 @@
   };
 </script>
 
-  <title>Zookeeper_数据模型 | 生活值得</title>
+  <title> | 生活值得</title>
   
 
 
@@ -304,7 +304,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/25/zookeeper/002Zookeeper_数据模型/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/02/07/mysql/MySQL_InnoDB线程模型/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -321,7 +321,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Zookeeper_数据模型
+          <h1 class="post-title" itemprop="name headline">
 
               
             
@@ -347,27 +347,12 @@
                 
               
 
-              <time title="创建时间：2019-03-25 22:15:27" itemprop="dateCreated datePublished" datetime="2019-03-25T22:15:27+08:00">2019-03-25</time>
+              <time title="创建时间：2023-02-07 23:44:19" itemprop="dateCreated datePublished" datetime="2023-02-07T23:44:19+08:00">2023-02-07</time>
             </span>
           
 
           
 
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Zookeeper/" itemprop="url" rel="index"><span itemprop="name">Zookeeper</span></a></span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -400,18 +385,55 @@
       
 
       
-        <h1 id="1-Zookeeper的数据模型"><a href="#1-Zookeeper的数据模型" class="headerlink" title="1 Zookeeper的数据模型"></a>1 Zookeeper的数据模型</h1><p>Zookeeper将数据存储于内存中,具体而言,Znode是存储数据的最小单元。而Znode被以层次化的结构进行组织,形容一棵树。其对外提供的视图类似于Unix文件系统。树的根Znode节点相当于Unix文件系统的根路径。正如Unix中目录下可以有子目录一样,Znode结点下也可以挂载子结点,最终形成如下所示结构。<br><img src="/images/zookeeper001.png" alt></p>
-<p>以文件系统进行类比的话,Znode天然具有目录和文件两重属性:即Znode既可以当做文件往里面写东西,又可以当做目录在下面挂载其他Znode。当然,由于Znode具有不同的类型,后半部分并不完全准确。</p>
-<h2 id="1-1-Znode的类型"><a href="#1-1-Znode的类型" class="headerlink" title="1.1 Znode的类型"></a>1.1 Znode的类型</h2><p>Znode按其生命周期的长短可以分为持久结点(PERSISTENT)和临时结点(EPHEMERAL);在创建时还可选择是否由Zookeeper服务端在其路径后添加一串序号用来区分同一个父结点下多个结点创建的先后顺序。<br>经过组合就有以下4种Znode结点类型</p>
-<ol>
-<li>持久结点(PERSISTENT)<br>最常见的Znode类型,一旦创建将在一直存在于服务端,除非客户端通过删除操作进行删除。持久结点下可以创建子结点。</li>
-<li>持久顺序结点(PERSISTENT_SEQUENTIAL)<br>在具有持久结点基本特性的基础上,会通过在结点路径后缀一串序号来区分多个子结点创建的先后顺序。这工作由Zookeeper服务端自动给我们做,只要在创建Znode时指定结点类型为该类型。</li>
-<li>临时结点(EPHEMERAL)<br>临时结点的生命周期和客户端会话保持一致。客户端段会话存在的话临时结点也存在,客户端会话断开则临时结点会自动被服务端删除。临时结点下不能创建子结点。</li>
-<li>临时顺序结点(EPHEMERAL_SEQUENTIAL)<br>具有临时结点的基本特性,又有顺序性。</li>
-</ol>
-<h2 id="1-2-Znode的结构"><a href="#1-2-Znode的结构" class="headerlink" title="1.2  Znode的结构"></a>1.2  Znode的结构</h2><p>Znode结构主要由存储于其中的数据信息和状态信息两部分构成,通过get 命令获取一个Znode结点的信息如下:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">“Myfirstzookeeper-app"</span><br><span class="line">cZxid = 0x7f</span><br><span class="line">ctime = Tue Sep 29 16:15:47 IST 2015</span><br><span class="line">mZxid = 0x7f</span><br><span class="line">mtime = Tue Sep 29 16:15:47 IST 2015</span><br><span class="line">pZxid = 0x7f</span><br><span class="line">cversion = 0</span><br><span class="line">dataVersion = 0</span><br><span class="line">aclVersion = 0</span><br><span class="line">ephemeralOwner = 0x0</span><br><span class="line">dataLength = 22</span><br><span class="line">numChildren = 0</span><br></pre></td></tr></table></figure></p>
-<p>第一行存储的是ZNode的数据信息。<br>从cZxid开始就是Znode的状态信息:<br><strong>cZxid：</strong> znode 的创建的事务ID<br><strong>ctime：</strong>znode创建 的时间点<br><strong>mZxid ：</strong>znode的最后修改事务ID<br><strong>mtime ：</strong>znode最后修改的时间<br><strong>pZxid ：</strong>子节点最后修改的事务ID<br><strong>cversion ：</strong>子节点修改的版本号<br><strong>dataVersion：</strong> znode的数据版本<br><strong>aclVersion ：</strong>znode acl数据版本<br><strong>ephemeralOwner ：</strong>当前这个znode属于那个client<br><strong>dataLength ：</strong>当前znode内容的长度<br><strong>numChildren ：</strong>当前znode的子节点个数</p>
-<p><strong>version介绍</strong><br>该Znode结点的版本号。每个Znode结点被创建时版本号都为0,每更新一次都会导致版本号加1,即使更新前后Znode存储的值没有变化版本号也会加1。version值可以形象的理解为Znode结点被更新的次数。Znode状态信息中的版本号信息,使得服务端可以对多个客户端对同一个Znode的更新操作做并发控制。整个过程和java中的CAS有点像,是一种乐观锁的并发控制策略,而version值起到了冲突检测的功能。客户端拿到Znode的version信息,并在更新时附上这个version信息,服务端在更新Znode时必须必须比较客户端的version和Znode的实际version,只有这两个version一致时才会进行修改。</p>
+        <h3 id="InnoDB-线程模型"><a href="#InnoDB-线程模型" class="headerlink" title="InnoDB 线程模型"></a>InnoDB 线程模型</h3><p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/42.jpg" style="width:550px;  ">  </p>
+<p>InnoDB存储引擎是多线程的模型，因此其后台有多个不同的后台线程，负责处理不同的任务.</p>
+<p>后台线程的主要作用是负责刷新内存池中的数据，保证缓冲池中的内存缓存的是最近的数据。此外将已修改的数据文件刷新到磁盘文件，同时保证在数据库发生异常的情况下InnoDB能恢复到正常运行状态。</p>
+<h4 id="1-IO-Thread"><a href="#1-IO-Thread" class="headerlink" title="1. IO Thread"></a><strong>1. IO Thread</strong></h4><p>在InnoDB中使用了大量的AIO（Async IO）来做读写处理，这样可以极大提高数据库的性能。在InnoDB1.0版本之前共有4个IO Thread，分别是write，read，insert buffer和log thread，后来版本将read thread和write thread分别增大到了4个，一共有10个了。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">engine</span> <span class="keyword">innodb</span> <span class="keyword">status</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/49.jpg" style="width:550px;  "> </p>
+<ul>
+<li>read thread ： 负责读取操作，将数据从磁盘加载到缓存page页。4个</li>
+<li>write thread：负责写操作，将缓存脏页刷新到磁盘。4个</li>
+<li>log thread：负责将日志缓冲区内容刷新到磁盘。1个</li>
+<li>insert buffer thread ：负责将写缓冲内容刷新到磁盘。1个</li>
+</ul>
+<h4 id="2-Purge-Thread"><a href="#2-Purge-Thread" class="headerlink" title="2. Purge Thread"></a><strong>2. Purge Thread</strong></h4><p>事务提交之后，其使用的undo日志将不再需要，因此需要Purge Thread回收已经分配的undo页。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_purge_threads%';</span><br><span class="line"></span><br><span class="line">+<span class="comment">----------------------+-------+</span></span><br><span class="line">| Variable_name        | Value |</span><br><span class="line">+<span class="comment">----------------------+-------+</span></span><br><span class="line">| innodb_purge_threads | 4     |</span><br><span class="line">+<span class="comment">----------------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.01</span> sec)</span><br></pre></td></tr></table></figure>
+<p>InnoDB1.2+开始，支持多个Purge Thread 这样做的目的为了加快回收undo页（释放内存）。</p>
+<h4 id="3-Page-Cleaner-Thread"><a href="#3-Page-Cleaner-Thread" class="headerlink" title="3. Page Cleaner Thread"></a>3. Page Cleaner Thread</h4><p>作用是将脏数据刷新到磁盘，脏数据刷盘后相应的redo log也就可以覆盖，即可以同步数据，又能达到redo log循环使用的目的。会调用write thread线程处理。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_page_cleaners%';</span><br><span class="line">+<span class="comment">----------------------+-------+</span></span><br><span class="line">| Variable_name        | Value |</span><br><span class="line">+<span class="comment">----------------------+-------+</span></span><br><span class="line">| innodb_page_cleaners | 1     |</span><br><span class="line">+<span class="comment">----------------------+-------+</span></span><br></pre></td></tr></table></figure>
+<h4 id="4-Master-Thread"><a href="#4-Master-Thread" class="headerlink" title="4. Master Thread"></a><strong>4. Master Thread</strong></h4><p>Master thread是InnoDB的主线程，负责调度其他各线程，优先级最高。作用是将缓冲池中的数据异步刷新到磁盘 ，保证数据的一致性。包含：脏页的刷新（page cleaner thread）、undo页回收（purge thread）、redo日志刷新（log thread）、合并写缓冲等。内部有两个主处理，分别是每隔1秒和10秒处理。</p>
+<p>每1秒的操作：</p>
+<ul>
+<li><p>刷新脏页数据到磁盘，根据脏页比例达到75%才操作</p>
+<p>innodb_io_capacity用来表示IO的吞吐量，默认200，对于刷新到磁盘页的数量，会按照innodb_io_capacity的百分比来控制：</p>
+<ul>
+<li><p>在从缓冲池刷新脏页时，刷新脏页的数量为innodb_io_capcity;</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_io_capacity';</span><br><span class="line">+<span class="comment">--------------------+-------+</span></span><br><span class="line">| Variable_name      | Value |</span><br><span class="line">+<span class="comment">--------------------+-------+</span></span><br><span class="line">| innodb_io_capacity | 200   |</span><br><span class="line">+<span class="comment">--------------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果缓冲池中的脏页比例大于innodb_max_dirty_pages_pct(默认是75%时),刷新脏页到磁盘 数量是innodb_io_capacity的值</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_max_dirty_pages_pct';</span><br><span class="line">+<span class="comment">----------------------------+-----------+</span></span><br><span class="line">| Variable_name              | Value     |</span><br><span class="line">+<span class="comment">----------------------------+-----------+</span></span><br><span class="line">| innodb_max_dirty_pages_pct | 75.000000 |</span><br><span class="line">+<span class="comment">----------------------------+-----------+</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>合并写缓冲区数据: 并不是每秒刷新的，如果前一秒的IO次数小于5，则认为IO压力小，可以执行合并插入缓冲的操作。</p>
+</li>
+<li><p>刷新日志缓冲区到磁盘：即使事务没有提交，InnoDB也会每秒将重做日志缓冲刷新到重做日志文件中，因此可以理解为什么再大的事务提交，时间也是很短的。</p>
+</li>
+</ul>
+<p>每10秒的操作：</p>
+<ul>
+<li>刷新脏页数据到磁盘<ul>
+<li>从缓冲池刷新脏页时，刷行脏页的数量为innodb_io_capcity;</li>
+</ul>
+</li>
+<li>合并写缓冲区数据<ul>
+<li>每隔10秒,  合并插入缓冲是innodb_io_capacity的5%</li>
+</ul>
+</li>
+<li>刷新日志缓冲区(每隔10秒操作一次)</li>
+<li>删除无用的undo页(每隔10秒操作一次)</li>
+</ul>
 
       
     </div>
@@ -433,15 +455,6 @@
 
     <footer class="post-footer">
       
-        
-          
-        
-        <div class="post-tags">
-          
-            <a href="/tags/Zookeeper/" rel="tag"># Zookeeper</a>
-          
-        </div>
-      
 
       
       
@@ -451,8 +464,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/03/21/zookeeper/001Zookeeper_介绍、安装、命令/" rel="next" title="Zookeeper_介绍、安装、命令">
-                <i class="fa fa-chevron-left"></i> Zookeeper_介绍、安装、命令
+              <a href="/2023/02/07/mysql/MySQL_InnoDB磁盘结构/" rel="next" title>
+                <i class="fa fa-chevron-left"></i> 
               </a>
             
           </div>
@@ -461,7 +474,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/11/03/resolve/RSA premaster secret error/" rel="prev" title>
+              <a href="/2023/02/07/mysql/MySQL_InnoDB数据文件/" rel="prev" title>
                  <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -658,7 +671,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Zookeeper的数据模型"><span class="nav-text">1 Zookeeper的数据模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-Znode的类型"><span class="nav-text">1.1 Znode的类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-Znode的结构"><span class="nav-text">1.2  Znode的结构</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-线程模型"><span class="nav-text">InnoDB 线程模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-IO-Thread"><span class="nav-text">1. IO Thread</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Purge-Thread"><span class="nav-text">2. Purge Thread</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Page-Cleaner-Thread"><span class="nav-text">3. Page Cleaner Thread</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Master-Thread"><span class="nav-text">4. Master Thread</span></a></li></ol></li></ol></div>
             
 
           </div>
