@@ -298,7 +298,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/mysql/001Mysql_索引实现分析/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/mysql/006MySQL_InnoDB内存结构/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -318,7 +318,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2017/12/21/mysql/001Mysql_索引实现分析/" class="post-title-link" itemprop="url">Mysql_索引实现分析</a>
+                <a href="/2017/12/21/mysql/006MySQL_InnoDB内存结构/" class="post-title-link" itemprop="url">Mysql_InnoDB内存结构</a>
               
             
           </h1>
@@ -413,19 +413,16 @@
         
           
             <p>
-              1 介绍使用索引的主要目的是为了优化查询速度。
-在 MySQL 中，我们可以看到两种索引方式：
-
-B-Tree 索引。
-Hash 索引。索引是在存储引擎中实现的，也就是说不同的存储引擎，会使用不同的索引
-MyISAM和InnoDB存储引擎：只支持BTREE索引。
-MEMORY/HEAP存储引擎：支持
+              InnoDB存储引擎原理与优化从MySQL 5.5版本开始默认   使用InnoDB作为引擎，它擅长处理事务，具有自动崩溃恢复的特性，在日常开发中使用非常广泛。
+下面是官方的InnoDB引擎架构图，主要分为内存结构和磁盘结构两大部分。
+    
+InnoDB 内存结构1. Buffer PoolBu
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2017/12/21/mysql/001Mysql_索引实现分析/#more" rel="contents">
+              <a class="btn" href="/2017/12/21/mysql/006MySQL_InnoDB内存结构/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>

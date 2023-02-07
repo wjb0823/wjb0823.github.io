@@ -95,17 +95,18 @@
 
 
   <meta name="description" content="InnoDB 参数优化1.内存相关参数优化1.Buffer Pool参数优化  1.1 缓冲池内存大小配置     一个大的日志缓冲区允许大量的事务在提交之前不写日志到磁盘。因此，如果你有很多事务的更新，插入或删除操作，通过设置这个参数会大量的减少磁盘I/O的次数数。建议: 在专用数据库服务器上，可以将缓冲池大小设置为服务器物理内存的60% - 80%.  查看缓冲池大小 123456789101">
+<meta name="keywords" content="Mysql">
 <meta property="og:type" content="article">
-<meta property="og:title" content="生活值得">
-<meta property="og:url" content="http://yoursite.com/2023/02/07/mysql/010MySQL_InnoDB参数优化/index.html">
+<meta property="og:title" content="Mysql_InnoDB参数优化">
+<meta property="og:url" content="http://yoursite.com/2017/12/21/mysql/010MySQL_InnoDB参数优化/index.html">
 <meta property="og:site_name" content="生活值得">
 <meta property="og:description" content="InnoDB 参数优化1.内存相关参数优化1.Buffer Pool参数优化  1.1 缓冲池内存大小配置     一个大的日志缓冲区允许大量的事务在提交之前不写日志到磁盘。因此，如果你有很多事务的更新，插入或删除操作，通过设置这个参数会大量的减少磁盘I/O的次数数。建议: 在专用数据库服务器上，可以将缓冲池大小设置为服务器物理内存的60% - 80%.  查看缓冲池大小 123456789101">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/55.jpg">
 <meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/56.jpg">
-<meta property="og:updated_time" content="2023-02-07T15:33:37.637Z">
+<meta property="og:updated_time" content="2017-12-27T14:15:27.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="生活值得">
+<meta name="twitter:title" content="Mysql_InnoDB参数优化">
 <meta name="twitter:description" content="InnoDB 参数优化1.内存相关参数优化1.Buffer Pool参数优化  1.1 缓冲池内存大小配置     一个大的日志缓冲区允许大量的事务在提交之前不写日志到磁盘。因此，如果你有很多事务的更新，插入或删除操作，通过设置这个参数会大量的减少磁盘I/O的次数数。建议: 在专用数据库服务器上，可以将缓冲池大小设置为服务器物理内存的60% - 80%.  查看缓冲池大小 123456789101">
 <meta name="twitter:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/55.jpg">
 
@@ -115,7 +116,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2023/02/07/mysql/010MySQL_InnoDB参数优化/">
+  <link rel="canonical" href="http://yoursite.com/2017/12/21/mysql/010MySQL_InnoDB参数优化/">
 
 
 
@@ -125,7 +126,7 @@
   };
 </script>
 
-  <title> | 生活值得</title>
+  <title>Mysql_InnoDB参数优化 | 生活值得</title>
   
 
 
@@ -304,7 +305,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/02/07/mysql/010MySQL_InnoDB参数优化/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/mysql/010MySQL_InnoDB参数优化/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -321,7 +322,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
+          <h1 class="post-title" itemprop="name headline">Mysql_InnoDB参数优化
 
               
             
@@ -347,12 +348,41 @@
                 
               
 
-              <time title="创建时间：2023-02-07 23:33:37" itemprop="dateCreated datePublished" datetime="2023-02-07T23:33:37+08:00">2023-02-07</time>
+              <time title="创建时间：2017-12-21 22:15:27" itemprop="dateCreated datePublished" datetime="2017-12-21T22:15:27+08:00">2017-12-21</time>
             </span>
           
 
           
+            
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2017-12-27 22:15:27" itemprop="dateModified" datetime="2017-12-27T22:15:27+08:00">2017-12-27</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -657,6 +687,15 @@
 
     <footer class="post-footer">
       
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Mysql/" rel="tag"># Mysql</a>
+          
+        </div>
+      
 
       
       
@@ -666,8 +705,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2023/02/07/mysql/006MySQL_InnoDB内存结构/" rel="next" title>
-                <i class="fa fa-chevron-left"></i> 
+              <a href="/2017/12/21/mysql/008MySQL_InnoDB线程模型/" rel="next" title="Mysql_InnoDB线程模型">
+                <i class="fa fa-chevron-left"></i> Mysql_InnoDB线程模型
               </a>
             
           </div>
@@ -676,8 +715,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2023/02/07/mysql/007MySQL_InnoDB磁盘结构/" rel="prev" title>
-                 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/12/21/mysql/001Mysql_索引实现分析/" rel="prev" title="Mysql_索引实现分析">
+                Mysql_索引实现分析 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>

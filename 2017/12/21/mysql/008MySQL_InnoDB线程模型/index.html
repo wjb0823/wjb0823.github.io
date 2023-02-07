@@ -94,13 +94,16 @@
 
 
 
-  <meta name="description" content="InnoDB 数据文件1.表空间文件结构InnoDB表空间文件结构分为: Tablespace(表空间) —&amp;gt;  Segment（段）—&amp;gt;Extent（区）—&amp;gt;Page（页）—&amp;gt; Row（行）   1) Tablesapce  表空间能够看作是InnoDB 存储引擎逻辑结构的最高层，用于存储多个ibd数据文件，用于存储表的记录和索引。一个文件包含多个段。 表空间分为：系统表">
+  <meta name="description" content="InnoDB 线程模型   InnoDB存储引擎是多线程的模型，因此其后台有多个不同的后台线程，负责处理不同的任务. 后台线程的主要作用是负责刷新内存池中的数据，保证缓冲池中的内存缓存的是最近的数据。此外将已修改的数据文件刷新到磁盘文件，同时保证在数据库发生异常的情况下InnoDB能恢复到正常运行状态。 1. IO Thread在InnoDB中使用了大量的AIO（Async IO）来做读写处理，这">
+<meta name="keywords" content="Mysql">
 <meta property="og:type" content="article">
-<meta property="og:title" content="生活值得">
-<meta property="og:url" content="http://yoursite.com/2023/02/07/mysql/009MySQL_InnoDB数据文件/index.html">
+<meta property="og:title" content="Mysql_InnoDB线程模型">
+<meta property="og:url" content="http://yoursite.com/2017/12/21/mysql/008MySQL_InnoDB线程模型/index.html">
 <meta property="og:site_name" content="生活值得">
-<meta property="og:description" content="InnoDB 数据文件1.表空间文件结构InnoDB表空间文件结构分为: Tablespace(表空间) —&amp;gt;  Segment（段）—&amp;gt;Extent（区）—&amp;gt;Page（页）—&amp;gt; Row（行）   1) Tablesapce  表空间能够看作是InnoDB 存储引擎逻辑结构的最高层，用于存储多个ibd数据文件，用于存储表的记录和索引。一个文件包含多个段。 表空间分为：系统表">
+<meta property="og:description" content="InnoDB 线程模型   InnoDB存储引擎是多线程的模型，因此其后台有多个不同的后台线程，负责处理不同的任务. 后台线程的主要作用是负责刷新内存池中的数据，保证缓冲池中的内存缓存的是最近的数据。此外将已修改的数据文件刷新到磁盘文件，同时保证在数据库发生异常的情况下InnoDB能恢复到正常运行状态。 1. IO Thread在InnoDB中使用了大量的AIO（Async IO）来做读写处理，这">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/42.jpg">
+<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/49.jpg">
 <meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/34.jpg">
 <meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/36.jpg">
 <meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/37.jpg">
@@ -111,11 +114,11 @@
 <meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/53.jpg">
 <meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/53.jpg">
 <meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/52.jpg">
-<meta property="og:updated_time" content="2023-02-07T15:37:45.082Z">
+<meta property="og:updated_time" content="2017-12-27T14:15:27.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="生活值得">
-<meta name="twitter:description" content="InnoDB 数据文件1.表空间文件结构InnoDB表空间文件结构分为: Tablespace(表空间) —&amp;gt;  Segment（段）—&amp;gt;Extent（区）—&amp;gt;Page（页）—&amp;gt; Row（行）   1) Tablesapce  表空间能够看作是InnoDB 存储引擎逻辑结构的最高层，用于存储多个ibd数据文件，用于存储表的记录和索引。一个文件包含多个段。 表空间分为：系统表">
-<meta name="twitter:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/34.jpg">
+<meta name="twitter:title" content="Mysql_InnoDB线程模型">
+<meta name="twitter:description" content="InnoDB 线程模型   InnoDB存储引擎是多线程的模型，因此其后台有多个不同的后台线程，负责处理不同的任务. 后台线程的主要作用是负责刷新内存池中的数据，保证缓冲池中的内存缓存的是最近的数据。此外将已修改的数据文件刷新到磁盘文件，同时保证在数据库发生异常的情况下InnoDB能恢复到正常运行状态。 1. IO Thread在InnoDB中使用了大量的AIO（Async IO）来做读写处理，这">
+<meta name="twitter:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/42.jpg">
 
 
 
@@ -123,7 +126,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2023/02/07/mysql/009MySQL_InnoDB数据文件/">
+  <link rel="canonical" href="http://yoursite.com/2017/12/21/mysql/008MySQL_InnoDB线程模型/">
 
 
 
@@ -133,7 +136,7 @@
   };
 </script>
 
-  <title> | 生活值得</title>
+  <title>Mysql_InnoDB线程模型 | 生活值得</title>
   
 
 
@@ -312,7 +315,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/02/07/mysql/009MySQL_InnoDB数据文件/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/mysql/008MySQL_InnoDB线程模型/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -329,7 +332,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
+          <h1 class="post-title" itemprop="name headline">Mysql_InnoDB线程模型
 
               
             
@@ -355,12 +358,41 @@
                 
               
 
-              <time title="创建时间：2023-02-07 23:37:45" itemprop="dateCreated datePublished" datetime="2023-02-07T23:37:45+08:00">2023-02-07</time>
+              <time title="创建时间：2017-12-21 22:15:27" itemprop="dateCreated datePublished" datetime="2017-12-21T22:15:27+08:00">2017-12-21</time>
             </span>
           
 
           
+            
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2017-12-27 22:15:27" itemprop="dateModified" datetime="2017-12-27T22:15:27+08:00">2017-12-27</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -393,7 +425,56 @@
       
 
       
-        <h3 id="InnoDB-数据文件"><a href="#InnoDB-数据文件" class="headerlink" title="InnoDB 数据文件"></a>InnoDB 数据文件</h3><h4 id="1-表空间文件结构"><a href="#1-表空间文件结构" class="headerlink" title="1.表空间文件结构"></a>1.表空间文件结构</h4><p>InnoDB表空间文件结构分为: Tablespace(表空间) —&gt;  Segment（段）—&gt;Extent（区）—&gt;Page（页）—&gt; Row（行）</p>
+        <h3 id="InnoDB-线程模型"><a href="#InnoDB-线程模型" class="headerlink" title="InnoDB 线程模型"></a>InnoDB 线程模型</h3><p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/42.jpg" style="width:550px;  ">  </p>
+<p>InnoDB存储引擎是多线程的模型，因此其后台有多个不同的后台线程，负责处理不同的任务.</p>
+<p>后台线程的主要作用是负责刷新内存池中的数据，保证缓冲池中的内存缓存的是最近的数据。此外将已修改的数据文件刷新到磁盘文件，同时保证在数据库发生异常的情况下InnoDB能恢复到正常运行状态。</p>
+<h4 id="1-IO-Thread"><a href="#1-IO-Thread" class="headerlink" title="1. IO Thread"></a><strong>1. IO Thread</strong></h4><p>在InnoDB中使用了大量的AIO（Async IO）来做读写处理，这样可以极大提高数据库的性能。在InnoDB1.0版本之前共有4个IO Thread，分别是write，read，insert buffer和log thread，后来版本将read thread和write thread分别增大到了4个，一共有10个了。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">engine</span> <span class="keyword">innodb</span> <span class="keyword">status</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/49.jpg" style="width:550px;  "> </p>
+<ul>
+<li>read thread ： 负责读取操作，将数据从磁盘加载到缓存page页。4个</li>
+<li>write thread：负责写操作，将缓存脏页刷新到磁盘。4个</li>
+<li>log thread：负责将日志缓冲区内容刷新到磁盘。1个</li>
+<li>insert buffer thread ：负责将写缓冲内容刷新到磁盘。1个</li>
+</ul>
+<h4 id="2-Purge-Thread"><a href="#2-Purge-Thread" class="headerlink" title="2. Purge Thread"></a><strong>2. Purge Thread</strong></h4><p>事务提交之后，其使用的undo日志将不再需要，因此需要Purge Thread回收已经分配的undo页。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_purge_threads%';</span><br><span class="line"></span><br><span class="line">+<span class="comment">----------------------+-------+</span></span><br><span class="line">| Variable_name        | Value |</span><br><span class="line">+<span class="comment">----------------------+-------+</span></span><br><span class="line">| innodb_purge_threads | 4     |</span><br><span class="line">+<span class="comment">----------------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.01</span> sec)</span><br></pre></td></tr></table></figure>
+<p>InnoDB1.2+开始，支持多个Purge Thread 这样做的目的为了加快回收undo页（释放内存）。</p>
+<h4 id="3-Page-Cleaner-Thread"><a href="#3-Page-Cleaner-Thread" class="headerlink" title="3. Page Cleaner Thread"></a>3. Page Cleaner Thread</h4><p>作用是将脏数据刷新到磁盘，脏数据刷盘后相应的redo log也就可以覆盖，即可以同步数据，又能达到redo log循环使用的目的。会调用write thread线程处理。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_page_cleaners%';</span><br><span class="line">+<span class="comment">----------------------+-------+</span></span><br><span class="line">| Variable_name        | Value |</span><br><span class="line">+<span class="comment">----------------------+-------+</span></span><br><span class="line">| innodb_page_cleaners | 1     |</span><br><span class="line">+<span class="comment">----------------------+-------+</span></span><br></pre></td></tr></table></figure>
+<h4 id="4-Master-Thread"><a href="#4-Master-Thread" class="headerlink" title="4. Master Thread"></a><strong>4. Master Thread</strong></h4><p>Master thread是InnoDB的主线程，负责调度其他各线程，优先级最高。作用是将缓冲池中的数据异步刷新到磁盘 ，保证数据的一致性。包含：脏页的刷新（page cleaner thread）、undo页回收（purge thread）、redo日志刷新（log thread）、合并写缓冲等。内部有两个主处理，分别是每隔1秒和10秒处理。</p>
+<p>每1秒的操作：</p>
+<ul>
+<li><p>刷新脏页数据到磁盘，根据脏页比例达到75%才操作</p>
+<p>innodb_io_capacity用来表示IO的吞吐量，默认200，对于刷新到磁盘页的数量，会按照innodb_io_capacity的百分比来控制：</p>
+<ul>
+<li><p>在从缓冲池刷新脏页时，刷新脏页的数量为innodb_io_capcity;</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_io_capacity';</span><br><span class="line">+<span class="comment">--------------------+-------+</span></span><br><span class="line">| Variable_name      | Value |</span><br><span class="line">+<span class="comment">--------------------+-------+</span></span><br><span class="line">| innodb_io_capacity | 200   |</span><br><span class="line">+<span class="comment">--------------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果缓冲池中的脏页比例大于innodb_max_dirty_pages_pct(默认是75%时),刷新脏页到磁盘 数量是innodb_io_capacity的值</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_max_dirty_pages_pct';</span><br><span class="line">+<span class="comment">----------------------------+-----------+</span></span><br><span class="line">| Variable_name              | Value     |</span><br><span class="line">+<span class="comment">----------------------------+-----------+</span></span><br><span class="line">| innodb_max_dirty_pages_pct | 75.000000 |</span><br><span class="line">+<span class="comment">----------------------------+-----------+</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>合并写缓冲区数据: 并不是每秒刷新的，如果前一秒的IO次数小于5，则认为IO压力小，可以执行合并插入缓冲的操作。</p>
+</li>
+<li><p>刷新日志缓冲区到磁盘：即使事务没有提交，InnoDB也会每秒将重做日志缓冲刷新到重做日志文件中，因此可以理解为什么再大的事务提交，时间也是很短的。</p>
+</li>
+</ul>
+<p>每10秒的操作：</p>
+<ul>
+<li>刷新脏页数据到磁盘<ul>
+<li>从缓冲池刷新脏页时，刷行脏页的数量为innodb_io_capcity;</li>
+</ul>
+</li>
+<li>合并写缓冲区数据<ul>
+<li>每隔10秒,  合并插入缓冲是innodb_io_capacity的5%</li>
+</ul>
+</li>
+<li>刷新日志缓冲区(每隔10秒操作一次)</li>
+<li>删除无用的undo页(每隔10秒操作一次)</li>
+</ul>
+<h3 id="InnoDB-数据文件"><a href="#InnoDB-数据文件" class="headerlink" title="InnoDB 数据文件"></a>InnoDB 数据文件</h3><h4 id="1-表空间文件结构"><a href="#1-表空间文件结构" class="headerlink" title="1.表空间文件结构"></a>1.表空间文件结构</h4><p>InnoDB表空间文件结构分为: Tablespace(表空间) —&gt;  Segment（段）—&gt;Extent（区）—&gt;Page（页）—&gt; Row（行）</p>
 <p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/34.jpg" style="width:650px;  "> </p>
 <p><strong>1) Tablesapce</strong></p>
 <ol>
@@ -613,6 +694,15 @@
 
     <footer class="post-footer">
       
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Mysql/" rel="tag"># Mysql</a>
+          
+        </div>
+      
 
       
       
@@ -622,8 +712,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2023/02/07/mysql/008MySQL_InnoDB线程模型/" rel="next" title>
-                <i class="fa fa-chevron-left"></i> 
+              <a href="/2017/12/21/mysql/009MySQL_InnoDB数据文件/" rel="next" title="Mysql_InnoDB数据文件">
+                <i class="fa fa-chevron-left"></i> Mysql_InnoDB数据文件
               </a>
             
           </div>
@@ -631,6 +721,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/21/mysql/010MySQL_InnoDB参数优化/" rel="prev" title="Mysql_InnoDB参数优化">
+                Mysql_InnoDB参数优化 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -825,7 +919,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-数据文件"><span class="nav-text">InnoDB 数据文件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-表空间文件结构"><span class="nav-text">1.表空间文件结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Page结构"><span class="nav-text">2.Page结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-行记录格式"><span class="nav-text">3.行记录格式</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-线程模型"><span class="nav-text">InnoDB 线程模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-IO-Thread"><span class="nav-text">1. IO Thread</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Purge-Thread"><span class="nav-text">2. Purge Thread</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Page-Cleaner-Thread"><span class="nav-text">3. Page Cleaner Thread</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Master-Thread"><span class="nav-text">4. Master Thread</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-数据文件"><span class="nav-text">InnoDB 数据文件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-表空间文件结构"><span class="nav-text">1.表空间文件结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Page结构"><span class="nav-text">2.Page结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-行记录格式"><span class="nav-text">3.行记录格式</span></a></li></ol></li></ol></div>
             
 
           </div>
