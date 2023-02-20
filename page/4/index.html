@@ -1510,7 +1510,7 @@ service01 ngin
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/jvm/005.JVM_调优/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/jvm/001.JVM_结构、类加载/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -1530,7 +1530,7 @@ service01 ngin
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2016/05/21/jvm/005.JVM_调优/" class="post-title-link" itemprop="url">JVM_调优</a>
+                <a href="/2016/05/21/jvm/001.JVM_结构、类加载/" class="post-title-link" itemprop="url">JVM_类的加载</a>
               
             
           </h1>
@@ -1625,24 +1625,17 @@ service01 ngin
         
           
             <p>
-              JVM运行情况监测指标我们分析线上的JVM进程，最想要知道的信息有哪些？包括如下：
+              1. JVM结构
 
-新生代对象增长的速率
-
-Young GC的触发频率
-
-Young GC的耗时
-
-每次Young GC后有多少对象是存活下来的
-每次Young GC过后有多少对象进入了老年代
-老年代对象增长的速率
-Full GC的触
+类加载子系统：在 JVM 启动时或者类运行时将需要的 class文件加载到 JVM 中。
+运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。
+执行引擎：负责执行 class 文件中包含的字节码
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2016/05/21/jvm/005.JVM_调优/#more" rel="contents">
+              <a class="btn" href="/2016/05/21/jvm/001.JVM_结构、类加载/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -2150,7 +2143,9 @@ Java 堆溢出Java 堆溢出的原因，有可能是内存泄露，可以使用 
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -2193,7 +2188,9 @@ Java 堆溢出Java 堆溢出的原因，有可能是内存泄露，可以使用 
                     
                       
                     
-                    <span class="site-state-item-count">15</span>
+                      
+                    
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
