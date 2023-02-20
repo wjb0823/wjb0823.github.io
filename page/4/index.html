@@ -1678,7 +1678,7 @@ service01 ngin
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/jvm/005.JVM_调优/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/jvm/006.JVM_内存溢出异常/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -1698,7 +1698,7 @@ service01 ngin
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2016/05/21/jvm/005.JVM_调优/" class="post-title-link" itemprop="url">JVM_调优</a>
+                <a href="/2016/05/21/jvm/006.JVM_内存溢出异常/" class="post-title-link" itemprop="url">JVM_内存区域、内存溢出异常</a>
               
             
           </h1>
@@ -1793,24 +1793,18 @@ service01 ngin
         
           
             <p>
-              JVM运行情况监测指标我们分析线上的JVM进程，最想要知道的信息有哪些？包括如下：
+              3 内存溢出异常
+Java 堆溢出Java 堆溢出的原因，有可能是内存泄露，可以使用 MAT 进行分析。
 
-新生代对象增长的速率
+虚拟机栈和本地方法栈溢出关于虚拟机栈和本地方法栈，在 Java 虚拟机规范中描述了两种异常：
 
-Young GC的触发频率
-
-Young GC的耗时
-
-每次Young GC后有多少对象是存活下来的
-每次Young GC过后有多少对象进入了老年代
-老年代对象增长的速率
-Full GC的触
+如果线程请求的栈深度大于虚拟机所允许的最大深度，将抛出 StackOverflowError 异
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2016/05/21/jvm/005.JVM_调优/#more" rel="contents">
+              <a class="btn" href="/2016/05/21/jvm/006.JVM_内存溢出异常/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1870,7 +1864,7 @@ Full GC的触
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/jvm/004.JVM_参数/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/jvm/001.JVM_结构、类加载/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -1890,7 +1884,7 @@ Full GC的触
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2016/05/21/jvm/004.JVM_参数/" class="post-title-link" itemprop="url">JVM_参数总结</a>
+                <a href="/2016/05/21/jvm/001.JVM_结构、类加载/" class="post-title-link" itemprop="url">JVM_类的加载</a>
               
             
           </h1>
@@ -1985,18 +1979,17 @@ Full GC的触
         
           
             <p>
-              栈-Xss1M
-堆内存-XX:InitialHeapSize=10475760-XX:MaxHeapSize=10475760
--Xms3072M-Xmx3072M
-新生代-XX:NewSize=5242880-XX:MaxNewSize=5242880
--Xmn3072M
--XX:Survivor
+              1. JVM结构
+
+类加载子系统：在 JVM 启动时或者类运行时将需要的 class文件加载到 JVM 中。
+运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。
+执行引擎：负责执行 class 文件中包含的字节码
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2016/05/21/jvm/004.JVM_参数/#more" rel="contents">
+              <a class="btn" href="/2016/05/21/jvm/001.JVM_结构、类加载/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>

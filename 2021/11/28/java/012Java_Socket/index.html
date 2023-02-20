@@ -94,21 +94,21 @@
 
 
 
-  <meta name="description" content="BIO模型在Java中，如果要实现网络通信，我们会采用Socket套接字来完成。 Socket这不是一个协议，而是一个通信模型。其实它最初是BSD发明的，主要用来一台电脑的两个进程间通信，然后把它用到了两台电脑的进程间通信。所以，可以把它简单理解为进程间通信，不是什么高级的东西。主要做的事情就是：  A发包：    发请求包给某个已经绑定的端口（所以我们经常会访问这样的地址182.13.15.16">
+  <meta name="description" content="BIO模型在Java中，如果要实现网络通信，我们会采用Socket套接字来完成。 Socket这不是一个协议，而是一个通信模型。其实它最初是BSD发明的，主要用来一台电脑的两个进程间通信，然后把它用到了两台电脑的进程间通信。所以，可以把它简单理解为进程间通信，不是什么高级的东西。主要做的事情就是：  A发包：   A发请求包给某个已经绑定的端口（IP:Port）。 收到B的允许； 然后正式发送；">
 <meta name="keywords" content="Java,Socket">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java_Socket">
-<meta property="og:url" content="http://yoursite.com/2018/11/28/java/012Java_Socket/index.html">
+<meta property="og:url" content="http://yoursite.com/2021/11/28/java/012Java_Socket/index.html">
 <meta property="og:site_name" content="生活值得">
-<meta property="og:description" content="BIO模型在Java中，如果要实现网络通信，我们会采用Socket套接字来完成。 Socket这不是一个协议，而是一个通信模型。其实它最初是BSD发明的，主要用来一台电脑的两个进程间通信，然后把它用到了两台电脑的进程间通信。所以，可以把它简单理解为进程间通信，不是什么高级的东西。主要做的事情就是：  A发包：    发请求包给某个已经绑定的端口（所以我们经常会访问这样的地址182.13.15.16">
+<meta property="og:description" content="BIO模型在Java中，如果要实现网络通信，我们会采用Socket套接字来完成。 Socket这不是一个协议，而是一个通信模型。其实它最初是BSD发明的，主要用来一台电脑的两个进程间通信，然后把它用到了两台电脑的进程间通信。所以，可以把它简单理解为进程间通信，不是什么高级的东西。主要做的事情就是：  A发包：   A发请求包给某个已经绑定的端口（IP:Port）。 收到B的允许； 然后正式发送；">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/images/java/java001.png">
 <meta property="og:image" content="http://yoursite.com/images/java/java002.png">
 <meta property="og:image" content="http://yoursite.com/images/java/java003.png">
-<meta property="og:updated_time" content="2018-11-28T06:15:27.000Z">
+<meta property="og:updated_time" content="2021-11-28T06:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java_Socket">
-<meta name="twitter:description" content="BIO模型在Java中，如果要实现网络通信，我们会采用Socket套接字来完成。 Socket这不是一个协议，而是一个通信模型。其实它最初是BSD发明的，主要用来一台电脑的两个进程间通信，然后把它用到了两台电脑的进程间通信。所以，可以把它简单理解为进程间通信，不是什么高级的东西。主要做的事情就是：  A发包：    发请求包给某个已经绑定的端口（所以我们经常会访问这样的地址182.13.15.16">
+<meta name="twitter:description" content="BIO模型在Java中，如果要实现网络通信，我们会采用Socket套接字来完成。 Socket这不是一个协议，而是一个通信模型。其实它最初是BSD发明的，主要用来一台电脑的两个进程间通信，然后把它用到了两台电脑的进程间通信。所以，可以把它简单理解为进程间通信，不是什么高级的东西。主要做的事情就是：  A发包：   A发请求包给某个已经绑定的端口（IP:Port）。 收到B的允许； 然后正式发送；">
 <meta name="twitter:image" content="http://yoursite.com/images/java/java001.png">
 
 
@@ -117,7 +117,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2018/11/28/java/012Java_Socket/">
+  <link rel="canonical" href="http://yoursite.com/2021/11/28/java/012Java_Socket/">
 
 
 
@@ -306,7 +306,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/28/java/012Java_Socket/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/11/28/java/012Java_Socket/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -349,7 +349,7 @@
                 
               
 
-              <time title="创建时间：2018-11-28 14:15:27" itemprop="dateCreated datePublished" datetime="2018-11-28T14:15:27+08:00">2018-11-28</time>
+              <time title="创建时间：2021-11-28 14:15:27" itemprop="dateCreated datePublished" datetime="2021-11-28T14:15:27+08:00">2021-11-28</time>
             </span>
           
 
@@ -415,27 +415,24 @@
 <li>A发包：</li>
 </ul>
 <ol>
-<li><ol>
-<li>发请求包给某个已经绑定的端口（所以我们经常会访问这样的地址182.13.15.16:1235，1235就是端口）；</li>
+<li>A发请求包给某个已经绑定的端口（IP:Port）。</li>
 <li>收到B的允许；</li>
 <li>然后正式发送；</li>
-<li>发送完了，告诉B要断开链接；收到断开允许，马上断开，然后发送已经断开信息给B。</li>
-</ol>
-</li>
+<li>发送完了，告诉B要断开链接；</li>
+<li>收到断开允许，马上断开，然后发送已经断开信息给B。</li>
 </ol>
 <ul>
 <li>B收包：</li>
 </ul>
 <ol>
-<li><ol>
 <li>绑定端口和IP；然后在这个端口监听；</li>
 <li>接收到A的请求，发允许给A，并做好接收准备，主要就是清理缓存等待接收新数据；</li>
 <li>然后正式接收；</li>
-<li>接受到断开请求，允许断开；确认断开后，继续监听其它请求。</li>
+<li>接受到断开请求，允许断开；</li>
+<li>确认断开后，继续监听其它请求。</li>
 </ol>
-</li>
-</ol>
-<p>可见，Socket其实就是<strong>I/O操作</strong>，Socket并不仅限于网络通信，在网络通信中，它涵盖了<strong>网络层、传输层、会话层、表示层、应用层</strong>——其实这都不需要记，因为Socket通信时候用到了IP和端口，仅这两个就表明了它用到了网络层和传输层；而且它无视多台电脑通信的系统差别，所以它涉及了表示层；一般Socket都是基于一个应用程序的，所以会涉及到会话层和应用层。</p>
+<p>可见，Socket其实就是<strong>I/O操作</strong>，Socket并不仅限于网络通信，在网络通信中，它涵盖了<strong>网络层、传输层、会话层、表示层、应用层。</strong></p>
+<p>PS：其实这都不需要记，因为Socket通信时候用到了IP和端口，仅这两个就表明了它用到了网络层和传输层；而且它无视多台电脑通信的系统差别，所以它涉及了表示层；一般Socket都是基于一个应用程序的，所以会涉及到会话层和应用层。</p>
 <h3 id="基础的BIO通信模型"><a href="#基础的BIO通信模型" class="headerlink" title="基础的BIO通信模型"></a>基础的BIO通信模型</h3><p><strong>BIOServerSocket</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.wangjb.net.bio;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.BufferedReader;</span><br><span class="line"><span class="keyword">import</span> java.io.BufferedWriter;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStreamReader;</span><br><span class="line"><span class="keyword">import</span> java.io.OutputStreamWriter;</span><br><span class="line"><span class="keyword">import</span> java.net.ServerSocket;</span><br><span class="line"><span class="keyword">import</span> java.net.Socket;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BIOServerSocket</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_PORT = <span class="number">8080</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 在服务器端，我们需要使用ServerSocket，所以我们先声明一个ServerSocket变量</span></span><br><span class="line">        ServerSocket serverSocket = <span class="keyword">new</span> ServerSocket(DEFAULT_PORT);;</span><br><span class="line">        log.info(<span class="string">"启动服务，监听端口："</span> + DEFAULT_PORT);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 接下来我们就需要开始等待客户端的连接了。</span></span><br><span class="line">        <span class="comment">// 所以我们要使用的是accept这个函数，并且当accept方法获得一个客户端请求时，会返回一个socket对象， 这个socket对象让服务器可以用来和客户端通信的一个端点。</span></span><br><span class="line">        <span class="comment">// 开始等待客户端连接，如果没有客户端连接，就会一直阻塞在这个位置</span></span><br><span class="line">        Socket socket = serverSocket.accept();</span><br><span class="line">        log.info(<span class="string">"客户端："</span> + socket.getPort() + <span class="string">"已连接"</span>);<span class="comment">// 很可能有多个客户端来发起连接，为了区分客户端，咱们可以输出客户端的端口号</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//一旦有客户端连接过来，我们就可以用到IO来获得客户端传过来的数据。</span></span><br><span class="line">        BufferedReader bufferedReader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(socket.getInputStream()));</span><br><span class="line">        String clientStr = bufferedReader.readLine();<span class="comment">//读取一行信息</span></span><br><span class="line">        log.info(<span class="string">"客户端发了一段消息："</span> + clientStr);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//服务端收到数据以后，可以给到客户端一个回复。</span></span><br><span class="line">        BufferedWriter bufferedWriter = <span class="keyword">new</span> BufferedWriter(<span class="keyword">new</span> OutputStreamWriter(socket.getOutputStream()));</span><br><span class="line">        bufferedWriter.write(<span class="string">"我已经收到你的消息了\n"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//清空缓冲区触发消息发送</span></span><br><span class="line">        bufferedWriter.flush();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><strong>BIOClientSocket</strong></p>
@@ -443,11 +440,11 @@
 <p>上述代码构建了一个简单的BIO通信模型，也就是服务端建立一个监听，客户端向服务端发送一个消息，实现简单的网络通信，那BIO有什么弊端呢？</p>
 <p>我们通过对BIOServerSocket进行改造，关注case1和case2部分。</p>
 <ul>
-<li>case1: 增加了while循环，实现重复监听</li>
-<li>case2: 当服务端收到客户端的请求后，不直接返回，而是等待20s。</li>
+<li>增加了while循环，实现重复监听</li>
+<li>当服务端收到客户端的请求后，不直接返回，而是等待20s。</li>
 </ul>
 <p><strong>BIOServerSocket2</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.wangjb.net.bio;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.BufferedReader;</span><br><span class="line"><span class="keyword">import</span> java.io.BufferedWriter;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStreamReader;</span><br><span class="line"><span class="keyword">import</span> java.io.OutputStreamWriter;</span><br><span class="line"><span class="keyword">import</span> java.net.ServerSocket;</span><br><span class="line"><span class="keyword">import</span> java.net.Socket;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BIOServerSocket2</span> </span>&#123;</span><br><span class="line">    <span class="comment">//先定义一个端口号，这个端口的值是可以自己调整的。</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_PORT = <span class="number">8080</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException, InterruptedException </span>&#123;</span><br><span class="line">        ServerSocket serverSocket = <span class="keyword">new</span> ServerSocket(DEFAULT_PORT);</span><br><span class="line">        log.info(<span class="string">"启动服务，监听端口："</span> + DEFAULT_PORT);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            <span class="comment">//case1: 增加循环，允许循环接收请求</span></span><br><span class="line">            Socket socket = serverSocket.accept();</span><br><span class="line">            log.info(<span class="string">"客户端："</span> + socket.getPort() + <span class="string">"已连接"</span>);</span><br><span class="line"></span><br><span class="line">            BufferedReader bufferedReader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(socket.getInputStream()));</span><br><span class="line">            String clientStr = bufferedReader.readLine(); <span class="comment">//读取一行信息</span></span><br><span class="line">            log.info(<span class="string">"客户端发了一段消息："</span> + clientStr);</span><br><span class="line"></span><br><span class="line">            Thread.sleep(<span class="number">20000</span>); <span class="comment">//case2: 修改：增加等待时间</span></span><br><span class="line"></span><br><span class="line">            BufferedWriter bufferedWriter = <span class="keyword">new</span> BufferedWriter(<span class="keyword">new</span> OutputStreamWriter(socket.getOutputStream()));</span><br><span class="line">            bufferedWriter.write(<span class="string">"我已经收到你的消息了\n"</span>);</span><br><span class="line"></span><br><span class="line">            bufferedWriter.flush();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.wangjb.net.bio;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.BufferedReader;</span><br><span class="line"><span class="keyword">import</span> java.io.BufferedWriter;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStreamReader;</span><br><span class="line"><span class="keyword">import</span> java.io.OutputStreamWriter;</span><br><span class="line"><span class="keyword">import</span> java.net.ServerSocket;</span><br><span class="line"><span class="keyword">import</span> java.net.Socket;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BIOServerSocket2</span> </span>&#123;</span><br><span class="line">    <span class="comment">//先定义一个端口号，这个端口的值是可以自己调整的。</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_PORT = <span class="number">8080</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException, InterruptedException </span>&#123;</span><br><span class="line">        ServerSocket serverSocket = <span class="keyword">new</span> ServerSocket(DEFAULT_PORT);</span><br><span class="line">        log.info(<span class="string">"启动服务，监听端口："</span> + DEFAULT_PORT);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            <span class="comment">//增加循环，允许循环接收请求</span></span><br><span class="line">            Socket socket = serverSocket.accept();</span><br><span class="line">            log.info(<span class="string">"客户端："</span> + socket.getPort() + <span class="string">"已连接"</span>);</span><br><span class="line"></span><br><span class="line">            BufferedReader bufferedReader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(socket.getInputStream()));</span><br><span class="line">            String clientStr = bufferedReader.readLine(); <span class="comment">//读取一行信息</span></span><br><span class="line">            log.info(<span class="string">"客户端发了一段消息："</span> + clientStr);</span><br><span class="line"></span><br><span class="line">            Thread.sleep(<span class="number">20000</span>); <span class="comment">// 修改：增加等待时间</span></span><br><span class="line"></span><br><span class="line">            BufferedWriter bufferedWriter = <span class="keyword">new</span> BufferedWriter(<span class="keyword">new</span> OutputStreamWriter(socket.getOutputStream()));</span><br><span class="line">            bufferedWriter.write(<span class="string">"我已经收到你的消息了\n"</span>);</span><br><span class="line"></span><br><span class="line">            bufferedWriter.flush();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>接着，把BIOClientSocket复制两份（client1、client2），同时向BIOServerSocket发起请求。</p>
 <p>运行后看到的现象应该是： client1先发送请求到Server端，由于Server端等待20s才返回，导致client2的请求一直被阻塞。</p>
 <p>这个情况会导致一个问题，如果服务端在同一个时刻只能处理一个客户端的连接，而如果一个网站同时有1000个用户访问，那么剩下的999个用户都需要等待，而这个等待的耗时取决于前面的请求的处理时长，如图下图所示。</p>
@@ -506,8 +503,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/02/01/mysql/005Mysql_事务/" rel="next" title="Mysql_事务">
-                <i class="fa fa-chevron-left"></i> Mysql_事务
+              <a href="/2020/04/26/springsourceanalysis/002.Spring生命周期-BeanDefinition注册/" rel="next" title="Spring生命周期-BeanDefinition注册">
+                <i class="fa fa-chevron-left"></i> Spring生命周期-BeanDefinition注册
               </a>
             
           </div>
@@ -516,8 +513,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/11/28/java/011Java_并发编程/" rel="prev" title="Java并发编程">
-                Java并发编程 <i class="fa fa-chevron-right"></i>
+              <a href="/2023/02/07/jvm/对象的创建/" rel="prev" title>
+                 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
