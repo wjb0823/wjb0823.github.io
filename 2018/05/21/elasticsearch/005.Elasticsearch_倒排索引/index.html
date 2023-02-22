@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="倒排索引倒排索引：关键词到文件ID的映射。指的是将文档内容中的Term(分词后)作为索引，将包含该词的文档 ID 作为记录。 正向索引：文件ID到关键词的映射。是以文档对象的唯一 ID作为索引，以文档内容作为记录。 倒排索引是区别于正排索引的概念：   要注意倒排索引的两个细节：  倒排索引中的所有词项对应一个或多个文档倒排索引中的词项  根据字典顺序升序排列   分词的概念分词用于检索，英文的分">
+<meta name="keywords" content="Elasticsearch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elasticsearch_倒排索引">
+<meta property="og:url" content="http://yoursite.com/2018/05/21/elasticsearch/005.Elasticsearch_倒排索引/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="倒排索引倒排索引：关键词到文件ID的映射。指的是将文档内容中的Term(分词后)作为索引，将包含该词的文档 ID 作为记录。 正向索引：文件ID到关键词的映射。是以文档对象的唯一 ID作为索引，以文档内容作为记录。 倒排索引是区别于正排索引的概念：   要注意倒排索引的两个细节：  倒排索引中的所有词项对应一个或多个文档倒排索引中的词项  根据字典顺序升序排列   分词的概念分词用于检索，英文的分">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/es/es012.png">
+<meta property="og:image" content="http://yoursite.com/images/es/es002.png">
+<meta property="og:image" content="http://yoursite.com/images/es/es003.png">
+<meta property="og:image" content="http://yoursite.com/images/es/es011.png">
+<meta property="og:image" content="http://yoursite.com/images/es/es010.png">
+<meta property="og:image" content="http://yoursite.com/images/es/es009.png">
+<meta property="og:image" content="http://yoursite.com/images/es/es008.png">
+<meta property="og:image" content="http://yoursite.com/images/es/es007.png">
+<meta property="og:image" content="http://yoursite.com/images/es/es006.png">
+<meta property="og:image" content="http://yoursite.com/images/es/es005.png">
+<meta property="og:image" content="http://yoursite.com/images/es/es004.png">
+<meta property="og:updated_time" content="2018-09-21T06:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elasticsearch_倒排索引">
+<meta name="twitter:description" content="倒排索引倒排索引：关键词到文件ID的映射。指的是将文档内容中的Term(分词后)作为索引，将包含该词的文档 ID 作为记录。 正向索引：文件ID到关键词的映射。是以文档对象的唯一 ID作为索引，以文档内容作为记录。 倒排索引是区别于正排索引的概念：   要注意倒排索引的两个细节：  倒排索引中的所有词项对应一个或多个文档倒排索引中的词项  根据字典顺序升序排列   分词的概念分词用于检索，英文的分">
+<meta name="twitter:image" content="http://yoursite.com/images/es/es012.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2018/05/21/elasticsearch/005.Elasticsearch_倒排索引/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Elasticsearch_倒排索引 | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/21/elasticsearch/005.Elasticsearch_倒排索引/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Elasticsearch_倒排索引
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-05-21 14:15:27" itemprop="dateCreated datePublished" datetime="2018-05-21T14:15:27+08:00">2018-05-21</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-09-21 14:15:27" itemprop="dateModified" datetime="2018-09-21T14:15:27+08:00">2018-09-21</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Elasticsearch/" itemprop="url" rel="index"><span itemprop="name">Elasticsearch</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="倒排索引"><a href="#倒排索引" class="headerlink" title="倒排索引"></a>倒排索引</h1><p><strong>倒排索引</strong>：关键词到文件ID的映射。指的是将文档内容中的Term(分词后)作为索引，将包含该词的文档 ID 作为记录。</p>
+<p><strong>正向索引</strong>：文件ID到关键词的映射<strong>。</strong>是以文档对象的唯一 ID作为索引，以文档内容作为记录。</p>
+<p>倒排索引是区别于正排索引的概念：</p>
+<p><img src="/images/es/es012.png" alt></p>
+<blockquote>
+<p>要注意倒排索引的两个细节：</p>
+<ul>
+<li>倒排索引中的所有词项对应一个或多个文档倒排索引中的词项 </li>
+<li>根据字典顺序升序排列</li>
+</ul>
+</blockquote>
+<h2 id="分词的概念"><a href="#分词的概念" class="headerlink" title="分词的概念"></a>分词的概念</h2><p>分词用于检索，英文的分词是按单词之间空格区分，中文要考虑效率和准确分词率，防止出现歧义。</p>
+<h2 id="倒排索引的生成过程"><a href="#倒排索引的生成过程" class="headerlink" title="倒排索引的生成过程"></a>倒排索引的生成过程</h2><p>下面通过一个例子来说明下倒排索引的生成过程。假设目前有以下两个文档内容：</p>
+<ul>
+<li>I really liked my small dogs, and I think my mom also liked them.</li>
+<li>He never liked any dogs, so I hope that my mom will not expect me to liked him.</li>
+</ul>
+<p>其处理步骤如下：</p>
+<ol>
+<li>正排索引给每个文档进行编号，作为其唯一的标识。</li>
+</ol>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th><strong>文档 id</strong></th>
+<th><strong>content</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>doc1</td>
+<td>I really liked my small dogs, and I think my mom also liked them.</td>
+</tr>
+<tr>
+<td>doc2</td>
+<td>He never liked any dogs, so I hope that my mom will not expect me to liked him.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ol>
+<li><strong>分词</strong></li>
+</ol>
+<p>首先要对字段的内容进行<strong>分词</strong>，分词就是将一段连续的文本按照语义拆分为多个单词，然后按照单词来作为索引，对应的文档 id 建立一个链表，就能构成上述的倒排索引结构。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">分词，初步的倒排索引的建立</span><br><span class="line"></span><br><span class="line">word		doc1	  doc2</span><br><span class="line"></span><br><span class="line">I			*			*</span><br><span class="line">really		*</span><br><span class="line">liked		*			*</span><br><span class="line">my			*			*</span><br><span class="line">small		*	</span><br><span class="line">dogs		*</span><br><span class="line">and			*</span><br><span class="line">think		*</span><br><span class="line">mom			*			*</span><br><span class="line">also		*</span><br><span class="line">them		*	</span><br><span class="line">He					    *</span><br><span class="line">never					*</span><br><span class="line">any					    *</span><br><span class="line">so					    *</span><br><span class="line">hope					*</span><br><span class="line">that					*</span><br><span class="line">will					*</span><br><span class="line">not					    *</span><br><span class="line">expect					*</span><br><span class="line">me					    *</span><br><span class="line">to					    *</span><br><span class="line">him					    *</span><br></pre></td></tr></table></figure>
+<ol>
+<li><p><strong>normalization</strong></p>
+<p>搜索mother like little dog，查询条件分词后：</p>
+<p>mother<br>like<br>little<br>dog</p>
+<p><strong>此时搜索不可能有任何结果</strong>。这个是不是我们想要的搜索结果？？？绝对不是，因为在我们看来，mother和mom有区别吗？同义词，都是妈妈的意思。like和liked有区别吗？没有，都是喜欢的意思，只不过一个是现在时，一个是过去时。little和small有区别吗？同义词，都是小小的。dog和dogs有区别吗？狗，只不过一个是单数，一个是复数。</p>
+<p><strong>normalization</strong>，建立倒排索引的时候，会执行一个操作，也就是说对拆分出的各个单词进行相应的处理，以提升后面搜索的时候能够搜索到相关联的文档的概率</p>
+<p>时态的转换，单复数的转换，同义词的转换，大小写的转换</p>
+<p>mom ―&gt; mother<br>liked ―&gt; like<br>small ―&gt; little<br>dogs ―&gt; dog</p>
+<p>重新建立倒排索引，加入normalization，再次用mother liked little dog搜索，就可以搜索到了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">word		doc1			doc2</span><br><span class="line"></span><br><span class="line">I			*			*</span><br><span class="line">really		*</span><br><span class="line">like		*			*			liked --&gt; like</span><br><span class="line">my			*			*</span><br><span class="line">little		*						small --&gt; little</span><br><span class="line">dog			*			*			dogs --&gt; dog						</span><br><span class="line">and			*</span><br><span class="line">think		*</span><br><span class="line">mom			*			*</span><br><span class="line">also		*</span><br><span class="line">them		*	</span><br><span class="line">He					*</span><br><span class="line">never					*</span><br><span class="line">any					*</span><br><span class="line">so					*</span><br><span class="line">hope					*</span><br><span class="line">that					*</span><br><span class="line">will					*</span><br><span class="line">not					*</span><br><span class="line">expect					*</span><br><span class="line">me					*</span><br><span class="line">to					*</span><br><span class="line">him					*</span><br><span class="line"></span><br><span class="line">mother like little dog，分词，normalization</span><br><span class="line"></span><br><span class="line">mother	--&gt; mom</span><br><span class="line">like	--&gt; like</span><br><span class="line">little	--&gt; little</span><br><span class="line">dog	--&gt; dog</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>doc1和doc2都会搜索出来</p>
+<p>doc1：I really liked my small dogs, and I think my mom also liked them.<br>doc2：He never liked any dogs, so I hope that my mom will not expect me to liked him.</p>
+<h2 id="倒排索引的结构"><a href="#倒排索引的结构" class="headerlink" title="倒排索引的结构"></a>倒排索引的结构</h2><ul>
+<li>Term index</li>
+<li>Term Dictionary</li>
+<li>Postings List：记录表由所有的 Term 对应的数据（Postings） 组成，它不仅仅为文档 id 信息，可能包含以下信息：<ul>
+<li><strong>文档 id（DocId, Document Id），</strong>包含单词的所有文档唯一 id<strong>，用于去正排索引中查询原始数据。</strong></li>
+<li><strong>词频（TF，Term Frequency），</strong>记录 Term  在每篇文档中出现的次数<strong>，用于后续相关性算分。</strong></li>
+<li><strong>位置（Position），</strong>记录 Term 在每篇文档中的分词位置（多个）<strong>，用于做词语搜索（Phrase Query）。</strong></li>
+<li><strong>偏移（Oﬀset），</strong>记录 Term 在每篇文档的开始和结束位置<strong>，用于高亮显示等。</strong></li>
+</ul>
+</li>
+</ul>
+<p>假如我们有很多term，比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Carla,Sara,Elin,Ada,Patty,Kate,Selena</span><br><span class="line">那么我们找出某一特定term时需要进行遍历，速度很慢。</span><br></pre></td></tr></table></figure>
+<p>如果对term进行排序的话：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Ada,Carla,Elin,Kate,Patty,Sara,Selena</span><br></pre></td></tr></table></figure>
+<p>就可以通过二分查找更快找到指定term，这个有序的term列表就是term dictionary。查找的时间复杂度为logN，logN次的磁盘读写仍然是非常昂贵的（一次random access大概需要10ms）。所以需要尽量少的读写磁盘，有必要把一些数据缓存到内存里，但是整个term dictionary又非常大，无法完整地放到内存里。于是就有了term index。<br>term idnex有点像书的章节：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">A开头的term *********XX页</span><br><span class="line">B开头的term *********XX页</span><br><span class="line">C开头的term *********XX页</span><br></pre></td></tr></table></figure>
+<p>但是term的开头不只是26个英文字母，而且数据分布上也不是均匀的，term index的数据结构实际上是tier树，也就是我们常说的字典树。：</p>
+<p><img src="/images/es/es002.png" alt></p>
+<p>这棵树不会包含所有的term，它包含的是term的一些前缀。通过term index可以快速地定位到term dictionary中的某个offset，然后从这个位置再往后顺序查找。<strong>再加上一些压缩技术（lucene finite state transducer），使得使用内存缓存整个term index变成可能。 </strong> 整体效果：</p>
+<p><img src="/images/es/es003.png" alt></p>
+<p>由此可以得出为什么es检索比mysql快：mysql只有term dictionary这一层，是以btree的方式存储的。检索一个term需要若干次的random access的磁盘操作。而lucene在term dictionary的基础上添加了term index来加快检索，term index以树的形式缓存在内存中。从term index找到term dictionary所在block后，再去磁盘查找term，大大减少了磁盘的random access次数。</p>
+<p>另外，term index是以FST（finite state transducers）的形式保存的，其特点是非常节省内存。term dictionary在磁盘上是以分block的方式保存的，一个block内部利用公共前缀压缩，比如都是AB开头的单词就可以把ab去掉，这样term dictionary就可以比btree更节省空间。</p>
+<h1 id="Lucene-倒排索引实现"><a href="#Lucene-倒排索引实现" class="headerlink" title="Lucene 倒排索引实现"></a>Lucene 倒排索引实现</h1><p>全文搜索引擎在海量数据的情况下是需要存储大量的文本，所以面临以下问题：</p>
+<ul>
+<li>Dictionary 是比较大的（比如我们搜索中的一个字段可能有上千万个 Term） </li>
+<li>Postings 可能会占据大量的存储空间（一个Term多的有几百万个doc）</li>
+</ul>
+<p>在海量数据背景下，倒排索引的实现直接关系到存储成本以及搜索性能。</p>
+<p>为此，Lucene 引入了多种巧妙的数据结构和算法。其倒排索引实现拥有以下特性： </p>
+<ul>
+<li>以较低的存储成本存储在磁盘 （索引大小大约为被索引文本的20-30％）</li>
+<li>快速读写</li>
+</ul>
+<h2 id="Term-Index实现"><a href="#Term-Index实现" class="headerlink" title="Term Index实现"></a>Term Index实现</h2><p>Terms Index(.tip 文件存储)，Lucene 采用了 FST 这个数据结构来实现这个索引。</p>
+<h2 id="Term-Dictionary-实现"><a href="#Term-Dictionary-实现" class="headerlink" title="Term Dictionary 实现"></a>Term Dictionary 实现</h2><p>索引表存储所有的 Term 数据，同时它也是 Term 与 Postings 的关系纽带，存储了每个 Term 和其对应的 Postings 文件位置指针。</p>
+<p><img src="/images/es/es011.png" alt></p>
+<h2 id="Posting-List-实现"><a href="#Posting-List-实现" class="headerlink" title="Posting List 实现"></a>Posting List 实现</h2><p>PostingList 包含文档 id、词频、位置和偏移量等信息，这些数据之间本身是相对独立的，因此 Lucene 将Postings List 被拆成三个文件存储：</p>
+<ul>
+<li><strong>doc后缀文件</strong>：记录 Postings 的 docId 信息和词频</li>
+<li><strong>pay后缀文件</strong>：记录 Payload 信息和偏移量信息</li>
+<li><strong>pos后缀文件</strong>：记录位置信息</li>
+</ul>
+<p>基本所有的查询都会用 .doc 文件获取文档 id，且一般的查询仅需要用到 .doc 文件就足够了，只有对于近似查询等位置相关的查询则需要用位置相关数据。</p>
+<p>三个文件整体实现差不太多，这里以.doc 文件为例分析其实现。</p>
+<h3 id="doc文件实现"><a href="#doc文件实现" class="headerlink" title=".doc文件实现"></a>.doc文件实现</h3><p>.doc 文件存储的是每个 Term 对应的<strong>文档 Id 和词频</strong>。每个 Term 都包含一对 <strong>TermFreqs</strong> 和 <strong>SkipData</strong>结构。</p>
+<p>其中 TermFreqs 存放 <strong>docId 和词频信息</strong>，SkipData 为<strong>跳表</strong>信息，用于实现 TermFreqs 内部的快速跳转。</p>
+<p><img src="/images/es/es010.png" alt></p>
+<h4 id="TermFreqs"><a href="#TermFreqs" class="headerlink" title="TermFreqs"></a>TermFreqs</h4><p>TermFreqs 存储文档号和对应的词频，它们两是一一对应的两个 int 值。Lucene 为了尽可能的压缩数据，采用的是混合存储 ，由 <strong>PackedBlock 和 VIntBlocks</strong> 两种结构组成。</p>
+<h5 id="PackedBlock"><a href="#PackedBlock" class="headerlink" title="PackedBlock"></a><strong>PackedBlock</strong></h5><p>其采用 PackedInts 结构将一个 int[] 压缩打包成一个紧凑的 Block。它的压缩方式是取数组中最大值所占用的 bit 长度作为一个预算的长度，然后将数组每个元素按这个长度进行截取，以达到压缩的目的。</p>
+<p>例如：一个包含 128 个元素的 int 数组中最大值的是 2，那么预算长度为 2 个 bit, PackedInts 的长度仅是 2 * 128 / 8 = 32 个字节，然后就可以通过 4 个 long 值存储。</p>
+<p><img src="/images/es/es009.png" alt></p>
+<h5 id="VIntBlock"><a href="#VIntBlock" class="headerlink" title="VIntBlock"></a>VIntBlock</h5><p>VIntBlock 是采用 VInt 来压缩 int 值，对于绝大多数语言，int 型都占 4 个字节，不论这个数据是 1、100、1000、还是 1000,000。VInt 采用可变长的字节来表示一个整数。数值较大的数，使用较多的字节来表示，数值较少的数，使用较少的字节来表示。每个字节仅使用第 1 至第 7 位(共 7 bits)存储数据，第 8 位作为标识，表示是否需要继续读取下一个字节。</p>
+<p>举个例子：</p>
+<p>整数 130 为 int 类型时需要 4 个字节，转换成 VInt 后仅用 2 个字节，其中第一个字节的第 8 位为 1，标识需要继续读取第二个字节。</p>
+<p><img src="/images/es/es008.png" alt></p>
+<p>根据上述两种 Block 的特点，Lucene 会每处理包含 Term 的 128 篇文档，将其对应的 DocId 数组和 TermFreq 数组分别处理为 PackedDocDeltaBlock 和 PackedFreqBlock 的 PackedInt 结构，两者组成一个 PackedBlock，最后不足 128 的文档则采用 VIntBlock 的方式来存储。</p>
+<p><img src="/images/es/es007.png" alt></p>
+<h4 id="SkipData"><a href="#SkipData" class="headerlink" title="SkipData"></a>SkipData</h4><p>在搜索中存在将每个 Term 对应的 DocId 集合进行取交集的操作，即判断某个 Term 的 DocId 在另一个 Term 的 TermFreqs 中是否存在。TermFreqs 中每个 Block 中的 DocId 是有序的，可以采用顺序扫描的方式来查询，但是如果 Term 对应的 doc 特别多时搜索效率就会很低，同时由于 Block 的大小是不固定的，我们无法使用二分的方式来进行查询。因此 Lucene 为了减少扫描和比较的次数，采用了 SkipData 这个跳表结构来实现快速跳转。</p>
+<p><strong>跳表</strong></p>
+<p>跳表是在原有的有序链表上面增加了多级索引，通过索引来实现快速查找。</p>
+<p>实质就是一种可以进行二分查找的有序链表。</p>
+<p><img src="/images/es/es006.png" alt></p>
+<p><strong>SkipData 结构</strong></p>
+<p>在 TermFreqs 中每生成一个 Block 就会在 SkipData 的第 0 层生成一个节点，然后第 0 层以上每隔 N 个节点生成一个上层节点。</p>
+<p>每个节点通过 Child 属性关联下层节点，节点内 DocSkip 属性保存 Block 的最大的 DocId 值，DocBlockFP、PosBlockFP、PayBlockFP 则表示 Block 数据对应在 .pay、.pos、.doc 文件的位置。</p>
+<p><img src="/images/es/es005.png" alt></p>
+<p><strong>Posting 最终数据</strong></p>
+<p>Posting List 采用多个文件进行存储，最终我们可以得到每个 Term 的如下信息：</p>
+<ul>
+<li>SkipOffset：用来描述当前 term 信息在 .doc 文件中跳表信息的起始位置。</li>
+<li>DocStartFP：是当前 term 信息在 .doc 文件中的文档 ID 与词频信息的起始位置。</li>
+<li>PosStartFP：是当前 term 信息在 .pos 文件中的起始位置。</li>
+<li>PayStartFP：是当前 term 信息在 .pay 文件中的起始位置。</li>
+</ul>
+<h2 id="倒排查询逻辑"><a href="#倒排查询逻辑" class="headerlink" title="倒排查询逻辑"></a>倒排查询逻辑</h2><p>在介绍了索引表和记录表的结构后，就可以得到 Lucene 倒排索引的查询步骤：</p>
+<ol>
+<li>通过 Term Index 数据（.tip 文件）中的 StartFP 获取指定字段的 FST</li>
+<li>通过 FST 找到指定 Term 在 Term Dictionary（.tim 文件）可能存在的 Block</li>
+<li>将对应 Block 加载内存，遍历 Block 中的 Entry，通过后缀（Suffix）判断是否存在指定 Term</li>
+<li>存在则通过 Entry 的 TermStat 数据中各个文件的 FP 获取 Posting 数据</li>
+<li>如果需要获取 Term 对应的所有 DocId 则直接遍历 TermFreqs，如果获取指定 DocId 数据则通过 SkipData 快速跳转</li>
+</ol>
+<p><img src="/images/es/es004.png" alt></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/21/elasticsearch/003.Elasticsearch_mapping/" rel="next" title="Elasticsearch_Restful API">
+                <i class="fa fa-chevron-left"></i> Elasticsearch_Restful API
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/21/elasticsearch/004.Elasticsearch_内核原理浅析/" rel="prev" title="Elasticsearch_原理 API">
+                Elasticsearch_原理 API <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">66</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">17</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#倒排索引"><span class="nav-text">倒排索引</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#分词的概念"><span class="nav-text">分词的概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#倒排索引的生成过程"><span class="nav-text">倒排索引的生成过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#倒排索引的结构"><span class="nav-text">倒排索引的结构</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lucene-倒排索引实现"><span class="nav-text">Lucene 倒排索引实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Term-Index实现"><span class="nav-text">Term Index实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Term-Dictionary-实现"><span class="nav-text">Term Dictionary 实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Posting-List-实现"><span class="nav-text">Posting List 实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#doc文件实现"><span class="nav-text">.doc文件实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#TermFreqs"><span class="nav-text">TermFreqs</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#PackedBlock"><span class="nav-text">PackedBlock</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#VIntBlock"><span class="nav-text">VIntBlock</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SkipData"><span class="nav-text">SkipData</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#倒排查询逻辑"><span class="nav-text">倒排查询逻辑</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
