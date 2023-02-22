@@ -102,13 +102,13 @@
 <meta property="og:site_name" content="生活值得">
 <meta property="og:description" content="InnoDB 参数优化1.内存相关参数优化1.Buffer Pool参数优化  1.1 缓冲池内存大小配置     一个大的日志缓冲区允许大量的事务在提交之前不写日志到磁盘。因此，如果你有很多事务的更新，插入或删除操作，通过设置这个参数会大量的减少磁盘I/O的次数数。建议: 在专用数据库服务器上，可以将缓冲池大小设置为服务器物理内存的60% - 80%.  查看缓冲池大小 123456789101">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/55.jpg">
-<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/56.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/55.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/56.jpg">
 <meta property="og:updated_time" content="2017-12-27T14:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mysql_InnoDB参数优化">
 <meta name="twitter:description" content="InnoDB 参数优化1.内存相关参数优化1.Buffer Pool参数优化  1.1 缓冲池内存大小配置     一个大的日志缓冲区允许大量的事务在提交之前不写日志到磁盘。因此，如果你有很多事务的更新，插入或删除操作，通过设置这个参数会大量的减少磁盘I/O的次数数。建议: 在专用数据库服务器上，可以将缓冲池大小设置为服务器物理内存的60% - 80%.  查看缓冲池大小 123456789101">
-<meta name="twitter:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/55.jpg">
+<meta name="twitter:image" content="http://yoursite.com/images/02_图片/55.jpg">
 
 
 
@@ -433,7 +433,7 @@
 <p>当buffer pool的大小是GB级别时，将一个buffer pool分割成几个独立的实例能降低多个线程同时读写缓存页的竞争性而提高并发性。</p>
 <p>通过innodb_buffer_pool_instances参数可以调整实例个数。如果有多个实例，则缓存的数据页会随机放置到任意的实例中，且每个实例都有独立的buffer pool所有的特性。</p>
 <p>buffer pool 可以存放多个 instance，每个instance由多个chunk组成。instance的数量范围和chunk的总数量范围分别为1-64，1-1000。</p>
-<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/55.jpg" style="width:450px; height:250px ">  </p>
+<p><img src="/images/02_图片/55.jpg" style="width:450px; height:250px ">  </p>
 <ul>
 <li><p><code>Innodb_buffer_pool_instances</code> 的默认值是1，最大可以调整成64</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_buffer_pool_instances';</span><br><span class="line">+<span class="comment">------------------------------+-------+</span></span><br><span class="line">| Variable_name                | Value |</span><br><span class="line">+<span class="comment">------------------------------+-------+</span></span><br><span class="line">| innodb_buffer_pool_instances | 1     |</span><br><span class="line">+<span class="comment">------------------------------+-------+</span></span><br></pre></td></tr></table></figure>
@@ -470,7 +470,7 @@
 <ul>
 <li><p><strong>优化建议</strong></p>
 <p>innodb_page_size的官方描述:</p>
-<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/56.jpg" style="width:550px; height:350px ">   </p>
+<p><img src="/images/02_图片/56.jpg" style="width:550px; height:350px ">   </p>
 <p>MySQL 5.7增加了对32KB和64KB页面大小的支持。默认的16KB或更大的页面大小适用于各种工作负载，特别是涉及表扫描的查询和涉及批量更新的DML操作。对于涉及许多小写操作的OLTP工作负载，较小的页面大小可能更有效.</p>
 <ul>
 <li><p>Page大小对于行存储的影响</p>
@@ -705,8 +705,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/12/21/mysql/004MySQL_InnoDB数据文件/" rel="next" title="Mysql_InnoDB数据文件">
-                <i class="fa fa-chevron-left"></i> Mysql_InnoDB数据文件
+              <a href="/2017/12/21/mysql/016.MySQL_索引优化实战/" rel="next" title="MySQL_索引原理与优化">
+                <i class="fa fa-chevron-left"></i> MySQL_索引原理与优化
               </a>
             
           </div>
@@ -715,8 +715,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/12/21/mysql/001.MySQL_InnoDB内存结构/" rel="prev" title="Mysql_InnoDB内存结构">
-                Mysql_InnoDB内存结构 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/12/21/mysql/001.MySQL_InnoDB内存结构/" rel="prev" title="MySQL_InnoDB内存结构">
+                MySQL_InnoDB内存结构 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -786,7 +786,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">64</span>
+                    <span class="site-state-item-count">65</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

@@ -102,30 +102,30 @@
 <meta property="og:site_name" content="生活值得">
 <meta property="og:description" content="InnoDB 磁盘结构InnoDB磁盘主要包含Tablespaces，InnoDB Data Dictionary、Doublewrite Buffer、redo log和Undo Logs。  Tablespaces: 表空间分为系统表空间（ibdata1文件）、临时表空间、常规表空间、Undo表空间以及file-per-table表空间。系统表空间又包括双写缓冲区（Doublewrite Bu">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/16.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/18.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/19.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/21.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/22.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/23.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/24.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/25.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/26.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/44.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/27.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/29.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/45.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/46.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/47.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/30.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/31.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/48.jpg">
-<meta property="og:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/33.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/16.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/18.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/19.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/21.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/22.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/23.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/24.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/25.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/26.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/44.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/27.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/29.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/45.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/46.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/47.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/30.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/31.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/48.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/33.jpg">
 <meta property="og:updated_time" content="2017-12-27T14:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mysql_InnoDB磁盘结构">
 <meta name="twitter:description" content="InnoDB 磁盘结构InnoDB磁盘主要包含Tablespaces，InnoDB Data Dictionary、Doublewrite Buffer、redo log和Undo Logs。  Tablespaces: 表空间分为系统表空间（ibdata1文件）、临时表空间、常规表空间、Undo表空间以及file-per-table表空间。系统表空间又包括双写缓冲区（Doublewrite Bu">
-<meta name="twitter:image" content="http://yoursite.com/2017/12/21/mysql/02_图片/16.jpg">
+<meta name="twitter:image" content="http://yoursite.com/images/02_图片/16.jpg">
 
 
 
@@ -439,7 +439,7 @@
 <li>Redo log：存储的是log buffer刷到磁盘的数据</li>
 <li>Undo log：存在于global临时表空间中，用于事务的回滚</li>
 </ul>
-<p><img src="../02_图片/16.jpg" style="width:650px;  height:700px">   </p>
+<p><img src="/images/02_图片/16.jpg" style="width:650px;  height:700px">   </p>
 <h4 id="1-表空间-Tablespaces"><a href="#1-表空间-Tablespaces" class="headerlink" title="1. 表空间 ( Tablespaces )"></a>1. 表空间 ( Tablespaces )</h4><p>表空间（Tablespaces) : 用于存储表结构和数据, InnoDB表空间类型包括系统表空间、File-Per-Table表空间，常规表空间，Undo表空间，临时表空间等。</p>
 <ul>
 <li><p>系统(共享)表空间（The System Tablespace）</p>
@@ -575,7 +575,7 @@
 <li><p>数据字典（InnoDB Data Dictionary）</p>
 <p>MySQL中，数据字典包括了: 表结构、数据库名或表名、字段的数据类型、视图、索引、表字段信息、MySQL版本信息、存储过程、触发器等内容.</p>
 <p>InnoDB数据字典由内部系统表组成，这些表包含用于查找表、索引和表字段等对象的元数据。元数据物理上位于InnoDB系统表空间中。在MySQL8.0之前 由于历史原因，数据字典元数据在一定程度上与InnoDB表元数据文件（.frm文件）中存储的信息重叠。</p>
-<p><img src="../02_图片/18.jpg" style="width:550px;  ">  </p>
+<p><img src="/images/02_图片/18.jpg" style="width:550px;  ">  </p>
 </li>
 </ul>
 <blockquote>
@@ -585,7 +585,7 @@
 <li><p><strong>什么是写失效 ( 部分页失效 )</strong> </p>
 <p>InnoDB的页和操作系统的页大小不一致，InnoDB页大小一般为16K，操作系统页大小为4K，InnoDB的页写入到磁盘时，一个页需要分4次写。</p>
 <p>如果存储引擎正在写入页的数据到磁盘时发生了宕机，可能出现页只写了一部分的情况，比如只写了4K，就宕机了，这种情况叫做部分写失效（partial page write），可能会导致数据丢失。</p>
-<p><img src="../02_图片/19.jpg" style="width:650px;  "> </p>
+<p><img src="/images/02_图片/19.jpg" style="width:650px;  "> </p>
 </li>
 </ul>
 <ul>
@@ -598,7 +598,7 @@
    <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_doublewrite%';</span><br><span class="line">+<span class="comment">--------------------+-------+</span></span><br><span class="line">| Variable_name      | Value |</span><br><span class="line">+<span class="comment">--------------------+-------+</span></span><br><span class="line">| innodb_doublewrite | ON    |</span><br><span class="line">+<span class="comment">--------------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.01</span> sec)</span><br></pre></td></tr></table></figure>
 <ul>
 <li><p><strong>数据双写流程</strong></p>
-<p><img src="../02_图片/21.jpg" style="width:650px;  "> </p>
+<p><img src="/images/02_图片/21.jpg" style="width:650px;  "> </p>
 <p><strong>第一次写：</strong></p>
 <p>刷脏页的时候，通过<strong>memcpy</strong>函数将脏页复制到内存中的<strong>double write buffer</strong>。<strong>double write buffer</strong>再分两次、每次1MB,，顺序写入共享表空间的物理磁盘上。</p>
 <p><strong>第二次写：</strong></p>
@@ -637,7 +637,7 @@
 <ol>
 <li><strong>脏页落盘机制</strong>     </li>
 </ol>
-<p><img src="../02_图片/22.jpg" style="width:550px; "> </p>
+<p><img src="/images/02_图片/22.jpg" style="width:550px; "> </p>
 <p>脏页是指修改了Buffer Pool中的数据页后,导致了内存中的数据页和磁盘中的数据页不一致,这时就出现了脏页.</p>
 <p>当进行数据页的修改操作时: 首先修改在缓冲池中的页，然后再以一定的频率刷新到磁盘上。页从缓冲池刷新回磁盘的操作并不是在每次页发生更新时触发，而是通过一种称为<code>CheckPoint</code>的机制刷新回磁盘。 </p>
 <p><strong>checkpoint机制</strong> </p>
@@ -683,7 +683,7 @@
 </table>
 </div>
 <p>一般建议选择取值2，因为 MySQL 挂了数据没有损失，整个服务器挂了才会损失1秒的事务提交数据</p>
-<p><img src="../02_图片/23.jpg" style="width:650px;  "> </p>
+<p><img src="/images/02_图片/23.jpg" style="width:650px;  "> </p>
 <ul>
 <li><p><strong>redo log日志格式</strong></p>
 <p>物理日志VS逻辑日志</p>
@@ -696,7 +696,7 @@
 </li>
 </ul>
 <p>  redo日志属于物理日志, 只是记录一下事务对数据库做了哪些修改。</p>
-<p>  <img src="../02_图片/24.jpg" style="width:650px;  "> </p>
+<p>  <img src="/images/02_图片/24.jpg" style="width:650px;  "> </p>
 <ol>
 <li><strong>type</strong>: 该条日志的类型</li>
 <li><strong>space ID</strong> : 表空间ID</li>
@@ -714,10 +714,10 @@
 <li><p><strong>MLOG_4BYTE (type=4)</strong> : 表示在页面的某个偏移量处写入 <strong>4字节</strong> 的redo日志类型。</p>
 </li>
 <li><p><strong>MLOG_8BYTE (type=8)</strong> : 表示在页面的某个偏移量处写入<strong>8字节</strong>的redo日志类型。</p>
-<p><img src="../02_图片/25.jpg" style="width:650px;  "> </p>
+<p><img src="/images/02_图片/25.jpg" style="width:650px;  "> </p>
 </li>
 <li><p><strong>MLOG_WRITE_STRING（type=30）</strong>: 表示在页面的某个偏移量处写入一串数据，但是因为不能确定写入的具体数据占用多少字节，所以需要在日志结构中添加一个len字段。。</p>
-<p><img src="../02_图片/26.jpg" style="width:650px;  "> </p>
+<p><img src="/images/02_图片/26.jpg" style="width:650px;  "> </p>
 </li>
 </ul>
 </li>
@@ -727,7 +727,7 @@
 <p>同学们已经知道 redo log buffer是用来缓存写入到redo log文件中的数据内容的,那么是不是每次redo log buffer产生内容就立即写入到磁盘进行持久化呢 ? </p>
 <p>其实不需要的,就算在事务执行期间MySQL宕机了,redo log 缓冲区中的内容丢失了,也不会有损失,因为事务并没有提交(事务提交,必然写入日志完成).</p>
 <p><strong>redo log 三种状态</strong> </p>
-<p><img src="../02_图片/44.jpg" style="width:650px;  "> </p>
+<p><img src="/images/02_图片/44.jpg" style="width:650px;  "> </p>
 <ol>
 <li><p>存在于redo log buffer 内存区域中</p>
 </li>
@@ -756,7 +756,7 @@
 <p>  3) 日志组中每个重做日志的大小一致，并循环使用；</p>
   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like &apos;innodb_log_file_size&apos;;</span><br><span class="line">+----------------------+----------+</span><br><span class="line">| Variable_name        | Value    |</span><br><span class="line">+----------------------+----------+</span><br><span class="line">| innodb_log_file_size | 50331648 |</span><br><span class="line">+----------------------+----------+</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure>
 <p>  InnoDB 以环型方式(circular fashion)写入数据到重做日志文件，当文件满了的时候，会自动切换到日志文件2，当重做日志文件2也写满时，会再切换到重做日志文件1；</p>
-<p>  <img src="../02_图片/27.jpg" style="width:650px;  "> </p>
+<p>  <img src="/images/02_图片/27.jpg" style="width:650px;  "> </p>
 <p>  <strong>write pos</strong>: 表示日志当前记录的位置，当ib_logfile_4写满后，会从ib_logfile_1从头开始记录；</p>
 <p>  <strong>check point</strong>: 表示将日志记录的修改写进磁盘，完成数据落盘，数据落盘后checkpoint会将日志上的相关记录擦除掉，即 <code>write pos -&gt; checkpoint</code>  之间的部分是redo log空着的部分，用于记录新的记录，<code>checkpoint -&gt; write pos</code> 之间是redo log 待落盘的数据修改记录</p>
 <p>  如果 write pos 追上 checkpoint，表示写满，这时候不能再执行新的更新，得停下来先擦掉一些记录，把 checkpoint 推进一下。</p>
@@ -790,7 +790,7 @@
 <li><p><strong>undo log 的工作原理</strong></p>
 <p>在更新数据之前，MySQL会提前生成undo log日志，当事务提交的时候，并不会立即删除undo log，因为后面可能需要进行回滚操作，要执行回滚（rollback）操作时，从缓存中读取数据。</p>
 <p>undo log日志的删除是通过通过后台purge线程进行回收处理的。</p>
-<p><img src="../02_图片/29.jpg" style="width:750px;  "> </p>
+<p><img src="/images/02_图片/29.jpg" style="width:750px;  "> </p>
 <ol>
 <li>事务A执行update更新操作，在事务没有提交之前，会将旧版本数据备份到对应的undo buffer中，然后再由undo buffer持久化到磁盘中的undo log文件中, 之后才会对user进行更新操作,然后持久化到磁盘.</li>
 <li>在事务A执行的过程中,事务B对User进行了查询</li>
@@ -810,7 +810,7 @@
   <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">START</span> <span class="keyword">TRANSACTION</span>;</span><br><span class="line">	<span class="keyword">select</span> * <span class="keyword">from</span> test1.a1;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"><span class="comment">--trx_id 就是事务ID,InnoDB 在内存维护了一个全局变量来表示事务ID，每当要分配一个事务ID时，就获取这个变量值，然后把这个变量自增1</span></span><br><span class="line"><span class="keyword">select</span> </span><br><span class="line">	trx_id , </span><br><span class="line">	trx_state ,</span><br><span class="line">    trx_started,</span><br><span class="line">    trx_isolation_level</span><br><span class="line"><span class="keyword">from</span> information_schema.INNODB_TRX;</span><br></pre></td></tr></table></figure>
 <p>  <strong>2) 行记录的隐藏列</strong></p>
 <p>  InnoDB引擎管理的数据表中每行行记录,都存在着三个隐藏列:</p>
-<p>  <img src="../02_图片/45.jpg" style="width:550px;  ">  </p>
+<p>  <img src="/images/02_图片/45.jpg" style="width:550px;  ">  </p>
 <ul>
 <li><code>DB_ROW_ID</code> : 如果没有为表显式的定义主键，并且表中也没有定义唯一索引，那么InnoDB会自动为表添加一个row_id的隐藏列作为主键。</li>
 <li><code>DB_TRX_ID</code> : 事务中对某条记录做增删改时,就会将这个事务的事务ID写入到trx_id中.</li>
@@ -818,7 +818,7 @@
 </ul>
 <p>  <strong>3) INSERT语句的undo log回滚日志结构</strong> </p>
 <p>  插入一条数据对应的undo操作其实就是根据主键删除这条数据就行了。所以 insert 对应的 undo log 主要是把这条记录的主键记录上</p>
-<p>  <img src="../02_图片/46.jpg" style="width:550px; height:100px; "> </p>
+<p>  <img src="/images/02_图片/46.jpg" style="width:550px; height:100px; "> </p>
 <ul>
 <li>start、end：指向记录开始和结束的位置。</li>
 <li>主键列信息：记录INSERT这行数据的主键ID信息，或者唯一列信息。</li>
@@ -828,7 +828,7 @@
 </ul>
 <p>  <strong>4) undo回滚链</strong> </p>
 <p>  通过一个事物操作,我们一起来看一下回滚链的形成.</p>
-<p>  <img src="../02_图片/47.jpg" style="width:750px;  ">    </p>
+<p>  <img src="/images/02_图片/47.jpg" style="width:750px;  ">    </p>
 <ul>
 <li><p><strong>undo log 相关参数</strong></p>
 <p>MySQL 与undo相关的参数设置:</p>
@@ -887,7 +887,7 @@
 <li><p>STATMENT（statement-based replication, SBR）：记录每一条修改数据的SQL语句（批量修改时，记录的不是单条SQL语句，而是批量修改的SQL语句事件）, slave在复制的时候SQL进程会解析成和原来master端执行过的相同的SQL再次执行。简称SQL语句复制。</p>
 <p>优点：日志量小，减少磁盘IO，提升存储和恢复速度</p>
 <p>缺点：在某些情况下会导致主从数据不一致，比如last_insert_id()、now()等函数。</p>
-<p><img src="../02_图片/30.jpg" style="width:550px;  "> </p>
+<p><img src="/images/02_图片/30.jpg" style="width:550px;  "> </p>
 </li>
 <li><p>MIXED（mixed-based replication, MBR）：以上两种模式的混合使用，一般会使用STATEMENT模式保存binlog，对于STATEMENT模式无法复制的操作使用ROW模式保存binlog，MySQL会根据执行的SQL语句选择写入模式。</p>
 </li>
@@ -908,7 +908,7 @@
 <p><strong>1) binlog文件结构</strong>  </p>
 <p>MySQL的binlog文件中记录的是对数据库的各种修改操作，用来表示修改操作的数据结构是Log event。不同的修改操作对应的不同的log event。</p>
 <p>比较常用的log event有：<code>Query event</code>、<code>Row event</code>、<code>Xid event</code>等。binlog文件的内容就是各种Log event的集合。</p>
-<p><img src="../02_图片/31.jpg" style="width:550px;  "> </p>
+<p><img src="/images/02_图片/31.jpg" style="width:550px;  "> </p>
 </li>
 </ul>
 <p>  <strong>2) binlog落盘策略</strong> </p>
@@ -926,7 +926,7 @@
 </li>
 </ul>
 <p>  <strong>3) binlog 写入流程</strong> </p>
-<p>  <img src="../02_图片/48.jpg" style="width:650px;  "> </p>
+<p>  <img src="/images/02_图片/48.jpg" style="width:650px;  "> </p>
 <ol>
 <li>根据记录模式和操作触发event事件生成log event.</li>
 <li>事务执行过程中，先把日志(log event) 写到binlog cache，事务提交的时候，再把binlog cache写到binlog文件中。</li>
@@ -1036,7 +1036,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqlbinlog --start-datetime=&quot;yyyy-MM-dd HH:mm:ss&quot; binlog文件</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<h4 id="7-新版本结构演变"><a href="#7-新版本结构演变" class="headerlink" title="7. 新版本结构演变"></a>7. 新版本结构演变</h4><p><img src="../02_图片/33.jpg" style="width:650px;  "> </p>
+<h4 id="7-新版本结构演变"><a href="#7-新版本结构演变" class="headerlink" title="7. 新版本结构演变"></a>7. 新版本结构演变</h4><p><img src="/images/02_图片/33.jpg" style="width:650px;  "> </p>
 <ul>
 <li><p>MySQL 5.7 版本</p>
 <ul>
@@ -1096,8 +1096,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/11/04/redis/006Redis_集群/" rel="next" title="Redis_集群">
-                <i class="fa fa-chevron-left"></i> Redis_集群
+              <a href="/2017/12/21/mysql/004MySQL_InnoDB数据文件/" rel="next" title="Mysql_InnoDB数据文件">
+                <i class="fa fa-chevron-left"></i> Mysql_InnoDB数据文件
               </a>
             
           </div>
@@ -1106,8 +1106,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/12/21/mysql/010.Mysql_索引实现分析/" rel="prev" title="Mysql_索引实现分析">
-                Mysql_索引实现分析 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/12/21/mysql/011.MySQL_索引原理/" rel="prev" title="MySQL_索引原理与优化">
+                MySQL_索引原理与优化 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -1177,7 +1177,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">64</span>
+                    <span class="site-state-item-count">65</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>

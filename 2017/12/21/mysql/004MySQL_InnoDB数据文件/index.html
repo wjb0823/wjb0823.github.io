@@ -102,21 +102,21 @@
 <meta property="og:site_name" content="生活值得">
 <meta property="og:description" content="InnoDB 数据文件1.表空间文件结构InnoDB表空间文件结构分为: Tablespace(表空间) —&amp;gt;  Segment（段）—&amp;gt;Extent（区）—&amp;gt;Page（页）—&amp;gt; Row（行）   1) Tablesapce  表空间能够看作是InnoDB 存储引擎逻辑结构的最高层，用于存储多个ibd数据文件，用于存储表的记录和索引。一个文件包含多个段。 表空间分为：系统表">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/34.jpg">
-<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/36.jpg">
-<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/37.jpg">
-<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/38.jpg">
-<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/39.jpg">
-<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/50.jpg">
-<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/51.jpg">
-<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/53.jpg">
-<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/53.jpg">
-<meta property="og:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/52.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/34.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/36.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/37.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/38.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/39.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/50.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/51.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/53.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/53.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/52.jpg">
 <meta property="og:updated_time" content="2017-12-27T14:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mysql_InnoDB数据文件">
 <meta name="twitter:description" content="InnoDB 数据文件1.表空间文件结构InnoDB表空间文件结构分为: Tablespace(表空间) —&amp;gt;  Segment（段）—&amp;gt;Extent（区）—&amp;gt;Page（页）—&amp;gt; Row（行）   1) Tablesapce  表空间能够看作是InnoDB 存储引擎逻辑结构的最高层，用于存储多个ibd数据文件，用于存储表的记录和索引。一个文件包含多个段。 表空间分为：系统表">
-<meta name="twitter:image" content="d:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/34.jpg">
+<meta name="twitter:image" content="http://yoursite.com/images/02_图片/34.jpg">
 
 
 
@@ -424,7 +424,7 @@
 
       
         <h3 id="InnoDB-数据文件"><a href="#InnoDB-数据文件" class="headerlink" title="InnoDB 数据文件"></a>InnoDB 数据文件</h3><h4 id="1-表空间文件结构"><a href="#1-表空间文件结构" class="headerlink" title="1.表空间文件结构"></a>1.表空间文件结构</h4><p>InnoDB表空间文件结构分为: Tablespace(表空间) —&gt;  Segment（段）—&gt;Extent（区）—&gt;Page（页）—&gt; Row（行）</p>
-<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/34.jpg" style="width:650px;  "> </p>
+<p><img src="/images/02_图片/34.jpg" style="width:650px;  "> </p>
 <p><strong>1) Tablesapce</strong></p>
 <ol>
 <li>表空间能够看作是InnoDB 存储引擎逻辑结构的最高层，用于存储多个ibd数据文件，用于存储表的记录和索引。一个文件包含多个段。</li>
@@ -453,7 +453,7 @@
 </ol>
 <h4 id="2-Page结构"><a href="#2-Page结构" class="headerlink" title="2.Page结构"></a>2.Page结构</h4><p>Page是整个InnoDB存储的最基本构件，也是InnoDB磁盘管理的最小单位，与数据库相关的所有内容都存储在这种Page结构里。</p>
 <p>Page分为几种类型，常见的页类型有数据页（B+tree Node）Undo页（Undo Log Page）系统页（System Page） 事务数据页（Transaction System Page）等</p>
-<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/36.jpg" style="width:450px;  "> </p>
+<p><img src="/images/02_图片/36.jpg" style="width:450px;  "> </p>
 <p><strong>Page 各部分说明</strong>   </p>
 <div class="table-container">
 <table>
@@ -523,13 +523,13 @@
 <p><strong>1) 通用部分 (File Header&amp;File Trailer )</strong> </p>
 <p>通用部分 : 主要指文件头和文件尾，将页的内容进行封装，通过文件头和文件尾校验的CheckSum方式来确保页的传输是完整的。</p>
 <p>其中比较重要的是在文件头中的 <code>FIL_PAGE_PREV</code> 和 <code>FIL_PAGE_NEXT</code> 字段，通过这两个字段，我们可以找到该页的上一页和下一页，实际上所有页通过两个字段可以形成一条双向链表</p>
-<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/37.jpg" style="width:550px;  ">  </p>
+<p><img src="/images/02_图片/37.jpg" style="width:550px;  "> </p>
 <p><strong>2) 记录部分(User Records&amp;Free Space)</strong> </p>
 <p>页的主要作用是存储记录，所以“最小和最大记录”和“用户记录”部分占了页结构的主要空间。另外空闲空间是个灵活的部分，当有新的记录插入时，会从空闲空间中进行分配用于存储新记录</p>
-<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/38.jpg" style="width:450px;  "> </p>
+<p><img src="/images/02_图片/38.jpg" style="width:450px;  "> </p>
 <p><strong>3)数据目录部分 (Page Directory)</strong>  </p>
 <p>数据页中行记录按照主键值由小到大顺序串联成一个单链表(<strong>页中记录是以单向链表的形式进行存储的</strong>)，且单链表的链表头为最小记录，链表尾为最大记录。并且为了更快速地定位到指定的行记录，通过<code>Page Directory</code>实现目录的功能，借助<code>Page Directory</code>使用二分法快速找到需要查找的行记录。</p>
-<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/39.jpg" style="width:650px;  "> </p>
+<p><img src="/images/02_图片/39.jpg" style="width:650px;  "> </p>
 <h4 id="3-行记录格式"><a href="#3-行记录格式" class="headerlink" title="3.行记录格式"></a>3.行记录格式</h4><p><strong>1) 行格式分类</strong> </p>
 <p>表的行格式决定了它的行是如何物理存储的，这反过来又会影响查询和DML操作的性能。如果在单个page页中容纳更多行，查询和索引查找可以更快地工作，缓冲池中所需的内存更少，写入更新时所需的I/O更少。</p>
 <p>InnoDB存储引擎支持四种行格式：Redundant、Compact、Dynamic 和 Compressed . </p>
@@ -539,7 +539,7 @@
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> &lt;table_name(column_name)&gt; ROW_FORMAT=行格式名称</span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> &lt;table_name&gt; ROW_FORMAT=行格式名称</span><br></pre></td></tr></table></figure>
 <p><strong>2) COMPACT 行记录格式</strong> </p>
 <p>Compact 设计目标是高效地存储数据，一个页中存放的行数据越多，其性能就越高。</p>
-<p>compact行记录由两部分组成: 记录放入额外信息 和  记录的真实数据.<br><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/50.jpg" style="width:650px; height:120px "> </p>
+<p>compact行记录由两部分组成: 记录放入额外信息 和  记录的真实数据.<br><img src="/images/02_图片/50.jpg" style="width:650px; height:120px "> </p>
 <ul>
 <li><p><strong>记录额外信息部分</strong> </p>
 <p>服务器为了描述一条记录而添加了一些额外信息(元数据信息)，这些额外信息分为3类，分别是: 变长字段长度列表<strong>、</strong>NULL值列表和记录头信息.</p>
@@ -586,7 +586,7 @@
 <ul>
 <li><p><strong>记录真实数据部分</strong> </p>
 <p>记录的真实数据除了插入的那些列的数据，MySQL会为每个记录默认的添加一些列（也称为隐藏列），具体的列如下： </p>
-<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/51.jpg" style="width:450px; height:130px">  </p>
+<p><img src="/images/02_图片/51.jpg" style="width:450px; height:130px">  </p>
 <p>| 列名           | 是否必须 | 占用空间 | 描述                  |<br>| ——————— | ———— | ———— | ——————————- |<br>| row_id         | 否       | 6字节    | 行ID,唯一标识一条记录 |<br>| transaction_id | 是       | 6字节    | 事务ID                |<br>| roll_pointer   | 是       | 7字节    | 回滚指针              |</p>
 <p>生成隐藏主键列的方式有:</p>
 <ol>
@@ -602,7 +602,7 @@
 <p>总结: 如果某些字段信息过长，无法存储在B树节点中，这时候会被单独分配空间，此时被称为溢出页，该字段被称为页外列。</p>
 <p><strong>Compact中的行溢出机制</strong></p>
 <p>InnoDB 规定一页至少存储两条记录(B+树特点)，如果页中只能存放下一条记录，InnoDB存储引擎会自动将行数据存放到溢出页中.<br>当发生行溢出时，数据页只保存了前768字节的前缀数据，接着是20个字节的偏移量，指向行溢出页.</p>
-<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/53.jpg" style="width:550px; height:230px"> </p>
+<p><img src="/images/02_图片/53.jpg" style="width:550px; height:230px"> </p>
 </li>
 </ul>
 <p>  <strong>4) 其他行记录格式</strong> </p>
@@ -610,7 +610,7 @@
 <li><p>DYNAMIC 和 COMPRESSED 行记录格式</p>
 <p>DYNAMIC 和 COMPRESSED新格式引入的功能有：数据压缩、增强型长列数据的页外存储和大索引前缀。</p>
 <p>Compressed 和 Dynamic 行记录格式与 Compact 行记录格式是类似的，区别是在处理行溢出时,数据页不会存储真实数据的前768字节(完全溢出)，只存储20个字节的指针来指向溢出页。</p>
-<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/53.jpg" style="width:650px; height:220px "> </p>
+<p><img src="/images/02_图片/53.jpg" style="width:650px; height:220px "> </p>
 <blockquote>
 <p>Compressed 与 Dynamic 相比，Compressed 存储的行数据会以zlib的算法进行压缩以节省空间，因此对于 BLOB、TEXT、VARCHAR 这类大长度类型的数据能够进行非常有效的存储。</p>
 <p>MySQL5.7 默认的行记录格式是 <code>Dynamic</code>。</p>
@@ -618,7 +618,7 @@
 </li>
 <li><p>Redundant</p>
 <p>Redundant是 MySQL5.0 版本之前 InnoDB 的行记录存储方式。</p>
-<p><img src="D:/hexo/source/_posts/02_%E5%9B%BE%E7%89%87/52.jpg" style="width:650px; height:120px "> </p>
+<p><img src="/images/02_图片/52.jpg" style="width:650px; height:120px "> </p>
 <p>Redundant 行记录格式的首部是一个字段长度偏移列表，同样是按照列的顺序逆序放置的。该条记录中所有列（包括隐藏列、NULL值列）的长度信息都按照逆序存储到字段长度偏移列表。</p>
 </li>
 </ol>
@@ -671,8 +671,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/12/21/mysql/005.MySQL_InnoDB参数优化/" rel="prev" title="Mysql_InnoDB参数优化">
-                Mysql_InnoDB参数优化 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/12/21/mysql/002.MySQL_InnoDB磁盘结构/" rel="prev" title="Mysql_InnoDB磁盘结构">
+                Mysql_InnoDB磁盘结构 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -742,7 +742,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">64</span>
+                    <span class="site-state-item-count">65</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
