@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="1 介绍使用索引的主要目的是为了优化查询速度。 在 MySQL 中，我们可以看到两种索引方式：  B-Tree 索引。 Hash 索引。索引是在存储引擎中实现的，也就是说不同的存储引擎，会使用不同的索引 MyISAM和InnoDB存储引擎：只支持BTREE索引。 MEMORY/HEAP存储引擎：支持HASH和BTREE索引  2 索引分类 单列索引： 普通索引：MySQL中基本索引类型，没有什么限">
+<meta name="keywords" content="Mysql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql_索引实现分析">
+<meta property="og:url" content="http://yoursite.com/2017/12/21/mysql/010.Mysql_索引实现分析/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="1 介绍使用索引的主要目的是为了优化查询速度。 在 MySQL 中，我们可以看到两种索引方式：  B-Tree 索引。 Hash 索引。索引是在存储引擎中实现的，也就是说不同的存储引擎，会使用不同的索引 MyISAM和InnoDB存储引擎：只支持BTREE索引。 MEMORY/HEAP存储引擎：支持HASH和BTREE索引  2 索引分类 单列索引： 普通索引：MySQL中基本索引类型，没有什么限">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/mysql001.png">
+<meta property="og:image" content="http://yoursite.com/images/mysql002.png">
+<meta property="og:image" content="http://yoursite.com/images/mysql003.png">
+<meta property="og:image" content="http://yoursite.com/images/mysql004.png">
+<meta property="og:image" content="http://yoursite.com/images/mysql005.png">
+<meta property="og:image" content="http://yoursite.com/images/mysql006.png">
+<meta property="og:updated_time" content="2017-12-27T14:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mysql_索引实现分析">
+<meta name="twitter:description" content="1 介绍使用索引的主要目的是为了优化查询速度。 在 MySQL 中，我们可以看到两种索引方式：  B-Tree 索引。 Hash 索引。索引是在存储引擎中实现的，也就是说不同的存储引擎，会使用不同的索引 MyISAM和InnoDB存储引擎：只支持BTREE索引。 MEMORY/HEAP存储引擎：支持HASH和BTREE索引  2 索引分类 单列索引： 普通索引：MySQL中基本索引类型，没有什么限">
+<meta name="twitter:image" content="http://yoursite.com/images/mysql001.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2017/12/21/mysql/010.Mysql_索引实现分析/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Mysql_索引实现分析 | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/mysql/010.Mysql_索引实现分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Mysql_索引实现分析
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-12-21 22:15:27" itemprop="dateCreated datePublished" datetime="2017-12-21T22:15:27+08:00">2017-12-21</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2017-12-27 22:15:27" itemprop="dateModified" datetime="2017-12-27T22:15:27+08:00">2017-12-27</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1 介绍"></a>1 介绍</h1><p>使用索引的主要目的是为了<strong>优化查询速度</strong>。</p>
+<p>在 MySQL 中，我们可以看到两种索引方式：</p>
+<ul>
+<li>B-Tree 索引。</li>
+<li>Hash 索引。<br>索引是在存储引擎中实现的，也就是说不同的存储引擎，会使用不同的索引</li>
+<li>MyISAM和InnoDB存储引擎：只支持BTREE索引。</li>
+<li>MEMORY/HEAP存储引擎：支持HASH和BTREE索引</li>
+</ul>
+<h1 id="2-索引分类"><a href="#2-索引分类" class="headerlink" title="2 索引分类"></a>2 索引分类</h1><ul>
+<li>单列索引：<ul>
+<li>普通索引：MySQL中基本索引类型，没有什么限制，允许在定义索引的列中插入重复值和空值，纯粹为了查询数据更快一点。</li>
+<li>唯一索引：索引列中的值必须是唯一的，但是允许为空值，</li>
+<li>主键索引：是一种特殊的唯一索引，不允许有空值。</li>
+</ul>
+</li>
+<li>组合索引<ul>
+<li>在表中的多个字段组合上创建的索引，只有在查询条件中使用了这些字段的左边字段时，索引才会被使用，使用组合索引时遵循最左前缀集合。</li>
+<li>全文索引，只有在MyISAM引擎上才能使用，只能在CHAR,VARCHAR,TEXT类型字段上使用全文索引。</li>
+<li>空间索引：不做介绍，一般使用不到。</li>
+</ul>
+</li>
+</ul>
+<h1 id="3-索引的使用"><a href="#3-索引的使用" class="headerlink" title="3 索引的使用"></a>3 索引的使用</h1><p><strong>创建索引</strong><br>单列索引之普通索引<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> <span class="keyword">table</span>(<span class="keyword">column</span>(<span class="keyword">length</span>)) </span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table_name <span class="keyword">ADD</span> <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> (<span class="keyword">column</span>(<span class="keyword">length</span>))</span><br></pre></td></tr></table></figure></p>
+<p>单列索引之唯一索引<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">UNIQUE</span> <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> <span class="keyword">table</span>(<span class="keyword">column</span>(<span class="keyword">length</span>))</span><br></pre></td></tr></table></figure></p>
+<p>单列索引之全文索引<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> FULLTEXT <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> <span class="keyword">table</span>(<span class="keyword">column</span>(<span class="keyword">length</span>))</span><br></pre></td></tr></table></figure></p>
+<p>联合索引<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> article <span class="keyword">ADD</span> <span class="keyword">INDEX</span> index_titme_time (title(<span class="number">50</span>),<span class="built_in">time</span>(<span class="number">10</span>))</span><br></pre></td></tr></table></figure></p>
+<p><strong>删除索引</strong><br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">INDEX</span> index_name <span class="keyword">ON</span> <span class="keyword">table</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="4-索引的存储结构"><a href="#4-索引的存储结构" class="headerlink" title="4 索引的存储结构"></a>4 索引的存储结构</h1><h2 id="4-1-B-Tree"><a href="#4-1-B-Tree" class="headerlink" title="4.1 B-Tree"></a>4.1 B-Tree</h2><p>B-Tree 中的每个节点根据实际情况可以包含大量的关键字信息和分支，如下图所示为一个 3 阶的 B-Tree：<br><img src="/images/mysql001.png" alt><br><strong>说明:</strong></p>
+<ul>
+<li>每个节点占用一个盘块的磁盘空间，一个节点上有两个升序排序的 key 和三个指向子树根节点的 point ，point 存储的是子节点所在磁盘块的地址。两个 key 划分成的三个范围域，对应三个 point 指向的子树的数据的范围域。</li>
+<li>以根节点为例，key 为 17 和 35 ，P1 指针指向的子树的数据范围为小于 17 ，P2 指针指向的子树的数据范围为 [17~35] ，P3 指针指向的子树的数据范围为大于 35 。</li>
+</ul>
+<p>模拟查找 key 为 29 的过程：<br>1、根据根节点找到磁盘块 1 ，读入内存。【磁盘I/O操作第1次】<br>2、比较 key 29 在区间（17,35），找到磁盘块 1 的指针 P2 。<br>3、根据 P2 指针找到磁盘块 3 ，读入内存。【磁盘I/O操作第2次】<br>4、比较 key 29 在区间（26,30），找到磁盘块3的指针P2。<br>5、根据 P2 指针找到磁盘块 8 ，读入内存。【磁盘I/O操作第3次】<br>6、在磁盘块 8 中的 key 列表中找到 key29</p>
+<p>分析上面过程，发现需要 3 次磁盘 I/O 操作，和 3 次内存查找操作。由于内存中的 key 是一个有序表结构，可以利用二分法查找提高效率。而 3 次磁盘 I/O 操作是影响整个 B-Tree 查找效率的决定因素。B-Tree 相对于 AVLTree 缩减了节点个数，使每次磁盘 I/O 取到内存的数据都发挥了作用，从而提高了查询效率。</p>
+<h2 id="4-2-B-Tree"><a href="#4-2-B-Tree" class="headerlink" title="4.2 B+Tree"></a>4.2 B+Tree</h2><p>B+Tree 是在 B-Tree 基础上的一种优化，使其更适合实现外存储索引结构，InnoDB存储引擎就是用 B+Tree 实现其索引结构。<br>从上一节中的 B-Tree 结构图中可以看到，每个节点中不仅包含数据的 key 值，还有 data 值。而每一个页的存储空间是有限的，如果 data 数据较大时将会导致每个节点（即一个页）能存储的 key 的数量很小，当存储的数据量很大时同样会导致 B-Tree 的深度较大，增大查询时的磁盘 I/O 次数，进而影响查询效率。在 B+Tree 中，所有数据记录节点都是按照键值大小顺序存放在同一层的叶子节点上，而非叶子节点上只存储 key 值信息，这样可以大大加大每个节点存储的 key 值数量，降低 B+Tree 的高度。<br>将上一节中的 B-Tree 优化，由于 B+Tree 的非叶子节点只存储键值信息，假设每个磁盘块能存储 4 个键值及指针信息，则变成 B+Tree 后其结构如下图所示：</p>
+<p><img src="/images/mysql002.png" alt></p>
+<p>通常在 B+Tree 上有两个头指针，一个指向根节点，另一个指向关键字最小的叶子节点，而且所有叶子节点（即数据节点）之间是一种链式环结构。因此可以对 B+Tree 进行两种查找运算：一种是对于主键的范围查找和分页查找，另一种是从根节点开始，进行随机查找。<br>可能上面例子中只有 22 条数据记录，看不出 B+Tree 的优点，下面做一个推算：<br>InnoDB 存储引擎中页的大小为 16KB，一般表的主键类型为 INT（占用4个字节） 或 BIGINT（占用8个字节），指针类型也一般为 4 或 8 个字节，也就是说一个页（B+Tree 中的一个节点）中大概存储 16KB/(8B+8B)=1K 个键值（因为是估值，为方便计算，这里的 K 取值为〖10〗^3）。也就是说一个深度为 3 的 B+Tree 索引可以维护10^3 10^3 10^3 = 10亿 条记录。<br>实际情况中每个节点可能不能填充满，因此在数据库中，B+Tree 的高度一般都在 2~4 层。MySQL 的 InnoDB 存储引擎在设计时是将根节点常驻内存的，也就是说查找某一键值的行记录时最多只需要 1~3 次磁盘 I/O 操作。</p>
+<h2 id="4-3-总结"><a href="#4-3-总结" class="headerlink" title="4.3 总结"></a>4.3 总结</h2><p>B-Tree和B+ Tree的特点与区别</p>
+<ul>
+<li>树的高度一般都是在2-4这个高度，树的高度直接影响IO读写的次数。</li>
+<li>如果是三层树结构—-支撑的数据可以达到20G，如果是四层树结构—-支撑的数据可以达到几十T</li>
+<li>B-Tree和B+ Tree的最大区别在于非叶子节点是否存储数据的问题。<ul>
+<li>B-Tree是非叶子节点和叶子节点都会存储数据。</li>
+<li>B+ Tree只有叶子节点才会存储数据，而且存储的数据都是在一行上，而且这些数据都是有指针指向的，也就是由顺序的。</li>
+</ul>
+</li>
+</ul>
+<h1 id="5-Mysql索引实现"><a href="#5-Mysql索引实现" class="headerlink" title="5  Mysql索引实现"></a>5  Mysql索引实现</h1><h2 id="5-1-MyISAM-索引的实现"><a href="#5-1-MyISAM-索引的实现" class="headerlink" title="5.1 MyISAM 索引的实现"></a>5.1 MyISAM 索引的实现</h2><p>MyISAM 索引的实现，和 InnoDB 索引的实现是一样使用 B+Tree ，<strong>差别在于 MyISAM 索引文件和数据文件是分离的，索引文件仅保存数据记录的地址</strong>。</p>
+<p><strong>主键索引：</strong><br>MyISAM引 擎使用B+Tree作为索引结构，叶节点的data域存放的是数据记录的地址。下图是MyISAM主键索引的原理图：</p>
+<p><img src="/images/mysql003.png" alt></p>
+<p>这里设表一共有三列，假设我们以 Col1 为主键，上图是一个 MyISAM 表的主索引（Primary key）示意。可以看出 MyISAM 的索引文件仅仅保存数据记录的地址。</p>
+<p><strong>辅助索引：</strong><br>在 MyISAM 中，主索引和辅助索引在结构上没有任何区别，只是主索引要求 key 是唯一的，而辅助索引的 key 可以重复。如果我们在 Col2 上建立一个辅助索引，则此索引的结构如下图所示：</p>
+<p><img src="/images/mysql004.png" alt></p>
+<p>同样也是一颗 B+Tree ，data 域保存数据记录的地址。因此，MyISAM 中索引检索的算法为首先按照 B+Tree 搜索算法搜索索引，如果指定的 Key 存在，则取出其 data 域的值，然后以 data 域的值为地址，读取相应数据记录。<br>MyISAM 的索引方式也叫做“非聚集”的，之所以这么称呼是为了与InnoDB 的聚集索引区分。</p>
+<h2 id="5-2-InnoDB索引实现"><a href="#5-2-InnoDB索引实现" class="headerlink" title="5.2 InnoDB索引实现"></a>5.2 InnoDB索引实现</h2><p>虽然InnoDB也使用B+Tree作为索引结构，但具体实现方式却与MyISAM截然不同。</p>
+<p>第一个重大区别是InnoDB的数据文件本身就是索引文件。从上文知道，MyISAM索引文件和数据文件是分离的，索引文件仅保存数据记录的地址。而在InnoDB中，表数据文件本身就是按B+Tree组织的一个索引结构，这棵树的叶节点data域保存了完整的数据记录。这个索引的key是数据表的主键，因此InnoDB表数据文件本身就是主索引。</p>
+<p><img src="/images/mysql005.png" alt></p>
+<p>图10是InnoDB主索引（同时也是数据文件）的示意图，可以看到叶节点包含了完整的数据记录。这种索引叫做聚集索引。因为InnoDB的数据文件本身要按主键聚集，所以InnoDB要求表必须有主键（MyISAM可以没有），如果没有显式指定，则MySQL系统会自动选择一个可以唯一标识数据记录的列作为主键，如果不存在这种列，则MySQL自动为InnoDB表生成一个隐含字段作为主键，这个字段长度为6个字节，类型为长整形。</p>
+<p>第二个与MyISAM索引的不同是InnoDB的辅助索引data域存储相应记录主键的值而不是地址。换句话说，InnoDB的所有辅助索引都引用主键作为data域。例如，图11为定义在Col3上的一个辅助索引：</p>
+<p><img src="/images/mysql006.png" alt></p>
+<p>这里以英文字符的ASCII码作为比较准则。聚集索引这种实现方式使得按主键的搜索十分高效，但是辅助索引搜索需要检索两遍索引：首先检索辅助索引获得主键，然后用主键到主索引中检索获得记录。</p>
+<p>了解不同存储引擎的索引实现方式对于正确使用和优化索引都非常有帮助，例如知道了InnoDB的索引实现后，就很容易明白为什么不建议使用过长的字段作为主键，因为所有辅助索引都引用主索引，过长的主索引会令辅助索引变得过大。再例如，用非单调的字段作为主键在InnoDB中不是个好主意，因为InnoDB数据文件本身是一颗B+Tree，非单调的主键会造成在插入新记录时数据文件为了维持B+Tree的特性而频繁的分裂调整，十分低效，而使用自增字段作为主键则是一个很好的选择。</p>
+<h2 id="5-3-总结"><a href="#5-3-总结" class="headerlink" title="5.3 总结"></a>5.3 总结</h2><p>聚集索引（InnoDB）</p>
+<ul>
+<li>也叫主键索引，叶子节点会存储整行数据，也就是说数据和索引是在一起，这就是聚集索引。</li>
+<li>如果没有没有主键，则使用唯一索引建立聚集索引；如果没有唯一索引，MySQL会按照一定规则创建聚集索引。</li>
+</ul>
+<p>非聚集索引</p>
+<ul>
+<li>也叫辅助索引，叶子节点只会存储数据行的主键，简单来说数据和索引不在一起，就是非聚集索引。</li>
+</ul>
+<p>MyISAM 索引的叶子节点存储的是行数据地址，需要再寻址一次才能得到数据。<br>InnoDB 索引是聚簇索引，MyISAM 索引是非聚簇索引。<br>InnoDB 的主键索引的叶子节点存储着行数据，因此主键索引非常高效。<br>InnoDB 非主键索引的叶子节点存储的是主键和其他带索引的列数据，因此查询时做到覆盖索引会非常高效。</p>
+<p>TODO：感觉这里概念太多了，网上查了一些资料，博文，有时候也说法不一，要发点时间好好理理</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Mysql/" rel="tag"># Mysql</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/21/mysql/002.MySQL_InnoDB磁盘结构/" rel="next" title="Mysql_InnoDB磁盘结构">
+                <i class="fa fa-chevron-left"></i> Mysql_InnoDB磁盘结构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/21/mysql/003MySQL_InnoDB线程模型/" rel="prev" title="Mysql_InnoDB线程模型">
+                Mysql_InnoDB线程模型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">64</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">17</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-介绍"><span class="nav-text">1 介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-索引分类"><span class="nav-text">2 索引分类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-索引的使用"><span class="nav-text">3 索引的使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-索引的存储结构"><span class="nav-text">4 索引的存储结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-B-Tree"><span class="nav-text">4.1 B-Tree</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-B-Tree"><span class="nav-text">4.2 B+Tree</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-3-总结"><span class="nav-text">4.3 总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-Mysql索引实现"><span class="nav-text">5  Mysql索引实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1-MyISAM-索引的实现"><span class="nav-text">5.1 MyISAM 索引的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-2-InnoDB索引实现"><span class="nav-text">5.2 InnoDB索引实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-3-总结"><span class="nav-text">5.3 总结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

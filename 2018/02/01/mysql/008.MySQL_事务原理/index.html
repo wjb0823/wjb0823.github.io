@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="4. MVCC1.MVCC概念 MVCC（Multi Version Concurrency Control）被称为多版本控制，是指在数据库中为了实现高并发的数据访问，对数据进行多版本处理，并通过事务的可见性来保证事务能看到自己应该看到的数据版本。 MVCC最大的好处是读不加锁，读写不冲突。在读多写少的系统应用中，读写不冲突是非常重要的，极大的提升系统的并发性能，这也是为什么现阶段几乎所有的关系型">
+<meta name="keywords" content="Mysql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql_事务">
+<meta property="og:url" content="http://yoursite.com/2018/02/01/mysql/008.MySQL_事务原理/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="4. MVCC1.MVCC概念 MVCC（Multi Version Concurrency Control）被称为多版本控制，是指在数据库中为了实现高并发的数据访问，对数据进行多版本处理，并通过事务的可见性来保证事务能看到自己应该看到的数据版本。 MVCC最大的好处是读不加锁，读写不冲突。在读多写少的系统应用中，读写不冲突是非常重要的，极大的提升系统的并发性能，这也是为什么现阶段几乎所有的关系型">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/134.jpg">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/135.jpg">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/136.jpg">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/137.jpg">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/152.jpg">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/153.jpg">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/155.jpg">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/156.jpg">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/157.jpg">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/158.jpg">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/159.jpg">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/160.jpg">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/161.jpg">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/163.jpg">
+<meta property="og:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/162.jpg">
+<meta property="og:updated_time" content="2018-02-01T14:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mysql_事务">
+<meta name="twitter:description" content="4. MVCC1.MVCC概念 MVCC（Multi Version Concurrency Control）被称为多版本控制，是指在数据库中为了实现高并发的数据访问，对数据进行多版本处理，并通过事务的可见性来保证事务能看到自己应该看到的数据版本。 MVCC最大的好处是读不加锁，读写不冲突。在读多写少的系统应用中，读写不冲突是非常重要的，极大的提升系统的并发性能，这也是为什么现阶段几乎所有的关系型">
+<meta name="twitter:image" content="g:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/134.jpg">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2018/02/01/mysql/008.MySQL_事务原理/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Mysql_事务 | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/01/mysql/008.MySQL_事务原理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Mysql_事务
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-02-01 22:15:27" itemprop="dateCreated datePublished" datetime="2018-02-01T22:15:27+08:00">2018-02-01</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="4-MVCC"><a href="#4-MVCC" class="headerlink" title="4. MVCC"></a>4. MVCC</h4><p><strong>1.MVCC概念</strong></p>
+<p>MVCC（Multi Version Concurrency Control）被称为多版本控制，是指在数据库中为了实现高并发的数据访问，对数据进行多版本处理，并通过事务的可见性来保证事务能看到自己应该看到的数据版本。</p>
+<p>MVCC最大的好处是读不加锁，读写不冲突。在读多写少的系统应用中，读写不冲突是非常重要的，极大的提升系统的并发性能，这也是为什么现阶段几乎所有的关系型数据库都支持 MVCC 的原因，不过目前MVCC只在 Read Commited 和 Repeatable Read 两种隔离级别下工作。</p>
+<p><strong>2.Undo log 多版本链</strong>  </p>
+<p>在介绍MVCC之前,我们首先来了解一下Undo Log多版本链,了解了这个机制才能更好的理解MVCC机制.</p>
+<p>之前介绍Undo log的时候已经讲过, 每条数据其实都有两个隐藏字段,事务ID(trx_id) ,回滚指针(roll_pointer) .</p>
+<ul>
+<li><p>trx_id: 记录最近一次更新这条数据的事务id</p>
+</li>
+<li><p>roll_pointer: 指向之前生成的 undo log </p>
+</li>
+</ul>
+<p>通过下面的例子,我们来一起看一下版本链的生成:</p>
+<ol>
+<li><p>假设有一个事务A (trx_id=50) ,向表中插入一条数据,插入的这条数据的值为A,则插入的这条数据结构如下,其中roll_pointer会指向一个空的undo log:</p>
+<p><img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/134.jpg" style="width:600px; height:200px"> </p>
+</li>
+<li><p>接着又有一个事务B (trx_id=58) 过来,对同一条数据进行修改,将值改为B,事务B的id是58,在更新之前会生成一个undo log来记录之前的值.然后会让roll_pointer指向这个实际的undo log回滚日志:</p>
+<p><img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/135.jpg" style="width:580px; height:230px"> </p>
+</li>
+<li><p>如果再有一个事务C (trx_id=69) 继续更新该条记录值为C,则会跟第二步的步骤一样,</p>
+<p><img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/136.jpg" style="width:580px; height:230px"> </p>
+</li>
+</ol>
+<p>总结: <strong>每一条数据都有多个版本,版本之间通过undo log链条进行连接</strong> </p>
+<p>通过这样的设计,可以保证每个事务提交的时候一旦需要回滚操作,可以保证同一个事务只能读到比当前版本更早提交的值,不能看到更晚提交的值.</p>
+<p><strong>3.ReadView</strong></p>
+<p>刚才讲解了undo log版本链,接下来说一下基于undo log版本链实现的Read View视图机制.</p>
+<p><strong>什么是Read View?</strong></p>
+<p>Read View是 InnoDB 在实现 MVCC 时用到的一致性读视图，即 consistent read view，用于支持 RC（Read Committed，读提交）和 RR（Repeatable Read，可重复读）隔离级别的实现.</p>
+<p>Read View简单理解就是对数据在每个时刻的状态拍成照片记录下来。那么之后获取某时刻的数据时就还是原来的照片上的数据，是不会变的.</p>
+<p>Read View中比较重要的字段有4个:</p>
+<ul>
+<li><code>m_ids</code> : 用来表示MySQL中哪些事务正在执行,但是没有提交.</li>
+<li><code>min_trx_id</code>: 就是m_ids里最小的值.</li>
+<li><code>max_trx_id</code> : 下一个要生成的事务id值,也就是最大事务id</li>
+<li><code>creator_trx_id</code>: 就是你这个事务的id</li>
+</ul>
+<p><strong>Read View 的使用</strong></p>
+<p>下面是一个Read View所存储的信息:<br><img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/137.jpg" style="width:380px; height:330px">  </p>
+<p>我们一起来看下面的这个例子:</p>
+<ol>
+<li><p>假设数据库有一行数据,很早就有事务操作过,事务id 是32. 此时两个事务并发过来执行了, 一个事务A (id=45),一个事务B (id=59). 事务A需要读取数据,而事务B需要更新数据,如下图:</p>
+<p><img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/152.jpg" style="width:580px; height:230px">   </p>
+<blockquote>
+<p>如果不加任何限制,这里会出现脏读的情况,也就是一个事务可能会读到一个没有提交的值.</p>
+</blockquote>
+</li>
+<li><p>现在事务A直接开启一个ReadView，这个ReadView里的<code>m_ids</code>就包含了事务A和事务B的两个id，45和59，然后<code>min_trx_id</code>就是45，<code>max_trx_id</code>就是60.  <code>creator_trx_id</code>就是45，是事务A自己。</p>
+<p><img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/153.jpg" style="width:380px; height:250px">  </p>
+</li>
+<li><p>此时事务A第一次查询这行数据，首先会判断一下当前这行数据的<code>txr_id</code>是否小于ReadView中的<code>min_trx_id</code>，此时发现txr_id=32，是小于ReadView里的<code>min_trx_id</code>就是45的，说明你事务开启之前，修改这行数据的事务已经提交了，所以此时可以查到这行数据，如下图所示:</p>
+<p><img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/155.jpg" style="width:780px; height:250px">  </p>
+</li>
+<li><p>接下来事务B开始操作该条数据,他把这行数据的值修改为了值B,然后将这行数据的<code>txr_id</code>设置为自己的id,也就是59，同时<code>roll_pointer</code>指向了修改之前生成的一个undo log，然后事务B提交,如下图所示:</p>
+<p><img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/156.jpg" style="width:580px; height:250px">  </p>
+</li>
+<li><p>这时事务A再次执行了查询,但是却发现数据行里的txr_id=59，也就是这个txr_id是大于ReadView里的min_txr_id(45),同时小于ReadView里的max_trx_id（60）的，说明更新这条数据的事务，很可能就跟自己差不多同时开启的,于是会看一下这个txr_id=59,是否在ReadView的m_ids列表里？<br>果然,在ReadView的m_ids列表里,有45和59两个事务id，直接证实了，这个修改数据的事务是跟自己同一时段并发执行然后提交的，所以对这行数据是不能查询的！如下图所示:</p>
+<p><img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/157.jpg" style="width:780px; height:250px">  </p>
+</li>
+<li><p>通过上面的判断,事务A就知道这条数据不是他改的,不能查.所以要根据roll_point顺着undo log版本链向下找,找到最近的一条undo log,trx_id是32，此时发现trx_id=32，是小于ReadView里的min_trx_id（45）的，说明这个undo log版本<br>必然是在事务A开启之前就执行且提交的。<br>那么就查询最近的那个undo log里的值就可以了,这时undo log版本链的作用就体现出来了,它相当于保存了一条快照链条,而事务A读取到的数据,就是之前的快照数据.</p>
+<p><img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/158.jpg" style="width:680px; height:350px">  </p>
+</li>
+</ol>
+<p><strong>Read View的更新方式:</strong></p>
+<p>我们只分析RC级别和RR级别，因为MVCC不适用于其它两个隔离级别。</p>
+<p><strong>Read Committed级别</strong> </p>
+<p>当你一个事务设置他处于RC隔离级别时, 每次执行select都会创建新的read_view，更新旧read_view，保证能读取到其他事务已经COMMIT的内容（读提交的语义)</p>
+<p>比如下面这个例子:</p>
+<ol>
+<li><p>假设当前有事务A(id=60)与事务B(id=70) 并发执行,在当前级别下,事务A每次select的时候都会创建新的read view.</p>
+<p>首先事务B修改这条数据, trx_id被设置为70,同时会生成一条undo log,由roll_point来指向.然后事务A发起一次查询操作,生成一个read view,如下图:</p>
+<p><img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/159.jpg" style="width:880px; height:300px">   </p>
+</li>
+<li><p>接着事务A会发起查询,发现当前这条数据的trx_id=70</p>
+<blockquote>
+<p>根据read view机制的规则:  范围是在min_trx_id与max_trx_id的范围之间,并且trx_id存在于m_ids数组中,trx_id在m_ids数组中表示的是事务B是和事务A同一时刻开启的事务,并且还没有提交. 事务A是无法查询到事务B修改的值的.</p>
+</blockquote>
+<p>事务A会顺着undo log版本链往下查找,发现原始值,trx=50</p>
+<blockquote>
+<p>根据read view机制的规则: 当前数据的trx_id小于min_trx_id,表示这条数据是在当前事务开启之前,其他事务就已经操作了该条数据,并且提交了事务,所以当前事务能读到这个快照数据.</p>
+</blockquote>
+<p> <img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/160.jpg" style="width:880px; height:350px">  </p>
+</li>
+<li><p>接着事务B提交了,事务B一旦提交,那么事务A下次再查询的时候,就可以读到事务B修改过的值了.</p>
+<p>如何保证事务A可以读取到已经提交的事务B的数据呢? 其实很简单,就是事务A再次查询时 会生成一个新的read view,如下图:</p>
+<p><img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/161.jpg" style="width:780px; height:350px">  </p>
+<p><strong>以上就是基于ReadView实现RC隔离级别的原理,其本质就是协调你多个事务并发运行的时候,并发的读写同一批数据,此时应该如何协调互相的可见性。</strong>  </p>
+</li>
+</ol>
+<p><strong>Repeatab Read级别</strong></p>
+<p>第一次select时更新这个read_view，以后不会再更新，后续所有的select都是复用这个read_view。所以能保证每次读取的一致性，即都是读取第一次读取到的内容（可重复读的语义）。</p>
+<p>1.首先我们还是假设有一条数据是 事务id=50的事务插入的,同时此时有事务A(id=60) ,</p>
+<p>事务B(id=70) , 此时事务A发起了一个查询, 在RR级别下第一次查询会生成read view,</p>
+<p>根据规则事务A可以查询到数据,因为数据的trx_id=50,小于min_trx_id.</p>
+<p><img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/163.jpg" style="width:780px; height:250px">  </p>
+<ol>
+<li><p>接着事务B进行操作,并提交事务,事务B的trx_id=70.因为是RR级别,所以Read View一旦生成就不会改变了,所以事务B虽然结束了,但是事务A的Read View的m_ids中仍然还是[60,70]两个事务id</p>
+<p>事务进行第二次查询发现数据的trx_id=70, 70在min_trx_id与max_trx_id之间,同时又在m_ids数组中,这表示的是事务A开启查询的时候,事务B当时正在运行.因此事务A是不能查询到事务B更新的这个值的,因此还要顺着指针往历史版本链条上去找.</p>
+<p>找到了trx_id=50的这个版本的数据,50小于min_trx_id,说明开启之前已经提交了,可以查询到.</p>
+<p><img src="G:/%E4%B8%AD%E5%8D%8E%E7%9F%B3%E6%9D%89/%E6%9E%B6%E6%9E%84%E8%AF%BE/%E4%BA%92%E8%81%94%E7%BD%91%E9%A6%96%E5%B8%AD%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9B%B4%E9%80%9A%E8%BD%A6/002.%E4%BA%92%E8%81%94%E7%BD%91%20Java%20%E6%9E%B6%E6%9E%84%E5%B8%88%E8%AE%AD%E7%BB%83%E8%90%A5%E3%80%90%E5%AF%B9%E6%A0%87%E5%A4%A7%E5%8E%82%20P7%E3%80%91/003%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%BC%80%E6%BA%90%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF%E4%BD%93%E7%B3%BB%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/02_MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/172~185%E8%B5%84%E6%96%99/MySQL%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98_%E6%9C%80%E7%BB%88%E8%AE%B2%E4%B9%89/02_%E5%9B%BE%E7%89%87/162.jpg" style="width:780px; height:350px">  </p>
+</li>
+<li><p>至此事务A多次读同一个数据，每次读到的都是一样的值，除非是他自己修改了值，否则读到的一直会一样的值,这就是RR级别的实现原理.</p>
+</li>
+</ol>
+<p><strong>Read View总结:</strong></p>
+<ul>
+<li><p><strong>通过Read View判断记录的某个版本是否可见的方式总结:</strong> </p>
+<ul>
+<li><p><strong>trx_id = creator_trx_id</strong></p>
+<p>如果被访问版本的trx_id,与readview中的creator_trx_id值相同,表明当前事务在访问自己修改过的记录,该版本可以被当前事务访问.</p>
+</li>
+<li><p><strong>trx_id &lt; min_trx_id</strong></p>
+<p>如果被访问版本的trx_id,小于readview中的min_trx_id值,表明生成该版本的事务在当前事务生成readview前已经提交,该版本可以被当前事务访问.</p>
+</li>
+<li><p><strong>trx_id &gt;= max_trx_id</strong></p>
+<p>如果被访问版本的trx_id,大于或等于readview中的max_trx_id值,表明生成该版本的事务在当前事务生成readview后才开启,该版本不可以被当前事务访问.</p>
+</li>
+<li><p><strong>trx_id &gt; min_trx_id &amp;&amp; trx_id &lt; max_trx_id</strong></p>
+<p>如果被访问版本的trx_id,值在readview的min_trx_id和max_trx_id之间，就需要判断trx_id属性值是不是在m_ids列表中？</p>
+<ul>
+<li>在：说明创建readview时生成该版本的事务还是活跃的,该版本不可以被访问</li>
+</ul>
+</li>
+<li><p>不在：说明创建readview时生成该版本的事务已经被提交,该版本可以被访问</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><strong>生成readview时机</strong><br>RC隔离级别：每次读取数据前，都生成一个readview.<br>RR隔离级别：在第一次读取数据前，生成一个readview,之后read view不再更新.</li>
+</ul>
+<p><strong>4.MVCC在mysql中的具体实现</strong> </p>
+<p>MySQL实现MVCC机制的方式:  undo log多版本链+ReadView机制.</p>
+<p>在MySQL中 实现MVCC时，会为每一个表添加如下几个隐藏的字段：</p>
+<ul>
+<li><p>6字节的<code>DATA_TRX_ID</code>：标记了最新更新这条行记录的transaction id，每处理一个事务，其值自动设置为当前事务ID ( DATA_TRX_ID只有在事务提交之后才会更新 )</p>
+</li>
+<li><p>7字节的<code>DATA_ROLL_PTR</code>：一个rollback指针，指向当前这一行数据的上一个版本，找之前版本的数据就是通过这个指针，通过这个指针将数据的多个版本连接在一起构成一个undo log版本链</p>
+</li>
+<li><p>6字节的<code>DB_ROW_ID</code>：隐含的自增ID，如果数据表没有主键，InnoDB会自动以DB_ROW_ID产生一个聚簇索引。这是一个用来唯一标识每一行的字段；</p>
+</li>
+<li><p><code>DELETE BIT</code>位：用于标识当前记录是否被删除，这里的不是真正的删除数据，而是标志出来的删除。真正意义的删除是在commit的时候。</p>
+</li>
+</ul>
+<p>下面分别以select、delete、 insert、 update语句来说明:</p>
+<ul>
+<li><p><strong>查询 SELECT</strong></p>
+<p>1.InnoDB只查找版本早于当前事务版本的数据行(也就是数据行的版本必须小于等于事务的版本)，这确保当前事务读取的行都是事务之前已经存在的，或者是由当前事务创建或修改的行</p>
+<p>2.行的删除操作的版本一定是未定义的或者大于当前事务的版本号，确定了当前事务开始之前，行没有被删除</p>
+<p>符合了以上两点则返回查询结果。</p>
+</li>
+</ul>
+<ul>
+<li><p><strong>删除 DELETE</strong></p>
+<p>修改<code>DATA_TRX_ID</code>的值为当前的执行删除操作的事务的ID，然后设置<code>DELETE BIT</code>为True，表示被删除</p>
+</li>
+</ul>
+<ul>
+<li><strong>增加：INSERT</strong><br>设置新记录的DATA_TRX_ID为当前事务ID，其他的采用默认的。</li>
+</ul>
+<ul>
+<li><strong>修改：UPDATE </strong><br>用排它锁锁定该行（因为是写操作）<br>记录redo log：将更新之后的数据记录到redo log中,以便日后使用.<br>记录undo log：将更新之前的数据记录到undo log中.</li>
+</ul>
+<p><strong>MVCC读操作分类</strong>  </p>
+<p>在 MVCC 并发控制中，读操作可以分为两类: 快照读（<code>Snapshot Read</code>）与当前读 （<code>Current Read</code>）。</p>
+<ul>
+<li><p>快照读</p>
+<p>快照读是指读取数据时不是读取最新版本的数据，而是基于历史版本读取的一个快照信息（mysql读取undo log历史版本) ，快照读可以使普通的SELECT 读取数据时不用对表数据进行加锁，从而解决了因为对数据库表的加锁而导致的两个如下问题</p>
+<ol>
+<li>解决了因加锁导致的修改数据时无法对数据读取问题.</li>
+<li>解决了因加锁导致读取数据时无法对数据进行修改的问题.</li>
+</ol>
+</li>
+<li><p>当前读</p>
+<p>当前读是读取的数据库最新的数据，当前读和快照读不同，因为要读取最新的数据而且要保证事务的隔离性，所以当前读是需要对数据进行加锁的（<code>Update delete insert select ....lock in share mode</code>   , <code>select for update</code> 为当前读）</p>
+</li>
+</ul>
+<p>MVCC已经实现了读读、读写、写读并发处理，如果想进一步解决写写冲突，可以采用下面两种方案：</p>
+<ul>
+<li>乐观锁</li>
+<li>悲观锁</li>
+</ul>
+<h3 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h3><h4 id="1-隔离级别的类型"><a href="#1-隔离级别的类型" class="headerlink" title="1.隔离级别的类型"></a>1.隔离级别的类型</h4><p>通过设置隔离级别,可以防止上面的三种并发问题.<br>MySQL数据库有四种隔离级别 上面的级别最低，下面的级别最高。</p>
+<ul>
+<li>✔ 会出现问题</li>
+<li>✘ 不会出现问题</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>名字</th>
+<th>隔离级别</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻读</th>
+<th>数据库的默认隔离级别</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>读未提交</td>
+<td>read uncommitted</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>读已提交</td>
+<td>read committed</td>
+<td>✘</td>
+<td>✔</td>
+<td>✔</td>
+<td>Oracle和SQLServer</td>
+</tr>
+<tr>
+<td>3</td>
+<td>可重复读</td>
+<td>repeatable read</td>
+<td>✘</td>
+<td>✘</td>
+<td>✔</td>
+<td>MySql</td>
+</tr>
+<tr>
+<td>4</td>
+<td>串行化</td>
+<td>serializable</td>
+<td>✘</td>
+<td>✘</td>
+<td>✘</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><p>读未提交</p>
+<p>Read Uncommitted 读未提交：解决了回滚覆盖类型的更新丢失，但可能发生脏读现象，也就是可能读取到其他会话中未提交事务修改的数据。</p>
+</li>
+<li><p>已提交读</p>
+<p>Read Committed 读已提交：只能读取到其他会话中已经提交的数据，解决了脏读。但可能发生不可重复读现象，也就是可能在一个事务中两次查询结果不一致。</p>
+</li>
+<li><p>可重复度</p>
+<p>Repeatable Read 可重复读：解决了不可重复读，它确保同一事务的多个实例在并发读取数据时，会看到同样的数据行。不过理论上会出现幻读，简单的说幻读指的的当用户读取某一范围的数据行时，另一个事务又在该范围插入了新行，当用户在读取该范围的数据时会发现有新的幻影行。</p>
+</li>
+<li><p>可串行化</p>
+<p>所有的增删改查串行执行。它通过强制事务排序，解决相互冲突，从而解决幻度的问题。这个级别可能导致大量的超时现象的和锁竞争，效率低下。</p>
+</li>
+</ul>
+<blockquote>
+<p>注: 数据库的事务隔离级别越高，并发问题就越小，但是并发处理能力越差（代价）。读未提交隔离级别最低，并发问题多，但是并发处理能力好。以后使用时，可以根据系统特点来选择一个合适的隔离级别，比如对不可重复读和幻读并不敏感，更多关心数据库并发处理能力，此时可以使用Read Commited隔离级别。</p>
+</blockquote>
+<h4 id="2-事务隔离级别和锁的关系"><a href="#2-事务隔离级别和锁的关系" class="headerlink" title="2.事务隔离级别和锁的关系"></a>2.事务隔离级别和锁的关系</h4><ol>
+<li><p>事务隔离级别是SQL92定制的标准，相当于事务并发控制的整体解决方案，本质上是对锁和MVCC使用的封装，隐藏了底层细节。</p>
+</li>
+<li><p>锁是数据库实现并发控制的基础，事务隔离性是采用锁来实现，对相应操作加不同的锁，就可以防止其他事务同时对数据进行读写操作。</p>
+</li>
+<li><p>对用户来讲，首先选择使用隔离级别，当选用的隔离级别不能解决并发问题或需求时，才有必要在开发中手动的设置锁。</p>
+<p>MySQL默认隔离级别：可重复读</p>
+<p>Oracle、SQLServer默认隔离级别：读已提交</p>
+</li>
+</ol>
+<h4 id="3-MySQL隔离级别控制"><a href="#3-MySQL隔离级别控制" class="headerlink" title="3.MySQL隔离级别控制"></a>3.MySQL隔离级别控制</h4><p>MySQL默认的事务隔离级别是Repeatable Read，查看MySQL当前数据库的事务隔离级别命令如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'tx_isolation'</span>;</span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> @@tx_isolation;</span><br></pre></td></tr></table></figure>
+<p>设置事务隔离级别可以如下命令：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span> tx_isolation=<span class="string">'READ-UNCOMMITTED'</span>;</span><br><span class="line"><span class="keyword">set</span> tx_isolation=<span class="string">'READ-COMMITTED'</span>;</span><br><span class="line"><span class="keyword">set</span> tx_isolation=<span class="string">'REPEATABLE-READ'</span>;</span><br><span class="line"><span class="keyword">set</span> tx_isolation=<span class="string">'SERIALIZABLE'</span>;</span><br></pre></td></tr></table></figure>
+<h3 id><a href="#" class="headerlink" title=" "></a> </h3>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Mysql/" rel="tag"># Mysql</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/01/mysql/007.MySQL_事务筑基/" rel="next" title="Mysql_事务">
+                <i class="fa fa-chevron-left"></i> Mysql_事务
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/02/01/mysql/006.Mysql_事务/" rel="prev" title="Mysql_事务">
+                Mysql_事务 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">64</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">17</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-MVCC"><span class="nav-text">4. MVCC</span></a></li></ol><li class="nav-item nav-level-3"><a class="nav-link" href="#事务隔离级别"><span class="nav-text">事务隔离级别</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-隔离级别的类型"><span class="nav-text">1.隔离级别的类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-事务隔离级别和锁的关系"><span class="nav-text">2.事务隔离级别和锁的关系</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-MySQL隔离级别控制"><span class="nav-text">3.MySQL隔离级别控制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-text"> </span></a></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
