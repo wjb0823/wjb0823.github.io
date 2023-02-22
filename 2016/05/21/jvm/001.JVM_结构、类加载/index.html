@@ -97,7 +97,7 @@
   <meta name="description" content="1. JVM结构  类加载子系统：在 JVM 启动时或者类运行时将需要的 class文件加载到 JVM 中。 运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。 执行引擎：负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。 本地库接口：调用 C 或 C++ 实现的本地方法的代码返回结果">
 <meta name="keywords" content="JVM">
 <meta property="og:type" content="article">
-<meta property="og:title" content="JVM_类的加载">
+<meta property="og:title" content="JVM_结构、类的加载">
 <meta property="og:url" content="http://yoursite.com/2016/05/21/jvm/001.JVM_结构、类加载/index.html">
 <meta property="og:site_name" content="生活值得">
 <meta property="og:description" content="1. JVM结构  类加载子系统：在 JVM 启动时或者类运行时将需要的 class文件加载到 JVM 中。 运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。 执行引擎：负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。 本地库接口：调用 C 或 C++ 实现的本地方法的代码返回结果">
@@ -106,9 +106,9 @@
 <meta property="og:image" content="http://yoursite.com/images/jvm014.png">
 <meta property="og:image" content="http://yoursite.com/images/jvm015.png">
 <meta property="og:image" content="http://yoursite.com/images/jvm021.png">
-<meta property="og:updated_time" content="2018-09-21T06:15:27.000Z">
+<meta property="og:updated_time" content="2016-05-21T06:15:27.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="JVM_类的加载">
+<meta name="twitter:title" content="JVM_结构、类的加载">
 <meta name="twitter:description" content="1. JVM结构  类加载子系统：在 JVM 启动时或者类运行时将需要的 class文件加载到 JVM 中。 运行时数据区：将内存划分成若干个区域以模拟实际机器上的存储、记录和调度功能模块，如实际机器上的各种功能的寄存器或者 PC 指针的记录器等。 执行引擎：负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。 本地库接口：调用 C 或 C++ 实现的本地方法的代码返回结果">
 <meta name="twitter:image" content="http://yoursite.com/images/jvm001.png">
 
@@ -128,7 +128,7 @@
   };
 </script>
 
-  <title>JVM_类的加载 | 生活值得</title>
+  <title>JVM_结构、类的加载 | 生活值得</title>
   
 
 
@@ -324,7 +324,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">JVM_类的加载
+          <h1 class="post-title" itemprop="name headline">JVM_结构、类的加载
 
               
             
@@ -354,20 +354,6 @@
             </span>
           
 
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-09-21 14:15:27" itemprop="dateModified" datetime="2018-09-21T14:15:27+08:00">2018-09-21</time>
-              </span>
-            
           
 
           
@@ -424,7 +410,7 @@
 <li><strong>执行引擎：</strong>负责执行 class 文件中包含的字节码指令，相当于实际机器上的 CPU 。</li>
 <li><strong>本地库接口：</strong>调用 C 或 C++ 实现的本地方法的代码返回结果。</li>
 </ul>
-<h2 id="1-1-运行机制"><a href="#1-1-运行机制" class="headerlink" title="1.1 运行机制"></a>1.1 运行机制</h2><p>首先通过编译器把 Java 代码转换成字节码，<strong>类加载子系统</strong>再把字节码加载到内存中，将其放在<strong>运行时数据区</strong>的方法区内。</p>
+<h2 id="1-1-运行机制"><a href="#1-1-运行机制" class="headerlink" title="1.1 运行机制"></a>1.1 运行机制</h2><p>首先通过编译器把 Java 代码转换成<strong>字节码</strong>，<strong>类加载子系统</strong>再把字节码加载到内存中，将其放在<strong>运行时数据区</strong>的方法区内。</p>
 <p>而字节码文件只是 JVM 的一套指令集规范，并不能直接交给底层操作系统去执行，因此需要特定的命令 </p>
 <p>解析器-<strong>执行引擎</strong>，将字节码翻译成底层系统指令，再交由 CPU 去执行。</p>
 <p>此外，Java代码中，可以调用其它语言的<strong>本地库接口</strong>来，进行一些系统调用或者c函数调用。</p>
@@ -437,7 +423,7 @@
 <li>第二阶段，连接(Linking)，又可以分为三个步骤，分别是字节码验证、Class 类数据结构分析及相应的内存分配、最后的符号表的解析。</li>
 <li>第三阶段，Initialization(类中静态属性和初始化赋值)，以及Using(静态块的执行)等。</li>
 </ul>
-<h2 id="2-2-类加载的时机"><a href="#2-2-类加载的时机" class="headerlink" title="2.2 类加载的时机"></a>2.2 类加载的时机</h2><p>对于<code>加载</code>阶段，虚拟机并没有强制规定，在什么情况下需开始类加载，但是对于初始化阶段，虚拟机规定了有且只有5种情况必须立即进行<code>初始化</code></p>
+<h2 id="2-2-类加载的时机"><a href="#2-2-类加载的时机" class="headerlink" title="2.2 类加载的时机"></a>2.2 类加载的时机</h2><p>对于加载阶段，虚拟机并没有强制规定，在什么情况下需开始类加载，但是对于初始化阶段，虚拟机规定了有且只有5种情况必须立即进行<code>初始化</code></p>
 <ol>
 <li>遇到 <code>new</code>、<code>getstatic</code>、<code>putstatic</code>、<code>invokestatic</code> 这四条字节码指令时，如果类还没进行初始化，则需要先触发其初始化。</li>
 <li>使用 <code>java.lang.reflect</code> 包的方法对类进行反射调用的时候，如果类还没进行初始化，则需要先触发其初始化。</li>
