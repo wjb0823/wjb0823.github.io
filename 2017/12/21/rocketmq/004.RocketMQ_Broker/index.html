@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Broker主从、集群概念主从：  第一组Broker   brokerName相同-&amp;gt;OrderBroker01 brokeId不同(主从)-&amp;gt;brokerId=0，brokerId=1   第二组Broker   brokerName相同-&amp;gt;OrderBroker02 brokeId不同(主从)-&amp;gt;brokerId=0，brokerId=1    集群： 第一组Brok">
+<meta name="keywords" content="RocketMQ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RocketMQ_Broker">
+<meta property="og:url" content="http://yoursite.com/2017/12/21/rocketmq/004.RocketMQ_Broker/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="Broker主从、集群概念主从：  第一组Broker   brokerName相同-&amp;gt;OrderBroker01 brokeId不同(主从)-&amp;gt;brokerId=0，brokerId=1   第二组Broker   brokerName相同-&amp;gt;OrderBroker02 brokeId不同(主从)-&amp;gt;brokerId=0，brokerId=1    集群： 第一组Brok">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669130498113-b08afea0-e131-435e-8b1d-397f0eb1cf53.png">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669130340635-c653f5e3-5dc3-49ab-94ed-c021a60135ae.png">
+<meta property="og:updated_time" content="2017-12-27T14:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RocketMQ_Broker">
+<meta name="twitter:description" content="Broker主从、集群概念主从：  第一组Broker   brokerName相同-&amp;gt;OrderBroker01 brokeId不同(主从)-&amp;gt;brokerId=0，brokerId=1   第二组Broker   brokerName相同-&amp;gt;OrderBroker02 brokeId不同(主从)-&amp;gt;brokerId=0，brokerId=1    集群： 第一组Brok">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669130498113-b08afea0-e131-435e-8b1d-397f0eb1cf53.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2017/12/21/rocketmq/004.RocketMQ_Broker/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>RocketMQ_Broker | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/004.RocketMQ_Broker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RocketMQ_Broker
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-12-21 22:15:27" itemprop="dateCreated datePublished" datetime="2017-12-21T22:15:27+08:00">2017-12-21</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2017-12-27 22:15:27" itemprop="dateModified" datetime="2017-12-27T22:15:27+08:00">2017-12-27</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/RocketMQ/" itemprop="url" rel="index"><span itemprop="name">RocketMQ</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Broker主从、集群概念"><a href="#Broker主从、集群概念" class="headerlink" title="Broker主从、集群概念"></a>Broker主从、集群概念</h1><p><strong>主从：</strong></p>
+<ul>
+<li><p>第一组Broker</p>
+</li>
+<li><ul>
+<li>brokerName相同-&gt;OrderBroker01</li>
+<li>brokeId不同(<strong>主从</strong>)-&gt;brokerId=0，brokerId=1</li>
+</ul>
+</li>
+<li><p>第二组Broker</p>
+</li>
+<li><ul>
+<li>brokerName相同-&gt;OrderBroker02</li>
+<li>brokeId不同(<strong>主从</strong>)-&gt;brokerId=0，brokerId=1</li>
+</ul>
+</li>
+</ul>
+<p><strong>集群：</strong></p>
+<p>第一组Broker和第二组Broker的cluster相同：OrderCluster，组成一个<strong>RocketMQ集群</strong></p>
+<h1 id="读写队列"><a href="#读写队列" class="headerlink" title="读写队列"></a>读写队列</h1><p>创建Topic时，可以配置writeQueueNums和readQueueNums，读写队列，是在做路由信息时使用。</p>
+<p>在消息发送时，使用<strong>写队列个数</strong>返回路由信息，而消息消费时按照<strong>读队列个数</strong>返回路由信息。</p>
+<p><strong>物理文件</strong></p>
+<p>在物理文件层面，只有写队列才会创建文件。</p>
+<p>比如：写队列个数是8，设置的读队列个数是4，这个时候，会创建8个文件夹，代表0 1 2 3 4 5 6 7，在每个文件夹里面，是一个个ConsumeQueue文件。但在消息消费时，路由信息只返回4，在具体拉取消息时，就只会消费0 1 2 3这4个队列中的消息，4 5 6 7中的信息压根就不会被消费。</p>
+<p>所以读写队列个数设置成一样，RocketMQ才能正常工作。</p>
+<p><strong>为什么要设计write queue 和read queue</strong></p>
+<p>因为write queue和read queue是一一对应的，正常请求情况下，4个write queue对应4个read queue，当进行缩容的时候，write queue先为2个，此时read queue还是4个，可以先把被缩容的2个write queue的数据消费完，再把read queue缩容。</p>
+<h1 id="数据分片"><a href="#数据分片" class="headerlink" title="数据分片"></a>数据分片</h1><p>消息数据分布式存储-&gt; 数据分片概念，Producer写出来的消息会分散在很多台broker服务器上，每台Broker服务器上存储的消息数据，都是一个数据分片，shard。</p>
+<p><strong>RocketMQ是基于Topic-Queue的机制实现的**</strong>数据分片。**</p>
+<p><strong>Topic：</strong>逻辑上的一个大的数据集合，逻辑概念，Topic是虚的概念，底下实的概念，其实是Broker，但是对我们的业务系统来说，我们在写代码的时候，是没有Broker的概念在里面，只有Topic的概念。</p>
+<p><strong>Queue：</strong>Topic -&gt; 多个Queue（逻辑上的概念，映射到物理层面去了，每个queue可以认为就是一台broker服务器上的一个磁盘数据，已经可以初步的做一个映射关系了）</p>
+<p>Topic在各个Broker分组里的Queue是如何分布的呢？</p>
+<p>见&lt;读写队列&gt;</p>
+<p>TODO：为什么要设计Topic？</p>
+<h1 id="消息写入"><a href="#消息写入" class="headerlink" title="消息写入"></a>消息写入</h1><p><strong>随机写</strong>：磁盘文件，里面的数据格式是你自定义的，你每次写入数据，都是需要找到磁盘文件里的某个位置，在那个位置里插入你最新的数据，word文件肯定是放在我笔记本电脑的磁盘里的，磁盘文件</p>
+<p><strong>顺序写</strong>：每次写入数据，都是在一个文件末尾去进行追加就可以了。</p>
+<p><strong>写内存</strong>：如果我们要是不把数据写在磁盘里，而是写在内存里，顺序写和随机写，意思是差不多的，内存里随机写，内存也是有地址空间，就是在内存里随机的内存地址的寻址，再去插入数据，一块连续的内存空间里，顺序的不停追加写入数据，避免了随机寻址</p>
+<p>在内存里随机写数据，性能是非常高的了。</p>
+<h2 id="如何实现高并发消息写入-写入优化"><a href="#如何实现高并发消息写入-写入优化" class="headerlink" title="如何实现高并发消息写入(写入优化)"></a>如何实现高并发消息写入(写入优化)</h2><ol>
+<li>CommitLog顺序写</li>
+</ol>
+<p>默认就是直接写入os cache里，就<strong>直接返回成功</strong>了，后台线程<strong>，异步刷盘</strong>，<strong>顺序写</strong>CommitLog文件。</p>
+<p>TODO：mappedfile机制来实现的，把磁盘文件映射成一块内存，写文件=写内存</p>
+<p><strong>数据丢失场景：</strong></p>
+<ul>
+<li><ul>
+<li>Broker JVM进程崩溃（高概率事件）了，是不会导致os cache的数据丢失的。</li>
+<li>服务器崩溃的极端场景才会导致几百毫秒内写入的数据会丢失，一般来说不会发生。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>异步写入ConsumeQueue </li>
+</ol>
+<p>对于ConsumeQueue和IndexFile写入，是异步写入的，这个也是性能提升的一个点。</p>
+<p>只要数据在commit log里没丢失，哪怕是异步写入没有成功，Broker JVM就崩溃了，但是Broker JVM重启和恢复了，此时基于commit log数据都可以恢复consume queue的数据。</p>
+<h1 id="存储结构-存储结构优化"><a href="#存储结构-存储结构优化" class="headerlink" title="存储结构(存储结构优化)"></a>存储结构(存储结构优化)</h1><h2 id="CommitLog存储结构"><a href="#CommitLog存储结构" class="headerlink" title="CommitLog存储结构"></a>CommitLog存储结构</h2><p>单个CommitLog文件大小默认最大1G，文件名长度20位，左边补零，剩余为CommitLog中消息的起始偏移量，比如：</p>
+<p>第一个文件名：00000000000000000000，消息起始偏移量为0；</p>
+<p>第二个文件名：00000000001073741824。</p>
+<p>由于1G=1073741824B；所以当第一个文件写满了之后，消息起始偏移量为1073741824；</p>
+<p>CommitLog文件名以此类推。消息顺序写入日志文件，当文件满了或者不足以容纳最后一条消息之后，消息写入下一个文件。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669130498113-b08afea0-e131-435e-8b1d-397f0eb1cf53.png" alt="img"></p>
+<p>具体存储路径：/root/store/commitlog/00000000000000000000</p>
+<h2 id="ConsumeQueue存储结构"><a href="#ConsumeQueue存储结构" class="headerlink" title="ConsumeQueue存储结构"></a>ConsumeQueue存储结构</h2><p>每个消息在ConsumeQueue里存储的都是定长的，20字节，每个文件是30w个消息，topic目录 -&gt; 多个queue目录 -&gt; 多个磁盘文件，每个磁盘文件一样大的，都是5.72MB。</p>
+<p><strong>20字节内容：</strong></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669130340635-c653f5e3-5dc3-49ab-94ed-c021a60135ae.png" alt="img"></p>
+<p>具体存储路径为：$HOME/store/consumequeue/{topic}/{queueId}/{fileName}。</p>
+<p>consumer group读取的消息，消息都是有一个自己的逻辑offset，逻辑offset，大致认为，逻辑上的便宜量，指的就是queue里的第几条消息</p>
+<h2 id="IndexFile"><a href="#IndexFile" class="headerlink" title="IndexFile"></a>IndexFile</h2><p>IndexFile（索引文件）提供了一种可以通过key或时间区间来查询消息的方法。</p>
+<p>Index文件的存储位置是：$HOME\store\index${fileName}，文件名fileName是以创建时的时间戳命名的；</p>
+<p>固定的单个IndexFile文件最大约为400M，一个IndexFile可以保存 2000W个索引；</p>
+<p>IndexFile的底层存储设计为在文件系统中实现HashMap结构，所以RocketMQ的索引文件其底层实现为hash索引。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>RocketMQ采用的是混合型的存储结构。</p>
+<p>Broker单个实例下所有的队列共用一个日志数据文件（CommitLog）来存储；即多个Topic的消息实体内容都存储于一个CommitLog中。</p>
+<h1 id="OS-Cache内存高并发读写问题"><a href="#OS-Cache内存高并发读写问题" class="headerlink" title="OS Cache内存高并发读写问题"></a>OS Cache内存高并发读写问题</h1><p>os cache内存数据，可能会在高并发高吞吐的读写竞争之下，会出现经典的问题，broker busy，broker过于繁忙，导致你的一些操作，可能会阻塞住，执行失败，os page cache数据，被竞争争用的太频繁了，太激烈了，高并发和高吞吐的场景之下的。</p>
+<p>transientStorePoolEnabled机制，瞬时存储池启用，你可以选择去开启他，如果你要真是压力大到了出现了我刚才所说的那个问题之后，就可以实现一个内存级别的读写分离模式。</p>
+<p><strong>写jvm offheap，后台线程异步刷入os cache(批量) ，读os cache。</strong></p>
+<h1 id="读取优化"><a href="#读取优化" class="headerlink" title="读取优化"></a>读取优化</h1><ol>
+<li>根据消息offset偏移量，定位到你的ConsumeQueue的磁盘文件，在磁盘文件里，就可以去根据你的逻辑上的偏移量，就可以去计算出你的物理偏移量，一次定位，就找到这条消息，就可以找到他在commitlog里的物理偏移量，第二次定位就可以把消息读取出来了。</li>
+<li>高并发的对os cache进行读写竞争的时候，broker busy，transientStorePool机制，开启之后，就会启用jvm offheap内存，内存级的读写分离。</li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/RocketMQ/" rel="tag"># RocketMQ</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/21/rocketmq/001.RocketMQ_整体架构/" rel="next" title="RocketMQ_整体架构">
+                <i class="fa fa-chevron-left"></i> RocketMQ_整体架构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/21/rocketmq/002.RocketMQ_NameServer架构/" rel="prev" title="RocketMQ_NameServer架构">
+                RocketMQ_NameServer架构 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">81</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Broker主从、集群概念"><span class="nav-text">Broker主从、集群概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#读写队列"><span class="nav-text">读写队列</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据分片"><span class="nav-text">数据分片</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#消息写入"><span class="nav-text">消息写入</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#如何实现高并发消息写入-写入优化"><span class="nav-text">如何实现高并发消息写入(写入优化)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储结构-存储结构优化"><span class="nav-text">存储结构(存储结构优化)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CommitLog存储结构"><span class="nav-text">CommitLog存储结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ConsumeQueue存储结构"><span class="nav-text">ConsumeQueue存储结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IndexFile"><span class="nav-text">IndexFile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#OS-Cache内存高并发读写问题"><span class="nav-text">OS Cache内存高并发读写问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#读取优化"><span class="nav-text">读取优化</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

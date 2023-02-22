@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="消息丢失场景 发送消息丢失 Broker消息丢失   os cache 磁盘坏了丢失   消费者消息丢失   自动ack，但是业务没有处理成功 解决发送消息丢失事务消息机制 生产者先发一个half消息 发送half消息成功，生产者处理自己的业务，执行本地事务   如果本地事务失败，发送rollback请求，回滚消息 如果本地事务成功，发送commit请求，提交消息   如果commit/rollb">
+<meta name="keywords" content="RocketMQ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RocketMQ_消息丢失">
+<meta property="og:url" content="http://yoursite.com/2017/12/21/rocketmq/007.RocketMQ_消息丢失/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="消息丢失场景 发送消息丢失 Broker消息丢失   os cache 磁盘坏了丢失   消费者消息丢失   自动ack，但是业务没有处理成功 解决发送消息丢失事务消息机制 生产者先发一个half消息 发送half消息成功，生产者处理自己的业务，执行本地事务   如果本地事务失败，发送rollback请求，回滚消息 如果本地事务成功，发送commit请求，提交消息   如果commit/rollb">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1668491440623-55314f46-4058-4394-ab1d-bbe46c835c02.png">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1668491455635-f0cc8b0f-fb91-4e51-91d2-5925577f8384.png">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1668491466262-c54b5558-5c33-408c-b08a-ac8fdfc3d163.png">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1668492120357-60a49def-0ff6-447c-b8ce-a7bd1a9a4f76.png">
+<meta property="og:updated_time" content="2017-12-27T14:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RocketMQ_消息丢失">
+<meta name="twitter:description" content="消息丢失场景 发送消息丢失 Broker消息丢失   os cache 磁盘坏了丢失   消费者消息丢失   自动ack，但是业务没有处理成功 解决发送消息丢失事务消息机制 生产者先发一个half消息 发送half消息成功，生产者处理自己的业务，执行本地事务   如果本地事务失败，发送rollback请求，回滚消息 如果本地事务成功，发送commit请求，提交消息   如果commit/rollb">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1668491440623-55314f46-4058-4394-ab1d-bbe46c835c02.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2017/12/21/rocketmq/007.RocketMQ_消息丢失/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>RocketMQ_消息丢失 | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/007.RocketMQ_消息丢失/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RocketMQ_消息丢失
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-12-21 22:15:27" itemprop="dateCreated datePublished" datetime="2017-12-21T22:15:27+08:00">2017-12-21</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2017-12-27 22:15:27" itemprop="dateModified" datetime="2017-12-27T22:15:27+08:00">2017-12-27</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/RocketMQ/" itemprop="url" rel="index"><span itemprop="name">RocketMQ</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="消息丢失场景"><a href="#消息丢失场景" class="headerlink" title="消息丢失场景"></a>消息丢失场景</h1><ol>
+<li>发送消息丢失</li>
+<li><p>Broker消息丢失</p>
+</li>
+<li><ol>
+<li>os cache</li>
+<li>磁盘坏了丢失</li>
+</ol>
+</li>
+<li><p>消费者消息丢失</p>
+</li>
+</ol>
+<p>自动ack，但是业务没有处理成功</p>
+<h1 id="解决发送消息丢失"><a href="#解决发送消息丢失" class="headerlink" title="解决发送消息丢失"></a>解决发送消息丢失</h1><h2 id="事务消息机制"><a href="#事务消息机制" class="headerlink" title="事务消息机制"></a>事务消息机制</h2><ol>
+<li>生产者先发一个half消息</li>
+<li><p>发送half消息成功，生产者处理自己的业务，执行本地事务</p>
+</li>
+<li><ol>
+<li>如果本地事务失败，发送rollback请求，回滚消息</li>
+<li>如果本地事务成功，发送commit请求，提交消息</li>
+</ol>
+</li>
+<li><p>如果commit/rollback请求发送失败，MQ长时间没有收到响应，它会有一个补偿机制，回调你的一个接口，看是需要commit/rollback</p>
+</li>
+</ol>
+<h2 id="事务消息底层原理"><a href="#事务消息底层原理" class="headerlink" title="事务消息底层原理"></a>事务消息底层原理</h2><ol>
+<li>half消息进入RMQ_SYS_TRANS_HALF_TOPIC的topic</li>
+<li>commit的时候才将消息写入我们正常业务的topic</li>
+<li>rollback的时候，写一条rollback OP记录到RocketMQ内部的一个OP_TOPIC里，标记某个消息已经rollback(TODO:这个删除的原理还需要再研究下)</li>
+</ol>
+<h2 id="基于重试机制解决发送消息丢失的弊端"><a href="#基于重试机制解决发送消息丢失的弊端" class="headerlink" title="基于重试机制解决发送消息丢失的弊端"></a>基于重试机制解决发送消息丢失的弊端</h2><ol>
+<li><p>比如先执行本地事务，再发送消息</p>
+</li>
+<li><ol>
+<li>场景一：未加事务注解：本地事务成功，服务宕机，发送消息失败</li>
+<li>场景二：</li>
+</ol>
+</li>
+<li><ol>
+<li><ol>
+<li>加了事务注解：一直重试，性能差</li>
+<li>如果除了本地事务，还有操作Redis、ES等无法回滚</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>参考代码如下：</p>
+<p><a>场景代码：</a></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/22464775/1668491440623-55314f46-4058-4394-ab1d-bbe46c835c02.png" alt="img"></p>
+<p><b-i>场景代码：</b-i></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/22464775/1668491455635-f0cc8b0f-fb91-4e51-91d2-5925577f8384.png" alt="img"></p>
+<p><b-ii>场景代码：</b-ii></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/22464775/1668491466262-c54b5558-5c33-408c-b08a-ac8fdfc3d163.png" alt="img"></p>
+<p>TODO：结合订单项目看下事务消息代码</p>
+<h1 id="Broker消息零丢失"><a href="#Broker消息零丢失" class="headerlink" title="Broker消息零丢失"></a><strong>Broker消息零丢失</strong></h1><p><strong>同步刷盘+同步复制</strong></p>
+<h2 id="同步刷盘"><a href="#同步刷盘" class="headerlink" title="同步刷盘"></a>同步刷盘</h2><p>默认异步刷盘(ASYNC_FLUSH)，先进入os cache，再刷磁盘(TODO)</p>
+<p>修改flushDiskType为SYNC_FLUSH</p>
+<h2 id="Raft协议主从同步"><a href="#Raft协议主从同步" class="headerlink" title="Raft协议主从同步"></a><strong>Raft协议主从同步</strong></h2><p>TODO</p>
+<h1 id="Consumer消息零丢失"><a href="#Consumer消息零丢失" class="headerlink" title="Consumer消息零丢失"></a><strong>Consumer消息零丢失</strong></h1><p>手动提交offset + 自动故障转移</p>
+<p>不要异步消费消息，比如以下代码：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/22464775/1668492120357-60a49def-0ff6-447c-b8ce-a7bd1a9a4f76.png" alt="img"></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/RocketMQ/" rel="tag"># RocketMQ</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/21/rocketmq/006.RocketMQ_主从架构/" rel="next" title="RocketMQ_主从架构">
+                <i class="fa fa-chevron-left"></i> RocketMQ_主从架构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/21/rocketmq/011.RocketMQ_过滤机制/" rel="prev" title="RocketMQ_过滤机制">
+                RocketMQ_过滤机制 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">81</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#消息丢失场景"><span class="nav-text">消息丢失场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解决发送消息丢失"><span class="nav-text">解决发送消息丢失</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#事务消息机制"><span class="nav-text">事务消息机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事务消息底层原理"><span class="nav-text">事务消息底层原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于重试机制解决发送消息丢失的弊端"><span class="nav-text">基于重试机制解决发送消息丢失的弊端</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Broker消息零丢失"><span class="nav-text">Broker消息零丢失</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#同步刷盘"><span class="nav-text">同步刷盘</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Raft协议主从同步"><span class="nav-text">Raft协议主从同步</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Consumer消息零丢失"><span class="nav-text">Consumer消息零丢失</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
