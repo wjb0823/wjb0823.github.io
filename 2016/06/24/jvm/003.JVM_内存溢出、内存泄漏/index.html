@@ -433,15 +433,15 @@
 <h1 id="如何在JVM内存溢出的时候自动dump内存快照"><a href="#如何在JVM内存溢出的时候自动dump内存快照" class="headerlink" title="如何在JVM内存溢出的时候自动dump内存快照"></a>如何在JVM内存溢出的时候自动dump内存快照</h1><p>添加参数：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-XX:+HeapDumpOnOutOfMemoryError </span><br><span class="line">-XX:HeapDumpPath=/usr/local/app/oom</span><br></pre></td></tr></table></figure>
 <h1 id="MAT工具分析快照文件"><a href="#MAT工具分析快照文件" class="headerlink" title="MAT工具分析快照文件"></a>MAT工具分析快照文件</h1><h2 id="元数据区内存溢出"><a href="#元数据区内存溢出" class="headerlink" title="元数据区内存溢出"></a>元数据区内存溢出</h2><p>代码：</p>
-<p><img src="/images/jvm/jvm026.png" style="width:600px">    </p>
+<p><img src="/images/jvm/jvm026.png">    </p>
 <p>参数：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-XX:+UseParNewGC </span><br><span class="line">-XX:+UseConcMarkSweepGC </span><br><span class="line">-XX:MetaspaceSize=10m </span><br><span class="line">-XX:MaxMetaspaceSize=10m </span><br><span class="line">-XX:+PrintGCDetails </span><br><span class="line">-Xloggc:gc.log</span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError </span><br><span class="line">-XX:HeapDumpPath=/</span><br></pre></td></tr></table></figure>
 <p>程序运行后得到gc.log和java_pid910.hprof。</p>
 <h3 id="分析gc-log"><a href="#分析gc-log" class="headerlink" title="分析gc.log"></a>分析gc.log</h3><p><strong>第一次GC，是Allocation Failure，是一次YGC。</strong></p>
-<p><img src="/images/jvm/jvm027.png" style="width:600px">    </p>
+<p><img src="/images/jvm/jvm027.png">    </p>
 <p>因为上述代码不光是动态生成类，本身它也对应很多对象的，因此你在while（true）循环里不停的创建对象，当然会塞满Eden区了，大家看上述日志：【ParNew：139776K-&gt;2677K（157248K），0.0038770 secs】</p>
 <p><strong>第二次GC，是MetaData GC Threshold，代表MetaData满了，触发FullGC</strong></p>
-<p><img src="/images/jvm/jvm028.png" style="width:600px">    </p>
+<p><img src="/images/jvm/jvm028.png">    </p>
 <p>20290K-&gt;2161K（506816K），这个就是说堆内存（年轻代+老年代）一共是500MB左右，然后有20MB左右的内存被使用了，这个必然是年轻代用的。</p>
 <p>然后Full GC必然会带着一次Young GC，因此这次Full GC其实是执行了ygc了，所以回收了很多对象，剩下了2161KB的对象，这个大概就是JVM的一些内置对象了。</p>
 <p>然后直接就把这些对象放入老年代，为什么呢，因为下面的日志：【CMS：0K-&gt;2161K（349568K），0.0721349 secs】</p>
@@ -449,37 +449,37 @@
 <p>接着看日志：【Metaspace：9201K-&gt;9201K（1058816K）】</p>
 <p>此时Metaspace区域已经使用了差不多9MB左右的内存了，此时明显是发现离我们限制的10MB内存很接近了，所以触发了Full GC，但是对Metaspace GC后发现类全部存活了，因此还是剩余9MB左右的类在Metaspace里。</p>
 <p><strong>第三次GC，Last ditch collection FullGC</strong></p>
-<p><img src="/images/jvm/jvm029.png" style="width:600px">    </p>
+<p><img src="/images/jvm/jvm029.png">    </p>
 <p>Last ditch collection，就是说，最后一次拯救的机会了，因为之前Metaspace回收了一次但是没有类可以回收，所以新的类无法放入Metaspace了，所以再最后试一试Full GC，能不能回收掉一些。</p>
 <p>结果如下：【Metaspace：9201K-&gt;9201K（1058816K）】，0.0165055 secs】</p>
 <p>Metaspace区域还是无法回收掉任何的类，几乎还是占满了我们设置的10MB左右。</p>
 <p>接着就直接JVM退出了，退出的时候就打印出了当前内存的一个情况，年轻代和老年代几乎没占用，但是Metaspace的Jcapacity是10MB，使用了9MB左右，无法再继续使用了，所以触发了内存溢出。</p>
-<p><img src="/images/jvm/jvm030.png" style="width:600px">    </p>
-<h3 id="分析内存快照"><a href="#分析内存快照" class="headerlink" title="分析内存快照"></a>分析内存快照</h3><p><img src="/images/jvm/jvm031.png" style="width:600px">    </p>
+<p><img src="/images/jvm/jvm030.png">    </p>
+<h3 id="分析内存快照"><a href="#分析内存快照" class="headerlink" title="分析内存快照"></a>分析内存快照</h3><p><img src="/images/jvm/jvm031.png">    </p>
 <p>从这里可以看到实例最多的就是AppClassLoader。为啥有这么多的ClassLoader呢？一看就是CGLIB之类的东西在动态生成类的时候搞出来的，我们可以点击上图的Details进去看看。</p>
-<p><img src="/images/jvm/jvm032.png" style="width:600px">    </p>
-<p><img src="/images/jvm/jvm033.png" style="width:600px">    </p>
+<p><img src="/images/jvm/jvm032.png">    </p>
+<p><img src="/images/jvm/jvm033.png">    </p>
 <p>看到这里就真相大白了，是我们自己的哪个类里搞出来了一大堆的动态生成的类，所以填满了Metaspace区域。</p>
 <p>所以此时直接去代码里排查动态生成类的代码即可。</p>
 <p>解决这个问题的办法也很简单，直接对Enhancer做一个缓存，只有一个，不要无限制的去生成类就可以了。</p>
 <h2 id="栈内存溢出"><a href="#栈内存溢出" class="headerlink" title="栈内存溢出"></a>栈内存溢出</h2><p>代码：方法的递归调用</p>
-<p><img src="/images/jvm/jvm034.png" style="width:600px">    </p>
+<p><img src="/images/jvm/jvm034.png">    </p>
 <h2 id="堆内存溢出"><a href="#堆内存溢出" class="headerlink" title="堆内存溢出"></a>堆内存溢出</h2><p>代码：</p>
-<p><img src="/images/jvm/jvm035.png" style="width:600px">    </p>
+<p><img src="/images/jvm/jvm035.png">    </p>
 <p>参数：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-Xms10m </span><br><span class="line">-Xmx10m </span><br><span class="line">-XX:+PrintGCDetails </span><br><span class="line">-Xloggcgc.log</span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError </span><br><span class="line">-XX:HeapDumpPath=./</span><br><span class="line">-XX:+UseParNewGC </span><br><span class="line">-XX:+UseConcMarkSweepGC</span><br></pre></td></tr></table></figure>
-<h3 id="分析内存快照-1"><a href="#分析内存快照-1" class="headerlink" title="分析内存快照"></a>分析内存快照</h3><p><img src="/images/jvm/jvm036.png" style="width:600px">    </p>
+<h3 id="分析内存快照-1"><a href="#分析内存快照-1" class="headerlink" title="分析内存快照"></a>分析内存快照</h3><p><img src="/images/jvm/jvm036.png">    </p>
 <p>首先看下面的句子： <code>The thread java.lang.Thread @ 0x7bf6a9a98 main keeps local variables with total size 7，203，536 (92.03%) bytes。</code></p>
 <p>这个意思就是main线程通过局部变量引用了7230536个字节的对象，大概就是7MB左右。</p>
 <p>我们接着看： <code>The memory is accumulated in one instanceof &quot;java.lang.Object[]&quot; loaded by &quot;&lt;system class loader&gt;&quot;。</code></p>
 <p>这句话的意思就是内存都被一个实例对象占用了，就是java.lang.Object[]。点击Details</p>
-<p><img src="/images/jvm/jvm037.png" style="width:600px">    </p>
+<p><img src="/images/jvm/jvm037.png">    </p>
 <p>在Details里我们能看到这个东西，也就是占用了7MB内存的的java.lang.Object[]，他里面的每个元素在这里都有，我们看到是一大堆的java.lang.Object。那么这些java.lang.Object不就是我们在代码里创建的吗？</p>
 <p>至此，我们已经知道，就是一大堆的Object对象占用了7MB的内存导致了内存溢出。</p>
 <p>接着下一个任务就是知道这些对象是怎么创建出来的，那么我们怎么找呢？回到之前的上一级页面，各位看下图，</p>
-<p><img src="/images/jvm/jvm038.png" style="width:600px">   </p>
+<p><img src="/images/jvm/jvm038.png">   </p>
 <p>这个是说可以看看创建那么多对象的线程，他的一个执行栈，这样我们就知道这个线程执行什么方法的时候创建了一大堆的对象 </p>
-<p><img src="/images/jvm/jvm039.png" style="width:600px">    </p>
+<p><img src="/images/jvm/jvm039.png">    </p>
 <p>大家看上面的调用栈，其实说的很明显了，在Demo3.main（）方法中，一直在调用Arallistadd（）方法，然后比时直接引发了内存溢出。所以我们只要在对应代码里看一下，立马就知道怎么回事了。</p>
 
       
