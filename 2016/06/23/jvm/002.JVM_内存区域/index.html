@@ -413,8 +413,8 @@
 </li>
 <li><p><strong>虚拟机栈</strong><br> 虚拟机栈描述的是 Java <strong>方法执行的内存模型</strong>：</p>
 <ul>
-<li>每个方法在执行的时候，都会创建一个栈帧用于存储<strong>局部变量、操作数、动态链接、方法出口</strong>等信息。</li>
-<li>每个方法调用都意味着一个栈帧在虚拟机栈中入栈到出栈的过程。</li>
+<li>每个方法在执行的时候，都会创建一个<strong>栈帧</strong>用于存储<strong>局部变量、操作数、动态链接、方法出口</strong>等信息。</li>
+<li>每个方法调用都意味着一个<strong>栈帧</strong>在<strong>虚拟机栈中入栈到出栈</strong>的过程。</li>
 </ul>
 </li>
 <li><p><strong>本地方法栈</strong><br>和 Java 虚拟机栈的作用类似，区别是该区域是为Native方法的服务。</p>
@@ -476,7 +476,7 @@
 <p>执行引擎运行的所有字节码指令只针对当前栈帧进行操作。</p>
 <p>如果在该方法中调用了其他方法，对应的新的栈帧会被创建出来，放在栈的顶端，成为新的当前帧，如下图：</p>
 <p><img src="/images/jvm022.png" alt></p>
-<h2 id="栈帧内部结构"><a href="#栈帧内部结构" class="headerlink" title="栈帧内部结构"></a>栈帧内部结构</h2><h3 id="局部变量表"><a href="#局部变量表" class="headerlink" title="局部变量表"></a>局部变量表</h3><p>局部变量表的实际数据结构就是一个数组，solt就是指的数组的下标。主要用来存储方法参数，方法体内的局部变量。包括基本数据类型、对象引用、return Address。</p>
+<h2 id="栈帧内部结构"><a href="#栈帧内部结构" class="headerlink" title="栈帧内部结构"></a>栈帧内部结构</h2><h3 id="局部变量表"><a href="#局部变量表" class="headerlink" title="局部变量表"></a>局部变量表</h3><p>局部变量表的实际数据结构就是一个数组，solt就是指的数组的下标。主要用来存储方法参数、方法体内的局部变量。包括基本数据类型、对象引用、return Address。</p>
 <h4 id="Slot槽"><a href="#Slot槽" class="headerlink" title="Slot槽"></a>Slot槽</h4><p>Slot是局部变量表中最基本的存储单位</p>
 <p>32位以内的类型占1个slot，64位以内的类型占2个slot。值得注意的是byte、short、char 在存储前被转换为int，boolean也被转换为int，0表示false，非0表示true。</p>
 <p>每个Slot都会对应一个索引，通过这个索引访问局部变量表中的局部变量值。</p>

@@ -318,7 +318,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2016/07/14/jvm/004.JVM_对象的创建/" class="post-title-link" itemprop="url">JVM_对象创建</a>
+                <a href="/2016/07/14/jvm/004.JVM_对象的创建/" class="post-title-link" itemprop="url">JVM_HotSpot对象探秘</a>
               
             
           </h1>
@@ -399,9 +399,34 @@
         
           
             <p>
-              2 HotSpot对象探秘2.1 对象的创建Java 中对象的创建就是在堆上分配内存空间的过程，此处说的对象创建仅限于 new 关键字创建的普通 Java 对象，不包括数组和Class对象。
+              HotSpot对象探秘对象创建方式
 
-检测类是否被加载当虚拟机遇到 new 指令时，首先先去检查这个指令的参数是否能在常量池中定位到一个类的符号
+
+
+方式
+解释
+
+
+
+
+使用new关键字
+调用了构造函数
+
+
+使用Class的newInstance方法
+调用了构造函数
+
+
+使用Constructor类的newInstance方法
+调用了构造函数
+
+
+使用clone方法
+没有调用构造函数
+
+
+使用反序列化
+没
               ...
             </p>
           <!--noindex-->
