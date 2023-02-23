@@ -102,12 +102,14 @@
 <meta property="og:site_name" content="生活值得">
 <meta property="og:description" content="HotSpot对象探秘对象创建方式    方式 解释     使用new关键字 调用了构造函数   使用Class的newInstance方法 调用了构造函数   使用Constructor类的newInstance方法 调用了构造函数   使用clone方法 没有调用构造函数   使用反序列化 没有调用构造函数     对象的创建对象创建的流程：      虚拟机遇到一条new指令时，先检查常量">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/images/jvm/jvm026.png">
+<meta property="og:image" content="http://yoursite.com/images/jvm/jvm045.png">
+<meta property="og:image" content="http://yoursite.com/images/jvm/jvm046.png">
+<meta property="og:image" content="http://yoursite.com/images/jvm/jvm047.png">
 <meta property="og:updated_time" content="2016-07-14T06:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM_HotSpot对象探秘">
 <meta name="twitter:description" content="HotSpot对象探秘对象创建方式    方式 解释     使用new关键字 调用了构造函数   使用Class的newInstance方法 调用了构造函数   使用Constructor类的newInstance方法 调用了构造函数   使用clone方法 没有调用构造函数   使用反序列化 没有调用构造函数     对象的创建对象创建的流程：      虚拟机遇到一条new指令时，先检查常量">
-<meta name="twitter:image" content="http://yoursite.com/images/jvm/jvm026.png">
+<meta name="twitter:image" content="http://yoursite.com/images/jvm/jvm045.png">
 
 
 
@@ -433,7 +435,7 @@
 </table>
 </div>
 <h2 id="对象的创建"><a href="#对象的创建" class="headerlink" title="对象的创建"></a>对象的创建</h2><p><strong>对象创建的流程：</strong></p>
-<p><img src="/images/jvm/jvm026.png">    </p>
+<p><img src="/images/jvm/jvm045.png">    </p>
 <p>虚拟机遇到一条<strong>new</strong>指令时，先检查常量池是否已经加载相应的类，如果没有，必须先执行相应的<strong>类加载</strong>。类加载通过后，接下来<strong>分配内存</strong>。若Java堆中内存是绝对规整的，使用“<strong>指针碰撞</strong>“方式分配内存；如果不是规整的，就从<strong>空闲列表</strong>中分配，叫做”空闲列表“方式。划分内存时还需要考虑一个问题-并发，也有两种方式: <strong>CAS同步处理</strong>，或者<strong>本地线程分配缓冲</strong>(Thread Local Allocation Buﬀer, <strong>TLAB</strong>)。然后<strong>内存空间初始化</strong>操作，接着是做一些必要的<strong>对象设置</strong>(元信息、哈希码…)，最后执行<init>方法。</init></p>
 <p>Java 中对象的创建就是在堆上分配内存空间的过程，此处说的对象创建仅限于 new 关键字创建的普通 Java 对象，不包括数组和Class对象。</p>
 <h2 id="检测类是否被加载"><a href="#检测类是否被加载" class="headerlink" title="检测类是否被加载"></a>检测类是否被加载</h2><p>当虚拟机遇到 <code>new</code> 指令时，首先先去检查这个指令的参数是否能在常量池中<strong>定位到一个类的符号引用</strong>，并且检查这个符号引用代表的类是否已被加载、解析和初始化过。如果没有，就执行类加载过程。</p>
@@ -460,10 +462,11 @@
 <li>实例数据：就是数据。</li>
 <li>对齐填充：不是必然的存在，就是为了对齐。</li>
 </ul>
-<h2 id="对象的访问定位"><a href="#对象的访问定位" class="headerlink" title="对象的访问定位"></a>对象的访问定位</h2><p>对象的访问定位有两种：<br>句柄定位：Java 堆会画出一块内存来作为句柄池，reference 中存储的就是对象的句柄地址，而句柄中包含了对象实例数据与类型数据各自的具体地址信息。</p>
-<p><img src alt></p>
-<p>直接指针访问：Java 堆对象的不居中就必须考虑如何放置访问类型数据的相关信息，而 reference 中存储的直接就是对象地址。 </p>
-<p><img src alt></p>
+<h2 id="对象的访问定位"><a href="#对象的访问定位" class="headerlink" title="对象的访问定位"></a>对象的访问定位</h2><p>对象的访问定位有两种：<br><strong>句柄定位</strong>：Java 堆会画出一块内存来作为句柄池，reference 中存储的就是对象的句柄地址，而句柄中包含了对象实例数据与类型数据各自的具体地址信息。</p>
+<p><img src="/images/jvm/jvm046.png">    </p>
+<p><strong>直接指针访问</strong>：如果使用<strong>直接指针</strong>访问，<strong>引用</strong> 中存储的直接就是<strong>对象地址</strong>，那么 Java 堆对象内部的布局中就必须考虑 。</p>
+<p>如何放置访问<strong>类型数据</strong>的相关信息</p>
+<p><img src="/images/jvm/jvm047.png">    </p>
 <p>这两种对象访问方式各有优势。</p>
 <ul>
 <li>句柄来访问的最大好处，就是 reference 中存储的是稳定的句柄地址，在对象被移动（垃圾收集时移动对象是非常普遍的行为）时只会改变句柄中的实例数据指针，而 reference 本身不需要修改。</li>
