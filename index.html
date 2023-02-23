@@ -3193,7 +3193,7 @@ PUT /website&#123;  &quot;mappings&quot;: &#123;
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/01/mysql/008.MySQL_事务原理/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/005.MySQL_InnoDB参数优化/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -3213,7 +3213,7 @@ PUT /website&#123;  &quot;mappings&quot;: &#123;
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2018/02/01/mysql/008.MySQL_事务原理/" class="post-title-link" itemprop="url">Mysql_事务</a>
+                <a href="/2018/03/21/mysql/005.MySQL_InnoDB参数优化/" class="post-title-link" itemprop="url">Mysql_InnoDB参数优化</a>
               
             
           </h1>
@@ -3238,7 +3238,7 @@ PUT /website&#123;  &quot;mappings&quot;: &#123;
                 
               
 
-              <time title="创建时间：2018-02-01 22:15:27" itemprop="dateCreated datePublished" datetime="2018-02-01T22:15:27+08:00">2018-02-01</time>
+              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
             </span>
           
 
@@ -3253,7 +3253,7 @@ PUT /website&#123;  &quot;mappings&quot;: &#123;
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
 
                 
                 
@@ -3294,15 +3294,15 @@ PUT /website&#123;  &quot;mappings&quot;: &#123;
         
           
             <p>
-              4. MVCC1.MVCC概念
-MVCC（Multi Version Concurrency Control）被称为多版本控制，是指在数据库中为了实现高并发的数据访问，对数据进行多版本处理，并通过事务的可见性来保证事务能看到自己应该看到的数据版本。
-MVCC最大的好处是读不加锁，读写不冲突。在读多写
+              InnoDB 参数优化1.内存相关参数优化1.Buffer Pool参数优化 
+1.1 缓冲池内存大小配置    
+一个大的日志缓冲区允许大量的事务在提交之前不写日志到磁盘。因此，如果你有很多事务的更新，插入或删除操作，通过设置这个参数会大量的减少磁盘I/O的次数数。建议: 在专用数据库服务器上，可
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2018/02/01/mysql/008.MySQL_事务原理/#more" rel="contents">
+              <a class="btn" href="/2018/03/21/mysql/005.MySQL_InnoDB参数优化/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -3362,7 +3362,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/01/mysql/007.MySQL_事务筑基/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/015.MySQL_orderby优化/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -3382,7 +3382,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2018/02/01/mysql/007.MySQL_事务筑基/" class="post-title-link" itemprop="url">Mysql_事务</a>
+                <a href="/2018/03/21/mysql/015.MySQL_orderby优化/" class="post-title-link" itemprop="url">MySQL_order by优化</a>
               
             
           </h1>
@@ -3407,7 +3407,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
                 
               
 
-              <time title="创建时间：2018-02-01 22:15:27" itemprop="dateCreated datePublished" datetime="2018-02-01T22:15:27+08:00">2018-02-01</time>
+              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
             </span>
           
 
@@ -3422,7 +3422,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
 
                 
                 
@@ -3463,14 +3463,19 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
         
           
             <p>
-              ACID特性在关系型数据库管理系统中，一个逻辑工作单元要成为事务，必须满足这 4 个特性，即所谓的 ACID：原子性（Atomicity）、一致性（Consistency）、隔离性（Isolation）和持久性（Durability）。
-1.原子性原子性：事务是一个原子操作单元，其对数据的修改，要么
+              order by优化MySQL中的两种排序方式
+
+索引排序: 通过有序索引顺序扫描直接返回有序数据
+额外排序: 对返回的数据进行文件排序
+ORDER BY优化的核心原则: 尽量减少额外的排序，通过索引直接返回有序数据。
+
+1.索引排序因为索引的结构是B+树，索引中的数据是按照一定顺序进行排列的，所以
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2018/02/01/mysql/007.MySQL_事务筑基/#more" rel="contents">
+              <a class="btn" href="/2018/03/21/mysql/015.MySQL_orderby优化/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -3530,7 +3535,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/01/mysql/006.Mysql_事务/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/014.MySQL_join优化/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -3550,7 +3555,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2018/02/01/mysql/006.Mysql_事务/" class="post-title-link" itemprop="url">Mysql_事务</a>
+                <a href="/2018/03/21/mysql/014.MySQL_join优化/" class="post-title-link" itemprop="url">MySQL_join优化</a>
               
             
           </h1>
@@ -3575,7 +3580,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
                 
               
 
-              <time title="创建时间：2018-02-01 22:15:27" itemprop="dateCreated datePublished" datetime="2018-02-01T22:15:27+08:00">2018-02-01</time>
+              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
             </span>
           
 
@@ -3590,7 +3595,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
 
                 
                 
@@ -3631,13 +3636,20 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
         
           
             <p>
-              1 事务概述事务处理可以用来维护数据库的完整性，保证成批的 SQL 语句要么全部执行，要么全部不执行。事务用来管理DDL、DML、DCL操作，比如 insert,update,delete 语句，默认是自动提交的。一般来说，事务是必须满足4个条件（ACID）：Atomicity（原子性）Consis
+              JOIN优化1.JOIN算法原理1) JOIN回顾
+JOIN 是 MySQL 用来进行联表操作的，用来匹配两个表的数据，筛选并合并出符合我们要求的结果集。
+JOIN 操作有多种方式，取决于最终数据的合并效果。常用连接方式的有以下几种:
+ 
+2) 驱动表的定义
+什么是驱动表 ?
+
+多表关联查询时,第一
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2018/02/01/mysql/006.Mysql_事务/#more" rel="contents">
+              <a class="btn" href="/2018/03/21/mysql/014.MySQL_join优化/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -3697,7 +3709,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/007.RocketMQ_消息丢失/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/011.MySQL_索引原理/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -3717,7 +3729,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2017/12/21/rocketmq/007.RocketMQ_消息丢失/" class="post-title-link" itemprop="url">RocketMQ_消息丢失</a>
+                <a href="/2018/03/21/mysql/011.MySQL_索引原理/" class="post-title-link" itemprop="url">MySQL_索引原理</a>
               
             
           </h1>
@@ -3742,24 +3754,10 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
                 
               
 
-              <time title="创建时间：2017-12-21 22:15:27" itemprop="dateCreated datePublished" datetime="2017-12-21T22:15:27+08:00">2017-12-21</time>
+              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
             </span>
           
 
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2017-12-27 22:15:27" itemprop="dateModified" datetime="2017-12-27T22:15:27+08:00">2017-12-27</time>
-              </span>
-            
           
 
           
@@ -3771,7 +3769,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/RocketMQ/" itemprop="url" rel="index"><span itemprop="name">RocketMQ</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
 
                 
                 
@@ -3812,31 +3810,18 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
         
           
             <p>
-              消息丢失场景
-发送消息丢失
-Broker消息丢失
+              索引原理MySQL官方对索引定义：是存储引擎用于快速查找记录的一种数据结构。需要额外开辟空间和数据维护工作。
 
+索引是物理数据页存储，在数据文件中（InnoDB，ibd文件），利用数据页(page)存储。
+索引可以加快检索速度，但是同时也会降低增删改操作速度，索引维护需要代价。
 
-os cache
-磁盘坏了丢失
-
-
-消费者消息丢失
-
-
-自动ack，但是业务没有处理成功
-解决发送消息丢失事务消息机制
-生产者先发一个half消息
-发送half消息成功，生产者处理自己的业务，执行本地事务
-
-
-如果本地事务失败，发送rollbac
+MySQL默认使用
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2017/12/21/rocketmq/007.RocketMQ_消息丢失/#more" rel="contents">
+              <a class="btn" href="/2018/03/21/mysql/011.MySQL_索引原理/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -3980,6 +3965,8 @@ os cache
                     
                       
                     
+                      
+                    
                     <span class="site-state-item-count">17</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
@@ -3992,6 +3979,8 @@ os cache
                 <div class="site-state-item site-state-tags">
                   
                     
+                    
+                      
                     
                       
                     

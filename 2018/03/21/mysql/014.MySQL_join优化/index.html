@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="JOIN优化1.JOIN算法原理1) JOIN回顾 JOIN 是 MySQL 用来进行联表操作的，用来匹配两个表的数据，筛选并合并出符合我们要求的结果集。 JOIN 操作有多种方式，取决于最终数据的合并效果。常用连接方式的有以下几种:   2) 驱动表的定义 什么是驱动表 ?  多表关联查询时,第一个被处理的表就是驱动表,使用驱动表去关联其他表. 驱动表的确定非常的关键,会直接影响多表关联的顺序,">
+<meta name="keywords" content="MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL_join优化">
+<meta property="og:url" content="http://yoursite.com/2018/03/21/mysql/014.MySQL_join优化/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="JOIN优化1.JOIN算法原理1) JOIN回顾 JOIN 是 MySQL 用来进行联表操作的，用来匹配两个表的数据，筛选并合并出符合我们要求的结果集。 JOIN 操作有多种方式，取决于最终数据的合并效果。常用连接方式的有以下几种:   2) 驱动表的定义 什么是驱动表 ?  多表关联查询时,第一个被处理的表就是驱动表,使用驱动表去关联其他表. 驱动表的确定非常的关键,会直接影响多表关联的顺序,">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/99.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/100.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/102.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/103.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/028.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/104.jpg">
+<meta property="og:updated_time" content="2018-03-21T14:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL_join优化">
+<meta name="twitter:description" content="JOIN优化1.JOIN算法原理1) JOIN回顾 JOIN 是 MySQL 用来进行联表操作的，用来匹配两个表的数据，筛选并合并出符合我们要求的结果集。 JOIN 操作有多种方式，取决于最终数据的合并效果。常用连接方式的有以下几种:   2) 驱动表的定义 什么是驱动表 ?  多表关联查询时,第一个被处理的表就是驱动表,使用驱动表去关联其他表. 驱动表的确定非常的关键,会直接影响多表关联的顺序,">
+<meta name="twitter:image" content="http://yoursite.com/images/02_图片/99.jpg">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2018/03/21/mysql/014.MySQL_join优化/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>MySQL_join优化 | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/014.MySQL_join优化/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">MySQL_join优化
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="JOIN优化"><a href="#JOIN优化" class="headerlink" title="JOIN优化"></a>JOIN优化</h3><h4 id="1-JOIN算法原理"><a href="#1-JOIN算法原理" class="headerlink" title="1.JOIN算法原理"></a>1.JOIN算法原理</h4><p><strong>1) JOIN回顾</strong></p>
+<p>JOIN 是 MySQL 用来进行联表操作的，用来匹配两个表的数据，筛选并合并出符合我们要求的结果集。</p>
+<p>JOIN 操作有多种方式，取决于最终数据的合并效果。常用连接方式的有以下几种:</p>
+<p><img src="/images/02_图片/99.jpg" style="width:530px; height:270px"> </p>
+<p><strong>2) 驱动表的定义</strong></p>
+<p>什么是驱动表 ?</p>
+<ul>
+<li>多表关联查询时,第一个被处理的表就是驱动表,使用驱动表去关联其他表.</li>
+<li>驱动表的确定非常的关键,会直接影响多表关联的顺序,也决定后续关联查询的性能</li>
+</ul>
+<p>驱动表的选择要遵循一个规则:</p>
+<ul>
+<li>在对最终的结果集没有影响的前提下,优先选择结果集最小的那张表作为驱动表</li>
+</ul>
+<p><strong>3) 三种JOIN算法</strong></p>
+<p><strong>1.Simple Nested-Loop Join（ 简单的嵌套循环连接 </strong>) </p>
+<ul>
+<li><p>简单来说嵌套循环连接算法就是一个双层for 循环 ，通过循环外层表的行数据，逐个与内层表的所有行数据进行比较来获取结果.</p>
+</li>
+<li><p><strong>这种算法是最简单的方案，性能也一般。对内循环没优化。</strong></p>
+</li>
+<li><p>例如有这样一条SQL:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 连接用户表与订单表 连接条件是 u.id = o.user_id</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">user</span> t1 <span class="keyword">left</span> <span class="keyword">join</span> <span class="keyword">order</span> t2 <span class="keyword">on</span> t1.id = t2.user_id;</span><br><span class="line"><span class="comment">-- user表为驱动表,order表为被驱动表</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>转换成代码执行时的思路是这样的: </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(user表行 uRow : user表)&#123;</span><br><span class="line">    <span class="keyword">for</span>(Order表的行 oRow : order表)&#123;</span><br><span class="line">        <span class="keyword">if</span>(uRow.id = oRow.user_id)&#123;</span><br><span class="line">            <span class="keyword">return</span> uRow;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>匹配过程如下图</p>
+<p><img src="/images/02_图片/100.jpg" style="width:630px; height:270px"> </p>
+</li>
+<li><p>SNL 的特点</p>
+<ul>
+<li>简单粗暴容易理解，就是通过双层循环比较数据来获得结果</li>
+<li>查询效率会非常慢,假设 A 表有 N 行，B 表有 M 行。SNL 的开销如下：<ul>
+<li>A 表扫描 1 次。</li>
+<li>B 表扫描 M 次。</li>
+<li>一共有 N 个内循环，每个内循环要 M 次，一共有内循环 N * M 次</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>2) Index Nested-Loop Join（ 索引嵌套循环连接 ）</strong></p>
+<ul>
+<li><p>Index Nested-Loop Join 其优化的思路:  <strong>主要是为了减少内层表数据的匹配次数</strong> , 最大的区别在于，用来进行 join 的字段已经在被驱动表中建立了索引。</p>
+</li>
+<li><p>从原来的  <code>匹配次数 = 外层表行数 * 内层表行数</code> , 变成了  <code>匹配次数 = 外层表的行数 * 内层表索引的高度</code>  ，极大的提升了 join的性能。</p>
+</li>
+<li><p>当  <code>order</code>  表的   <code>user_id</code>  为索引的时候执行过程会如下图：</p>
+<p><img src="/images/02_图片/102.jpg" style="width:630px; height:270px"> </p>
+<p><strong>注意：使用Index Nested-Loop Join 算法的前提是匹配的字段必须建立了索引。</strong> </p>
+</li>
+</ul>
+<p><strong>3) Block Nested-Loop Join( 块嵌套循环连接 )</strong> </p>
+<ul>
+<li><p>如果 join 的字段有索引，MySQL 会使用 INL 算法。如果没有的话，MySQL 会如何处理？</p>
+</li>
+<li><p>因为不存在索引了，所以被驱动表需要进行扫描。这里 MySQL 并不会简单粗暴的应用 SNL 算法，而是加入了 buffer 缓冲区，降低了内循环的个数，也就是被驱动表的扫描次数。</p>
+<p><img src="/images/02_图片/103.jpg" style="width:630px; height:270px"> </p>
+<ul>
+<li><p>在外层循环扫描 user表中的所有记录。扫描的时候，会把需要进行 join 用到的列都缓存到 buffer 中。buffer 中的数据有一个特点，里面的记录不需要一条一条地取出来和 order 表进行比较，而是整个 buffer 和 order表进行批量比较。</p>
+</li>
+<li><p>如果我们把 buffer 的空间开得很大，可以容纳下 user 表的所有记录，那么 order 表也只需要访问一次。</p>
+</li>
+<li><p>MySQL 默认 buffer 大小 256K，如果有 n 个 join 操作，会生成 n-1 个 join buffer。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%join_buffer%';</span><br><span class="line">+<span class="comment">------------------+--------+</span></span><br><span class="line">| Variable_name    | Value  |</span><br><span class="line">+<span class="comment">------------------+--------+</span></span><br><span class="line">| join_buffer_size | 262144 |</span><br><span class="line">+<span class="comment">------------------+--------+</span></span><br><span class="line"></span><br><span class="line">mysql&gt; set session join_buffer_size=262144;</span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>4) 总结</strong></p>
+<ol>
+<li><p>永远用小结果集驱动大结果集(其本质就是减少外层循环的数据数量)</p>
+</li>
+<li><p>为匹配的条件增加索引(减少内层表的循环匹配次数)</p>
+</li>
+<li><p>增大join buffer size的大小（一次缓存的数据越多，那么内层包的扫表次数就越少）</p>
+</li>
+<li><p>减少不必要的字段查询（字段越少，join buffer 所缓存的数据就越多</p>
+</li>
+</ol>
+<h4 id="2-in和exists函数"><a href="#2-in和exists函数" class="headerlink" title="2.in和exists函数"></a>2.in和exists函数</h4><p>上面我们说了 小表驱动大表,就是小的数据集驱动大的数据集, 主要是为了减少数据库的连接次数,根据具体情况的不同,又出现了两个函数 <code>exists</code> 和 <code>in</code>  函数</p>
+<p>创建部门表与员工表,并插入数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 部门表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> department (</span><br><span class="line">  <span class="keyword">id</span> <span class="built_in">INT</span>(<span class="number">11</span>) PRIMARY <span class="keyword">KEY</span>,</span><br><span class="line">  deptName <span class="built_in">VARCHAR</span>(<span class="number">30</span>) ,</span><br><span class="line">  address <span class="built_in">VARCHAR</span>(<span class="number">40</span>) </span><br><span class="line">) ;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 部门表测试数据</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`department`</span> <span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="string">'研发部'</span>, <span class="string">'1层'</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`department`</span> <span class="keyword">VALUES</span> (<span class="number">2</span>, <span class="string">'人事部'</span>, <span class="string">'3层'</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`department`</span> <span class="keyword">VALUES</span> (<span class="number">3</span>, <span class="string">'市场部'</span>, <span class="string">'4层'</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`department`</span> <span class="keyword">VALUES</span> (<span class="number">5</span>, <span class="string">'财务部'</span>, <span class="string">'2层'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 员工表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> employee (</span><br><span class="line">  <span class="keyword">id</span> <span class="built_in">INT</span>(<span class="number">11</span>) PRIMARY <span class="keyword">KEY</span>,</span><br><span class="line">  <span class="keyword">NAME</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>) ,</span><br><span class="line">  dep_id <span class="built_in">INT</span>(<span class="number">11</span>) ,</span><br><span class="line">  age <span class="built_in">INT</span>(<span class="number">11</span>) ,</span><br><span class="line">  salary <span class="built_in">DECIMAL</span>(<span class="number">10</span>, <span class="number">2</span>)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 员工表测试数据</span></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`employee`</span> <span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="string">'鲁班'</span>, <span class="number">1</span>, <span class="number">15</span>, <span class="number">1000.00</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`employee`</span> <span class="keyword">VALUES</span> (<span class="number">2</span>, <span class="string">'后裔'</span>, <span class="number">1</span>, <span class="number">22</span>, <span class="number">2000.00</span>)</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`employee`</span> <span class="keyword">VALUES</span> (<span class="number">4</span>, <span class="string">'阿凯'</span>, <span class="number">2</span>, <span class="number">20</span>, <span class="number">3000.00</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`employee`</span> <span class="keyword">VALUES</span> (<span class="number">5</span>, <span class="string">'露娜'</span>, <span class="number">2</span>, <span class="number">30</span>, <span class="number">3500.00</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`employee`</span> <span class="keyword">VALUES</span> (<span class="number">6</span>, <span class="string">'李白'</span>, <span class="number">3</span>, <span class="number">25</span>, <span class="number">5000.00</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`employee`</span> <span class="keyword">VALUES</span> (<span class="number">7</span>, <span class="string">'韩信'</span>, <span class="number">3</span>, <span class="number">50</span>, <span class="number">5000.00</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`employee`</span> <span class="keyword">VALUES</span> (<span class="number">8</span>, <span class="string">'蔡文姬'</span>, <span class="number">3</span>, <span class="number">35</span>, <span class="number">4000.00</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`employee`</span> <span class="keyword">VALUES</span> (<span class="number">3</span>, <span class="string">'孙尚香'</span>, <span class="number">4</span>, <span class="number">20</span>, <span class="number">2500.00</span>);</span><br></pre></td></tr></table></figure>
+<p><strong>1) in 函数</strong></p>
+<ul>
+<li>假设: department表的数据小于 employee表数据, 将所有部门下的员工都查出来,应该使用 in 函数</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 编写SQL,使in 函数</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employee e <span class="keyword">WHERE</span> e.dep_id <span class="keyword">IN</span> (<span class="keyword">SELECT</span> <span class="keyword">id</span> <span class="keyword">FROM</span> department);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><strong>in函数的执行原理</strong> </p>
+<ol>
+<li><code>in</code> 语句, 只执行一次, 将 <code>department</code>  表中的所有id字段查询出来并且缓存.</li>
+<li>检查 <code>department</code>  表中的id与 <code>employee</code> 表中的    <code>dep_id</code> 是否相等, 如果相等 添加到结果集, 直到遍历完<code>department</code>  所有的记录.</li>
+</ol>
+<p><img src="/images/02_图片/028.jpg" style="width:630px; height:270px"> </p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 先循环: select id from department; 相当于得到了小表的数据</span></span><br><span class="line">for(i = 0; i &lt; $dept.length; i++)&#123;  -- 小表</span><br><span class="line">	<span class="comment">-- 后循环: select * from employee where e.dep_id  = d.id;</span></span><br><span class="line">	for(j = 0 ; j &lt; $emp.legth; j++)&#123;  -- 大表</span><br><span class="line">	</span><br><span class="line">		if($dept[i].id == $emp[j].dep_id)&#123;</span><br><span class="line">			$result[i] = $emp[j]</span><br><span class="line">			break;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>结论:  <strong>如果子查询得出的结果集记录较少，主查询中的表较大且又有索引时应该用 <code>in</code></strong></p>
+</li>
+</ul>
+<p><strong>2) exists 函数</strong></p>
+<ul>
+<li><p>假设: department表的数据大于 employee表数据, 将所有部门下的的员工都查出来,应该使用 exists 函数.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> employee e <span class="keyword">WHERE</span> <span class="keyword">EXISTS</span> </span><br><span class="line">(<span class="keyword">SELECT</span> <span class="keyword">id</span> <span class="keyword">FROM</span> department d <span class="keyword">WHERE</span> d.id = e.dep_id);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>exists</code>   特点</p>
+<p><code>exists</code> 子句返回的是一个 布尔值，如果有返回数据，则返回值是<code>true</code>，反之是<code>false</code>。</p>
+<p>如果结果为 <code>true</code>  , 外层的查询语句会进行匹配,否则 外层查询语句将不进行查询或者查不出任何记录。</p>
+<p><img src="/images/02_图片/104.jpg" style="width:630px; height:80px"> </p>
+</li>
+<li><p>exists 函数的执行原理</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 先循环: SELECT * FROM employee e;</span></span><br><span class="line"><span class="comment">-- 再判断: SELECT id FROM department d WHERE d.id = e.dep_id</span></span><br><span class="line"></span><br><span class="line">for(j = 0; j &lt; $emp.length; j++)&#123;  -- 小表</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 遍历循环外表，检查外表中的记录有没有和内表的的数据一致的, 匹配得上就放入结果集。</span></span><br><span class="line">	if(exists(emp[i].dep_id))&#123;   -- 大表</span><br><span class="line">		$result[i] = $emp[i];</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p><strong>3) in 和 exists 的区别</strong> </p>
+<ul>
+<li><p>如果子查询得出的结果集记录较少，主查询中的表较大且又有索引时应该用 <code>in</code></p>
+</li>
+<li><p>如果主查询得出的结果集记录较少，子查询中的表较大且又有索引时应该用  <code>exists</code></p>
+</li>
+<li><p>一句话:  <strong>in后面跟的是小表，exists后面跟的是大表。</strong></p>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/21/mysql/011.MySQL_索引原理/" rel="next" title="MySQL_索引原理">
+                <i class="fa fa-chevron-left"></i> MySQL_索引原理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/21/mysql/015.MySQL_orderby优化/" rel="prev" title="MySQL_order by优化">
+                MySQL_order by优化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">83</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">17</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#JOIN优化"><span class="nav-text">JOIN优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-JOIN算法原理"><span class="nav-text">1.JOIN算法原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-in和exists函数"><span class="nav-text">2.in和exists函数</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

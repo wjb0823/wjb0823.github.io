@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="1.索引单表优化下面是一张用户通讯表的表结构信息,这张表来源于真实企业的实际项目中,有接近500万条数据. 1234567891011121314CREATE TABLE user_contacts (  id INT(11) NOT NULL AUTO_INCREMENT,  user_id INT(11) DEFAULT NULL COMMENT &apos;用户标识&apos;,  mobile VARCHAR">
+<meta name="keywords" content="MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL_索引优化实战">
+<meta property="og:url" content="http://yoursite.com/2018/03/21/mysql/016.MySQL_索引优化实战/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="1.索引单表优化下面是一张用户通讯表的表结构信息,这张表来源于真实企业的实际项目中,有接近500万条数据. 1234567891011121314CREATE TABLE user_contacts (  id INT(11) NOT NULL AUTO_INCREMENT,  user_id INT(11) DEFAULT NULL COMMENT &apos;用户标识&apos;,  mobile VARCHAR">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/111.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/114.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/113.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/115.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/116.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/117.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/029.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/030.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/119.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/037.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/038.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/031.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/121.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/034.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/035.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/036.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/039.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/040.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/120.jpg">
+<meta property="og:updated_time" content="2018-03-21T14:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL_索引优化实战">
+<meta name="twitter:description" content="1.索引单表优化下面是一张用户通讯表的表结构信息,这张表来源于真实企业的实际项目中,有接近500万条数据. 1234567891011121314CREATE TABLE user_contacts (  id INT(11) NOT NULL AUTO_INCREMENT,  user_id INT(11) DEFAULT NULL COMMENT &apos;用户标识&apos;,  mobile VARCHAR">
+<meta name="twitter:image" content="http://yoursite.com/images/02_图片/111.jpg">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2018/03/21/mysql/016.MySQL_索引优化实战/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>MySQL_索引优化实战 | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/016.MySQL_索引优化实战/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">MySQL_索引优化实战
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="1-索引单表优化"><a href="#1-索引单表优化" class="headerlink" title="1.索引单表优化"></a>1.索引单表优化</h4><p>下面是一张<code>用户通讯表</code>的表结构信息,这张表来源于真实企业的实际项目中,有接近500万条数据.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> user_contacts (</span><br><span class="line">  <span class="keyword">id</span> <span class="built_in">INT</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  user_id <span class="built_in">INT</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'用户标识'</span>,</span><br><span class="line">  mobile <span class="built_in">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'手机号'</span>,</span><br><span class="line">  <span class="keyword">NAME</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'姓名'</span>,</span><br><span class="line">  verson <span class="built_in">INT</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'版本'</span>,</span><br><span class="line">  create_by <span class="built_in">VARCHAR</span>(<span class="number">64</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'创建者'</span>,</span><br><span class="line">  create_date DATETIME <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  update_by <span class="built_in">VARCHAR</span>(<span class="number">64</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'更新者'</span>,</span><br><span class="line">  update_date DATETIME <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'更新时间'</span>,</span><br><span class="line">  remarks <span class="built_in">VARCHAR</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'备注信息'</span>,</span><br><span class="line">  del_flag <span class="built_in">CHAR</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'删除标识'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="keyword">id</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p><strong>需求一:</strong></p>
+<ul>
+<li>查询所有名字中包含李的用户姓名和手机号,并根据user_id字段排序</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">NAME</span>, mobile <span class="keyword">FROM</span>  user_contacts <span class="keyword">WHERE</span> <span class="keyword">NAME</span> <span class="keyword">LIKE</span> <span class="string">'李%'</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> user_id;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过explain命令 查看SQL查询优化信息</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> <span class="keyword">NAME</span>, mobile <span class="keyword">FROM</span>  user_contacts <span class="keyword">WHERE</span> <span class="keyword">NAME</span> <span class="keyword">LIKE</span> <span class="string">'%李%'</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> user_id;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/111.jpg" style="width:830px; height:80px"> </p>
+<ul>
+<li>分析的结果显示: type=ALL 是最坏的情况,并且Extra中还出现了 Using FIlesort(文件排序未使用到索引),所以必须优化</li>
+</ul>
+<p><strong>优化:</strong></p>
+<ol>
+<li>首先添加联合索引, 该联合索引包含所有要查询的字段,使其成为覆盖索引,一并解决like模糊查询时索引失效问题</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> user_contacts <span class="keyword">ADD</span> <span class="keyword">INDEX</span> idx_nmu(<span class="keyword">NAME</span>,mobile,user_id);</span><br></pre></td></tr></table></figure>
+<ol>
+<li>explain分析</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> <span class="keyword">NAME</span>, mobile <span class="keyword">FROM</span>  user_contacts <span class="keyword">WHERE</span> <span class="keyword">NAME</span> <span class="keyword">LIKE</span> <span class="string">'%李%'</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> user_id;</span><br></pre></td></tr></table></figure>
+<p> <img src="/images/02_图片/114.jpg" style="width:830px; height:80px"></p>
+<ol>
+<li><p>分析结果显示: type连接类型提升到了index级别,通过索引就获取到了全部数据,但是Extra字段中还是存在 Using filesort. </p>
+</li>
+<li><p>继续优化, 根据最佳左前缀法则,之后最左侧列是有序的, 在创建联合索引时,正确的顺序应该是: <strong>user_id,NAME,mobile</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 删除索引</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">INDEX</span> idx_nmu <span class="keyword">ON</span> user_contacts </span><br><span class="line"></span><br><span class="line"><span class="comment">-- 添加重新排序后的索引</span></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> user_contacts <span class="keyword">ADD</span> <span class="keyword">INDEX</span> idx_unm(user_id,<span class="keyword">NAME</span>,mobile);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>执行查询,发现type=index , Using filesort没有了.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> <span class="keyword">NAME</span>, mobile <span class="keyword">FROM</span>  user_contacts <span class="keyword">WHERE</span> <span class="keyword">NAME</span> <span class="keyword">LIKE</span> <span class="string">'%李%'</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> user_id;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/113.jpg" style="width:830px; height:80px"> </p>
+</li>
+</ol>
+<p><strong>需求二:</strong></p>
+<ul>
+<li><p>统计手机号是135、136、186、187开头的用户数量.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span>  <span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(*) <span class="keyword">FROM</span> user_contacts </span><br><span class="line"><span class="keyword">WHERE</span> mobile <span class="keyword">LIKE</span> <span class="string">'135%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'136%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'186%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'187%'</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过explain命令 查看SQL查询优化信息</p>
+<p><img src="/images/02_图片/115.jpg" style="width:830px; height:80px"> </p>
+<p><code>type=index</code> : 用到了索引,但是进行了索引全表扫描</p>
+<p><code>key=idx_unm</code>: 使用到了联合索引,但是效果并不是很好</p>
+<p><code>Extra=Using where; Using index</code>:  查询的列被索引覆盖了,但是无法通过该索引直接获取数据.</p>
+<p>综合上面的执行计划给出的信息,需要进行优化.</p>
+</li>
+</ul>
+<p><strong>优化</strong></p>
+<ol>
+<li><p>经过上面的分析,发现联合索引没有发挥作用,所以尝试对 mobile字段单独建立索引</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> user_contacts <span class="keyword">ADD</span> <span class="keyword">INDEX</span> idx_m(mobile);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>再次执行,得到下面的分析结果</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span>  <span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(*) <span class="keyword">FROM</span> user_contacts </span><br><span class="line"><span class="keyword">WHERE</span> mobile <span class="keyword">LIKE</span> <span class="string">'135%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'136%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'186%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'187%'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/116.jpg" style="width:830px; height:100px"> </p>
+<p><code>type=range</code>: 使用了索引进行范围查询,常见于使用&gt;，&gt;=，&lt;，&lt;=，BETWEEN，IN() 或者 like 等运算符的查询中。 </p>
+<p><code>key=idx_m</code>: mysql选择了我们为mobile字段创建的索引,进行数据检索</p>
+<p><code>rows=1575026</code>: 为获取所需数据而进行扫描的行数,比之前减少了近三分之一</p>
+</li>
+</ol>
+<p><strong>count(*) 和 count(1)和count(列名)区别</strong>  </p>
+<p>进行统计操作时,count中的统计条件可以三种选择:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span>  <span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(*) <span class="keyword">FROM</span> user_contacts </span><br><span class="line"><span class="keyword">WHERE</span> mobile <span class="keyword">LIKE</span> <span class="string">'135%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'136%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'186%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'187%'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">EXPLAIN</span>  <span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(<span class="keyword">id</span>) <span class="keyword">FROM</span> user_contacts </span><br><span class="line"><span class="keyword">WHERE</span> mobile <span class="keyword">LIKE</span> <span class="string">'135%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'136%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'186%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'187%'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">EXPLAIN</span>  <span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(<span class="number">1</span>) <span class="keyword">FROM</span> user_contacts </span><br><span class="line"><span class="keyword">WHERE</span> mobile <span class="keyword">LIKE</span> <span class="string">'135%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'136%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'186%'</span> <span class="keyword">OR</span> mobile <span class="keyword">LIKE</span> <span class="string">'187%'</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">执行效果:</span><br><span class="line">	count(*) 包括了所有的列,在统计时 不会忽略列值为null的数据.</span><br><span class="line">	count(1) 用1表示代码行,在统计时,不会忽略列值为null的数据.</span><br><span class="line">    count(列名)在统计时,会忽略列值为空的数据,就是说某个字段的值为null时不统计.</span><br><span class="line">执行效率:</span><br><span class="line">	列名为主键, count(列名)会比count(1)快</span><br><span class="line">    列名为不是主键, count(1)会比count(列名)快</span><br><span class="line">    如果表没有主键,count(1)会比count(*)快</span><br><span class="line">    如果表只有一个字段,则count(*) 最优.</span><br></pre></td></tr></table></figure>
+<p><strong>需求三:</strong> </p>
+<ul>
+<li><p>查询2017-2-16日,新增的用户联系人信息. 查询字段: name , mobile</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> <span class="keyword">NAME</span>,mobile <span class="keyword">FROM</span> user_contacts  <span class="keyword">WHERE</span> <span class="keyword">DATE_FORMAT</span>(create_date,<span class="string">'%Y-%m-%d'</span>)=<span class="string">'2017-02-16'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/117.jpg" style="width:830px; height:80px"> </p>
+</li>
+</ul>
+<p><strong>优化:</strong> </p>
+<ul>
+<li><p>explain分析的结果显示 <code>type=ALL</code> : 进行了全表扫描,需要进行优化,为create_date字段添加索引.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> user_contacts <span class="keyword">ADD</span> <span class="keyword">INDEX</span> idx_cd(create_date);</span><br><span class="line"></span><br><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> <span class="keyword">NAME</span>,mobile <span class="keyword">FROM</span> user_contacts  <span class="keyword">WHERE</span> create_date </span><br><span class="line"><span class="keyword">BETWEEN</span> <span class="string">'2017-02-16 00:00:00'</span> <span class="keyword">AND</span> <span class="string">'2017-02-16 23:59:59'</span>;</span><br></pre></td></tr></table></figure>
+<p> <img src="/images/02_图片/029.jpg" style="width:830px; height:90px"> </p>
+<p>添加索引后,发现并没有使用到索引 <code>key=null</code> </p>
+</li>
+<li><p>分析原因: create_date字段是datetime类型 ,转换为日期再匹配,需要查询出所有行进行过滤, 所以导致索引失效.</p>
+</li>
+</ul>
+<p><strong>继续优化:</strong> </p>
+<ul>
+<li><p>改为使用 between … and … ,使索引生效</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> <span class="keyword">NAME</span>,mobile <span class="keyword">FROM</span> user_contacts  <span class="keyword">WHERE</span> create_date </span><br><span class="line"><span class="keyword">BETWEEN</span> <span class="string">'2017-02-16 00:00:00'</span> <span class="keyword">AND</span> <span class="string">'2017-02-16 23:59:59'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/030.jpg" style="width:930px; height:80px"> </p>
+<p><code>type=range</code> : 使用了索引进行范围查询 </p>
+<p><code>Extra=Using index condition; Using MRR</code> :Using index condition 表示使用了部分索引, MRR表示InnoDB存储引擎 通过把「随机磁盘读」，转化为「顺序磁盘读」,从而提高了索引查询的性能.</p>
+</li>
+</ul>
+<p><strong>需求四:</strong> </p>
+<ul>
+<li><p>获取用户通讯录表第10万条数据开始后的100条数据.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> user_contacts uc <span class="keyword">LIMIT</span> <span class="number">100000</span>,<span class="number">100</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查询记录量越来越大，所花费的时间也会越来越多</span></span><br><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> user_contacts uc <span class="keyword">LIMIT</span> <span class="number">1000000</span>,<span class="number">1000</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> user_contacts uc <span class="keyword">LIMIT</span> <span class="number">2000000</span>,<span class="number">10000</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> user_contacts uc <span class="keyword">LIMIT</span> <span class="number">3000000</span>,<span class="number">100000</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/119.jpg" style="width:830px; height:90px"> </p>
+</li>
+<li><p>LIMIT 子句可以被用于指定 SELECT 语句返回的记录数。需注意以下几点：</p>
+<ul>
+<li><p>第一个参数指定第一个返回记录行的偏移量，注意从0开始()</p>
+</li>
+<li><p>第二个参数指定返回记录行的最大数目</p>
+</li>
+<li><p>如果只给定一个参数：它表示返回最大的记录行数目</p>
+</li>
+<li><p>初始记录行的偏移量是 0(而不是 1)</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>优化1: 通过索引进行分页</p>
+<p>直接进行limit操作 会产生全表扫描,速度很慢. Limit限制的是从结果集的M位置处取出N条输出,其余抛弃.</p>
+<p>假设ID是连续递增的,我们根据查询的页数和查询的记录数可以算出查询的id的范围，然后配合 limit使用</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> user_contacts <span class="keyword">WHERE</span> <span class="keyword">id</span>  &gt;= <span class="number">100001</span> <span class="keyword">LIMIT</span> <span class="number">100</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/037.jpg" style="width:830px; height:90px"> </p>
+<ul>
+<li>type类型提升到了 range级别</li>
+</ul>
+</li>
+<li><p>优化2: 使用子查询优化</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 首先定位偏移位置的id</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">id</span> <span class="keyword">FROM</span> user_contacts <span class="keyword">LIMIT</span> <span class="number">100000</span>,<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 根据获取到的id值向后查询.</span></span><br><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> user_contacts <span class="keyword">WHERE</span> <span class="keyword">id</span> &gt;=</span><br><span class="line">(<span class="keyword">SELECT</span> <span class="keyword">id</span> <span class="keyword">FROM</span> user_contacts <span class="keyword">LIMIT</span> <span class="number">100000</span>,<span class="number">1</span>) <span class="keyword">LIMIT</span> <span class="number">100</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/038.jpg" style="width:830px; height:80px">  </p>
+</li>
+</ul>
+<h4 id="2-索引多表优化"><a href="#2-索引多表优化" class="headerlink" title="2.索引多表优化"></a>2.索引多表优化</h4><ul>
+<li><strong>用户手机认证表</strong><ul>
+<li>该表约有11万数据,保存的是通过手机认证后的用户数据 </li>
+<li>关联字段: <code>user_id</code> </li>
+</ul>
+</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`mob_autht`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'标识'</span>,</span><br><span class="line">  <span class="string">`user_id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'用户标识'</span>,</span><br><span class="line">  <span class="string">`mobile`</span> <span class="built_in">varchar</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'手机号码'</span>,</span><br><span class="line">  <span class="string">`seevc_pwd`</span> <span class="built_in">varchar</span>(<span class="number">12</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'服务密码'</span>,</span><br><span class="line">  <span class="string">`autht_indc`</span> <span class="built_in">varchar</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'认证标志'</span>,</span><br><span class="line">  <span class="string">`verson`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'版本'</span>,</span><br><span class="line">  <span class="string">`create_by`</span> <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'创建者'</span>,</span><br><span class="line">  <span class="string">`create_date`</span> datetime <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  <span class="string">`update_by`</span> <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'更新者'</span>,</span><br><span class="line">  <span class="string">`update_date`</span> datetime <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'更新时间'</span>,</span><br><span class="line">  <span class="string">`remarks`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'备注信息'</span>,</span><br><span class="line">  <span class="string">`del_flag`</span> <span class="built_in">char</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'删除标识'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) ;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>紧急联系人表</strong> <ul>
+<li>该表约有22万数据,注册成功后,用户添加的紧急联系人信息.</li>
+<li>关联字段: <code>user_id</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`ugncy_cntct_psn`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'标识'</span>,</span><br><span class="line">  <span class="string">`psn_info_id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'个人信息标识'</span>,</span><br><span class="line">  <span class="string">`user_id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'向钱用户标识'</span>,</span><br><span class="line">  <span class="string">`cntct_psn_name`</span> <span class="built_in">varchar</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'联系人姓名'</span>,</span><br><span class="line">  <span class="string">`cntct_psn_mob`</span> <span class="built_in">varchar</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'联系手机号'</span>,</span><br><span class="line">  <span class="string">`and_self_rltn_cde`</span> <span class="built_in">char</span>(<span class="number">2</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'与本人关系代码 字典表关联'</span>,</span><br><span class="line">  <span class="string">`verson`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'版本'</span>,</span><br><span class="line">  <span class="string">`create_by`</span> <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'创建者'</span>,</span><br><span class="line">  <span class="string">`create_date`</span> datetime <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  <span class="string">`update_by`</span> <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'更新者'</span>,</span><br><span class="line">  <span class="string">`update_date`</span> datetime <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'更新时间'</span>,</span><br><span class="line">  <span class="string">`remarks`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'备注信息'</span>,</span><br><span class="line">  <span class="string">`del_flag`</span> <span class="built_in">char</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'删除标识'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) ;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>借款申请表</strong><ul>
+<li>该表约有11万数据,保存的是每次用户申请借款时 填写的信息.</li>
+<li>关联字段: <code>user_id</code> </li>
+</ul>
+</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`loan_apply`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">INT</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'借款申请标识'</span>,</span><br><span class="line">  <span class="string">`loan_nbr`</span> <span class="built_in">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'借款编号'</span>,</span><br><span class="line">  <span class="string">`user_id`</span> <span class="built_in">INT</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'用户标识'</span>,</span><br><span class="line">  <span class="string">`idnt_info_id`</span> <span class="built_in">INT</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'身份信息标识'</span>,</span><br><span class="line">  <span class="string">`psn_info_id`</span> <span class="built_in">INT</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'个人信息标识'</span>,</span><br><span class="line">  <span class="string">`mob_autht_id`</span> <span class="built_in">INT</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'手机认证标识'</span>,</span><br><span class="line">  <span class="string">`bnk_card_id`</span> <span class="built_in">INT</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'银行卡标识'</span>,</span><br><span class="line">  <span class="string">`apply_limit`</span> <span class="built_in">DECIMAL</span>(<span class="number">16</span>,<span class="number">2</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0.00'</span> <span class="keyword">COMMENT</span> <span class="string">'申请额度'</span>,</span><br><span class="line">  <span class="string">`apply_tlmt`</span> <span class="built_in">INT</span>(<span class="number">3</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'申请期限'</span>,</span><br><span class="line">  <span class="string">`apply_time`</span> DATETIME <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'申请时间'</span>,</span><br><span class="line">  <span class="string">`audit_limit`</span> <span class="built_in">DECIMAL</span>(<span class="number">16</span>,<span class="number">2</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'审核额度'</span>,</span><br><span class="line">  <span class="string">`audit_tlmt`</span> <span class="built_in">INT</span>(<span class="number">3</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'审核期限'</span>,</span><br><span class="line">  <span class="string">`audit_time`</span> DATETIME <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'审核时间'</span>,</span><br><span class="line">  <span class="string">`cfrm_limit`</span> <span class="built_in">DECIMAL</span>(<span class="number">16</span>,<span class="number">2</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0.00'</span> <span class="keyword">COMMENT</span> <span class="string">'确认额度'</span>,</span><br><span class="line">  <span class="string">`cfrm_tlmt`</span> <span class="built_in">INT</span>(<span class="number">3</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'确认期限'</span>,</span><br><span class="line">  <span class="string">`cfrm_time`</span> DATETIME <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'确认时间'</span>,</span><br><span class="line">  <span class="string">`loan_sts_cde`</span> <span class="built_in">CHAR</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'借款状态:0 未提交 1 提交申请(初始) 2 已校验 3 通过审核4 未通过审核 5开始放款 6放弃借款 7 放款成功 '</span>,</span><br><span class="line">  <span class="string">`audit_mod_cde`</span> <span class="built_in">CHAR</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'审核模式：1 人工 2 智能'</span>,</span><br><span class="line">  <span class="string">`day_rate`</span> <span class="built_in">DECIMAL</span>(<span class="number">16</span>,<span class="number">8</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0.00000000'</span> <span class="keyword">COMMENT</span> <span class="string">'日利率'</span>,</span><br><span class="line">  <span class="string">`seevc_fee_day_rate`</span> <span class="built_in">DECIMAL</span>(<span class="number">16</span>,<span class="number">8</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0.00000000'</span> <span class="keyword">COMMENT</span> <span class="string">'服务费日利率'</span>,</span><br><span class="line">  <span class="string">`normal_paybk_tot_day_rate`</span> <span class="built_in">DECIMAL</span>(<span class="number">16</span>,<span class="number">8</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0.00000000'</span> <span class="keyword">COMMENT</span> <span class="string">'正常还款总日利率'</span>,</span><br><span class="line">  <span class="string">`ovrdu_fee_day_rate`</span> <span class="built_in">DECIMAL</span>(<span class="number">16</span>,<span class="number">8</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'逾期违约金日利率'</span>,</span><br><span class="line">  <span class="string">`day_intr_amt`</span> <span class="built_in">DECIMAL</span>(<span class="number">16</span>,<span class="number">2</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0.00'</span> <span class="keyword">COMMENT</span> <span class="string">'日利率金额'</span>,</span><br><span class="line">  <span class="string">`seevc_fee_day_intr_amt`</span> <span class="built_in">DECIMAL</span>(<span class="number">16</span>,<span class="number">2</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0.00'</span> <span class="keyword">COMMENT</span> <span class="string">'服务日利率金额'</span>,</span><br><span class="line">  <span class="string">`normal_paybk_tot_intr_amt`</span> <span class="built_in">DECIMAL</span>(<span class="number">16</span>,<span class="number">2</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0.00'</span> <span class="keyword">COMMENT</span> <span class="string">'综合日利率金额'</span>,</span><br><span class="line">  <span class="string">`cnl_resn_time`</span> DATETIME <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'放弃时间'</span>,</span><br><span class="line">  <span class="string">`cnl_resn_cde`</span> <span class="built_in">CHAR</span>(<span class="number">8</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'放弃原因：关联字典代码'</span>,</span><br><span class="line">  <span class="string">`cnl_resn_othr`</span> <span class="built_in">VARCHAR</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'放弃的其他原因'</span>,</span><br><span class="line">  <span class="string">`verson`</span> <span class="built_in">INT</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'版本'</span>,</span><br><span class="line">  <span class="string">`create_by`</span> <span class="built_in">VARCHAR</span>(<span class="number">64</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'创建者'</span>,</span><br><span class="line">  <span class="string">`create_date`</span> DATETIME <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  <span class="string">`update_by`</span> <span class="built_in">VARCHAR</span>(<span class="number">64</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'更新者'</span>,</span><br><span class="line">  <span class="string">`update_date`</span> DATETIME <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'更新时间'</span>,</span><br><span class="line">  <span class="string">`remarks`</span> <span class="built_in">VARCHAR</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'备注信息'</span>,</span><br><span class="line">  <span class="string">`loan_dst_cde`</span> <span class="built_in">CHAR</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'0,未分配; 1,已分配'</span>,</span><br><span class="line">  <span class="string">`del_flag`</span> <span class="built_in">CHAR</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'删除标识'</span>,</span><br><span class="line">  <span class="string">`last_loan_apply_id`</span> <span class="built_in">INT</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'上次借款申请标识'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>),</span><br><span class="line">  <span class="keyword">UNIQUE</span> <span class="keyword">KEY</span> <span class="string">`ind_loan_nbr`</span> (<span class="string">`loan_nbr`</span>) <span class="keyword">USING</span> BTREE,</span><br><span class="line">) ;</span><br></pre></td></tr></table></figure>
+<p><strong>需求一:</strong></p>
+<ul>
+<li><p>查询所有认证用户的手机号以及认证用户的紧急联系人的姓名与手机号信息</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> <span class="keyword">select</span> </span><br><span class="line">	ma.mobile <span class="string">'认证用户手机号'</span>,</span><br><span class="line">    ucp.cntct_psn_name <span class="string">'紧急联系人姓名'</span>,</span><br><span class="line">    ucp.cntct_psn_mob <span class="string">'紧急联系人手机号'</span></span><br><span class="line"><span class="keyword">from</span> mob_autht ma <span class="keyword">left</span> <span class="keyword">join</span> ugncy_cntct_psn ucp </span><br><span class="line"><span class="keyword">on</span> ma.user_id = ucp.user_id;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/031.jpg" style="width:930px; height:60px"> </p>
+<ul>
+<li>type 类型都是ALL, 使用了全表扫描</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>优化:  为<code>mob_autht</code> 表的 user_id字段 添加索引</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> mob_autht <span class="keyword">add</span> <span class="keyword">index</span> idx_user_id(user_id);</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/121.jpg" style="width:930px; height:60px"> </p>
+<ul>
+<li><p>根据小结果及驱动大结果集的原则, <code>mob_autht</code>  是驱动表,驱动表即使建立索引也不会生效.</p>
+</li>
+<li><p>一般情况下: 左外连接左表是驱动表,右外连接右表就是驱动表.</p>
+</li>
+<li><p>explain分析结果的第一行的表,就是驱动表</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>继续优化: 为<code>ugncy_cntct_psn</code>表的 user_id字段 添加索引</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> ugncy_cntct_psn <span class="keyword">ADD</span> <span class="keyword">INDEX</span> idx_userid(user_id);</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/034.jpg" style="width:930px; height:60px"></p>
+<ul>
+<li><code>mob_autht</code> 的type类型为ALL, <code>ugncy_cntct_psn</code>的type类型是ref</li>
+</ul>
+</li>
+</ul>
+<p><strong>需求二:</strong></p>
+<ul>
+<li><p>获取紧急联系人数量&gt;8的,用户手机号信息</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1.获取紧急联系人&gt;8的,用户ID</span></span><br><span class="line"><span class="keyword">SELECT</span> user_id , <span class="keyword">COUNT</span>(user_id) c <span class="keyword">FROM</span> ugncy_cntct_psn <span class="keyword">GROUP</span> <span class="keyword">BY</span> user_id <span class="keyword">HAVING</span> c &gt; <span class="number">8</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2.获取认证用户的ID与手机号</span></span><br><span class="line"><span class="keyword">SELECT</span> user_id, mobile <span class="keyword">FROM</span> mob_autht</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3.将上面两条SQL进行JOIN连接</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line"> ucp.user_id,</span><br><span class="line"> <span class="keyword">COUNT</span>(ucp.user_id),</span><br><span class="line"> m.user_id,</span><br><span class="line"> m.mobile</span><br><span class="line"><span class="keyword">FROM</span> ugncy_cntct_psn ucp</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> (<span class="keyword">SELECT</span> user_id, mobile <span class="keyword">FROM</span> mob_autht) m <span class="keyword">ON</span> m.user_id = ucp.user_id</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> ucp.user_id <span class="keyword">HAVING</span> <span class="keyword">COUNT</span>(ucp.user_id) &gt; <span class="number">8</span> ;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/035.jpg" style="width:930px; height:70px"> </p>
+<ul>
+<li><code>Using temporary</code> : MySQL 创建了临时表,来保存结果.</li>
+<li><code>Using filesort</code> : 使用了文件排序</li>
+</ul>
+</li>
+<li><p>优化: 上面这种情况的原因是ySQL对所有 GROUP BY col1，col2…的字段进行了排序,如果用户想要避免排序结果的消耗，则可以指定 <code>ORDER By NULL</code> 来禁止排序</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> </span><br><span class="line"> ucp.user_id,</span><br><span class="line"> <span class="keyword">COUNT</span>(ucp.user_id),</span><br><span class="line"> m.user_id,</span><br><span class="line"> m.mobile</span><br><span class="line"><span class="keyword">FROM</span> ugncy_cntct_psn ucp</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> (<span class="keyword">SELECT</span> user_id, mobile <span class="keyword">FROM</span> mob_autht) m <span class="keyword">ON</span> m.user_id = ucp.user_id</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> ucp.user_id <span class="keyword">HAVING</span> <span class="keyword">COUNT</span>(ucp.user_id) &gt; <span class="number">8</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="literal">NULL</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/036.jpg" style="width:930px; height:70px"> </p>
+</li>
+</ul>
+<p><strong>需求三:</strong> </p>
+<ul>
+<li><p>获取所有智能审核的用户手机号和申请额度、申请时间、审核额度</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> </span><br><span class="line">    ma.mobile <span class="string">'用户认证手机号'</span>,</span><br><span class="line">    la.apply_limit <span class="string">'申请额度'</span>,</span><br><span class="line">     la.apply_time <span class="string">'申请时间'</span>,</span><br><span class="line">    la.audit_limit <span class="string">'审核额度'</span></span><br><span class="line"><span class="keyword">FROM</span> mob_autht ma <span class="keyword">inner</span> <span class="keyword">JOIN</span> loan_apply la <span class="keyword">ON</span> ma.id = la.mob_autht_id</span><br><span class="line"><span class="keyword">WHERE</span> la.audit_mod_cde = <span class="string">'2'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/039.jpg" style="width:930px; height:70px"></p>
+</li>
+<li><p>优化分析</p>
+<ul>
+<li><p>查询 <code>loan_apply</code>表,使用的条件字段为 <code>audit_mod_cde</code> ,因为该字段没有添加索引,导致  <code>type=ALL</code> 发生全表扫描,</p>
+</li>
+<li><p>为<code>audit_mod_cde</code> 字段添加索引,来提高查询效率.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> loan_apply <span class="keyword">ADD</span> <span class="keyword">INDEX</span> idx_amc(audit_mod_cde);</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/040.jpg" style="width:930px; height:70px"> </p>
+<p>添加索引后type的类型确实提升了,但是需要注意的扫描的行还是很高,并且 Extra字段的值为 <code>Using where</code> 表示: 通过索引访问时,需要再回表访问所需的数据.</p>
+<blockquote>
+<p>注意: 如果执行计划中显示走了索引，但是rows值很高，extra显示为using where，那么执行效果就不会很好。因为索引访问的成本主要在回表上.</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>继续优化:</p>
+<ul>
+<li><p><code>audit_mod_cde</code>  字段的含义是审核模式,只有两个值: 1 人工 2 智能 ,所以在根据该字段进行查询时,会有大量的相同数据.</p>
+</li>
+<li><p>比如: 统计一下 <code>audit_mod_cde = &#39;2&#39;</code>  的数据总条数,查询结果是9万多条,该表的总数接近11万条,查询出的数据行超过了表的总记录数的30%, 这时就不建议添加索引 ( 比如有1000万的数据，就算平均分后结果集也有500万条,结果集还是太大，查询效率依然不高 ).</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(*) <span class="keyword">FROM</span> loan_apply; <span class="comment">-- 109181条</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(*) <span class="keyword">FROM</span> loan_apply la <span class="keyword">WHERE</span> la.audit_mod_cde = <span class="string">'2'</span> ; <span class="comment">-- 91630条</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>总结: 唯一性太差的字段不需要创建索引,即便用于where条件.</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>继续优化:</p>
+<ul>
+<li><p>如果一定要根据状态字段进行查询,我们可以根据业务需求 添加一个日期条件,比如获取某一时间段的数据,然后再区分状态字段.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 获取2017年 1月1号~1月5号的数据</span></span><br><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> </span><br><span class="line">    ma.mobile <span class="string">'用户认证手机号'</span>,</span><br><span class="line">    la.apply_time <span class="string">'申请时间'</span>,</span><br><span class="line">    la.apply_limit <span class="string">'申请额度'</span>,</span><br><span class="line">    la.audit_limit <span class="string">'审核额度'</span></span><br><span class="line"><span class="keyword">FROM</span>  loan_apply la  <span class="keyword">INNER</span> <span class="keyword">JOIN</span> mob_autht ma  <span class="keyword">ON</span> la.mob_autht_id = ma.id </span><br><span class="line"><span class="keyword">WHERE</span> apply_time <span class="keyword">BETWEEN</span> <span class="string">'2017-01-01 00:00:00'</span> </span><br><span class="line"><span class="keyword">AND</span>  <span class="string">'2017-01-05 23:59:59'</span> <span class="keyword">AND</span> la.audit_mod_cde = <span class="string">'2'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/02_图片/120.jpg" style="width:800px; height:70px"> </p>
+<p><code>extra = Using index condition;</code> : 只有一部分索引生效</p>
+<p><code>MRR</code> 算法: 通过范围扫描将数据存入 <code>read_rnd_buffer_size</code> ，然后对其按照 Primary Key（RowID）排序，最后使用排序好的数据进行顺序回表，因为 InnoDB 中叶子节点数据是按照 Primary Key（RowID）进行排列的，这样就转换随机IO为顺序IO了，从而减小磁盘的随机访问.</p>
+</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/21/mysql/012.MySQL_索引优化/" rel="next" title="MySQL_索引优化">
+                <i class="fa fa-chevron-left"></i> MySQL_索引优化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/21/mysql/001.MySQL_InnoDB内存结构/" rel="prev" title="MySQL_InnoDB内存结构">
+                MySQL_InnoDB内存结构 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">83</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">17</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-索引单表优化"><span class="nav-text">1.索引单表优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-索引多表优化"><span class="nav-text">2.索引多表优化</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
