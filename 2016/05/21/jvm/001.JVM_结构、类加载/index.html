@@ -477,10 +477,26 @@
 </ul>
 <p><strong>JVM 初始化步骤：</strong></p>
 <ul>
-<li>1、假如这个类还没有被加载和连接，则程序先加载并连接该类。</li>
-<li>2、假如该类的直接父类还没有被初始化，则先初始化其直接父类。</li>
-<li>3、假如类中有初始化语句，则系统依次执行这些初始化语句。</li>
+<li><p>1、假如这个类还没有被加载和连接，则程序先加载并连接该类。</p>
+</li>
+<li><p>2、假如该类的直接父类还没有被初始化，则先初始化其直接父类。</p>
+</li>
+<li><p>3、假如类中有初始化语句，则系统依次执行这些初始化语句。</p>
+</li>
 </ul>
+<p>Java类和接口的初始化只有在特定的时机才会发生，这些时机包括：</p>
+<ul>
+<li>创建一个Java类的实例。如<code>MyClass obj = new MyClass()</code></li>
+<li>调用一个Java类中的静态方法。如<code>MyClass.sayHello()</code></li>
+<li>给Java类或接口中声明的静态域赋值。如<code>MyClass.value = 10</code></li>
+<li>访问Java类或接口中声明的静态域，并且该域不是常值变量。如<code>int value = MyClass.value</code></li>
+<li><p>在顶层Java类中执行assert语句。</p>
+</li>
+<li><p>通过Java反射API也可能造成类和接口的初始化。需要注意的是，当访问一个Java类或接口中的静态域的    时候，只有真正声明这个域的类或接口才会被初始化。考虑下面的代码：</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span> value = <span class="number">100</span>; </span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">"Class B is initialized."</span>); <span class="comment">//输出</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> <span class="keyword">extends</span> <span class="title">B</span> </span>&#123; </span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">    	System.out.println(<span class="string">"Class A is initialized."</span>); <span class="comment">//不会输出</span></span><br><span class="line">	&#125;</span><br><span class="line">                  &#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">InitTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123; </span><br><span class="line">        System.out.println(A.value); <span class="comment">//输出100</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在上述代码中，类InitTest通过A.value引用了类B中声明的静态域value。由于value是在类B中声明的， 只有类B会被初始化，而类A则不会被初始化。</p>
 <h1 id="4-类加载器"><a href="#4-类加载器" class="headerlink" title="4 类加载器"></a>4 类加载器</h1><p>类加载器是具有层次结构的，也就是父子关系，如下图所示：</p>
 <p><img src="/images/jvm015.png" alt="类加载器层次结构"></p>
 <ol>
