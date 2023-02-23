@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="InnoDB 磁盘结构InnoDB磁盘主要包含Tablespaces，InnoDB Data Dictionary、Doublewrite Buffer、redo log和Undo Logs。  Tablespaces: 表空间分为系统表空间（ibdata1文件）、临时表空间、常规表空间、Undo表空间以及file-per-table表空间。系统表空间又包括双写缓冲区（Doublewrite Bu">
+<meta name="keywords" content="MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql_InnoDB磁盘结构">
+<meta property="og:url" content="http://yoursite.com/2018/03/22/mysql/002.MySQL_InnoDB磁盘结构/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="InnoDB 磁盘结构InnoDB磁盘主要包含Tablespaces，InnoDB Data Dictionary、Doublewrite Buffer、redo log和Undo Logs。  Tablespaces: 表空间分为系统表空间（ibdata1文件）、临时表空间、常规表空间、Undo表空间以及file-per-table表空间。系统表空间又包括双写缓冲区（Doublewrite Bu">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/16.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/18.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/19.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/21.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/22.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/23.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/24.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/25.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/26.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/44.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/27.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/29.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/45.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/46.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/47.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/30.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/31.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/48.jpg">
+<meta property="og:image" content="http://yoursite.com/images/02_图片/33.jpg">
+<meta property="og:updated_time" content="2018-03-22T14:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mysql_InnoDB磁盘结构">
+<meta name="twitter:description" content="InnoDB 磁盘结构InnoDB磁盘主要包含Tablespaces，InnoDB Data Dictionary、Doublewrite Buffer、redo log和Undo Logs。  Tablespaces: 表空间分为系统表空间（ibdata1文件）、临时表空间、常规表空间、Undo表空间以及file-per-table表空间。系统表空间又包括双写缓冲区（Doublewrite Bu">
+<meta name="twitter:image" content="http://yoursite.com/images/02_图片/16.jpg">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2018/03/22/mysql/002.MySQL_InnoDB磁盘结构/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Mysql_InnoDB磁盘结构 | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/22/mysql/002.MySQL_InnoDB磁盘结构/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Mysql_InnoDB磁盘结构
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-03-22 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-22T22:15:27+08:00">2018-03-22</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="InnoDB-磁盘结构"><a href="#InnoDB-磁盘结构" class="headerlink" title="InnoDB 磁盘结构"></a>InnoDB 磁盘结构</h3><p>InnoDB磁盘主要包含Tablespaces，InnoDB Data Dictionary、Doublewrite Buffer、redo log和Undo Logs。</p>
+<ul>
+<li>Tablespaces: 表空间分为系统表空间（ibdata1文件）、临时表空间、常规表空间、Undo表空间以及file-per-table表空间。系统表空间又包括双写缓冲区（Doublewrite Buffer）、Change Buffer等</li>
+<li>Doublewrite buffer：innodb 将数据页写到文件之前存放的位置。8.0.20版本之前，doublewrite buffer存放在InnoDB系统表空间中，8.0.20版本后存放在doublewrite中</li>
+<li>Redo log：存储的是log buffer刷到磁盘的数据</li>
+<li>Undo log：存在于global临时表空间中，用于事务的回滚</li>
+</ul>
+<p><img src="/images/02_图片/16.jpg" style="width:650px;  height:700px">   </p>
+<h4 id="1-表空间-Tablespaces"><a href="#1-表空间-Tablespaces" class="headerlink" title="1. 表空间 ( Tablespaces )"></a>1. 表空间 ( Tablespaces )</h4><p>表空间（Tablespaces) : 用于存储表结构和数据, InnoDB表空间类型包括系统表空间、File-Per-Table表空间，常规表空间，Undo表空间，临时表空间等。</p>
+<ul>
+<li><p>系统(共享)表空间（The System Tablespace）</p>
+<ul>
+<li><p>共享表空间: 包含InnoDB数据字典，Doublewrite Buffer，Change Buffer，Undo Logs的存储区域。系统表空间也默认包含任何用户在系统表空间创建的表数据和索引数据。</p>
+</li>
+<li><p>物理文件查看</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# cd /var/lib/mysql </span><br><span class="line">[root@localhost mysql]# ll ibdata*</span><br><span class="line">-rw-r----- 1 mysql mysql 79691776 1月  25 06:42 ibdata1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>系统表空间是一个共享的表空间因为它是被多个表共享的。该空间的数据文件通过参数<code>innodb_data_file_path</code>控制，默认值是 <code>ibdata1:12M:autoextend</code> (文件名为ibdata1、12MB、自动扩展)。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_data_file_path%';</span><br><span class="line">+<span class="comment">-----------------------+------------------------+</span></span><br><span class="line">| Variable_name         | Value                  |</span><br><span class="line">+<span class="comment">-----------------------+------------------------+</span></span><br><span class="line">| innodb_data_file_path | ibdata1:12M:autoextend |</span><br><span class="line">+<span class="comment">-----------------------+------------------------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.38</span> sec)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>独立表空间（File-Per-Table Tablespaces） </p>
+<ul>
+<li><p>默认开启，独立表空间是一个单表表空间，该表创建于自己的数据文件中，而非创建于系统表空间中。当<code>innodb_file_per_table</code>选项开启时，表将被创建于表空间中。否则，innodb将被创建于系统表空间中。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_file_per_table%';</span><br><span class="line">+<span class="comment">-----------------------+-------+</span></span><br><span class="line">| Variable_name         | Value |</span><br><span class="line">+<span class="comment">-----------------------+-------+</span></span><br><span class="line">| innodb_file_per_table | ON    |</span><br><span class="line">+<span class="comment">-----------------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.14</span> sec)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>每个表文件表空间由一个.ibd数据文件代表，该文件默认被创建于数据库目录中。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost test1]# cd /var/lib/mysql/test1/</span><br><span class="line">[root@localhost test1]# ll</span><br><span class="line">total 112</span><br><span class="line">-rw-r----- 1 mysql mysql  8582 Dec 27 19:17 a1.frm</span><br><span class="line">-rw-r----- 1 mysql mysql 98304 Dec 27 19:21 a1.ibd</span><br><span class="line">-rw-r----- 1 mysql mysql    67 Dec  9 23:21 db.opt</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>两种表空间的优缺点</p>
+<ul>
+<li>共享表空间<ul>
+<li>优点：可以将表空间分成多个文件存放到各个磁盘上（表空间文件大小不受表大小的限制，如一个表可以分布在不同的文件上）。数据和文件放在一起方便管理。</li>
+<li>缺点：所有的数据和索引存放到一个文件中，虽然可以把一个大文件分成多个小文件，但是多个表及索引在表空间中混合存储，这样对于一个表做了大量删除操作后表空间中将会有大量的空隙，特别是对于统计分析，日值系统这类应用最不适合用共享表空间。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>独立表空间<ul>
+<li>优点：<ul>
+<li>每个表都有自已独立的表空间,每个表的数据和索引都会存在自已的表空间中。</li>
+<li>可以实现单表在不同的数据库中移动(复制File-per-table表空间的对应表的数据文件到其他mysql数据库实例的表空间下，实现表的导入迁移)。</li>
+<li>空间可以回收（在独立表空间下，删除或者清空表后，存储空间会立刻返回给操作系统。而在共享表空间下，表空间数据文件的大小不会缩小）</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>单表增加过大，如超过100个G。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>通用表空间（General Tablespaces）</p>
+<ul>
+<li><p>MySQL 5.7开始支持通用表空间管理功能,类似于系统表空间，也是共享表空间，可以存储多个表的数据。</p>
+</li>
+<li><p>通用表空间为通过create tablespace语法创建的共享表空间。通用表空间可以创建于mysql数据目录外的其他表空间(自定义存储路径)，其可以容纳多张表，且其支持所有的行格式。</p>
+</li>
+<li><p>相比File-per-table表空间，通用表空间由于多表共享表空间，消耗的内存会更少一点，具有潜在的内存优势。（占用的磁盘空间会更小）</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>需求: 指定存储路径创建一张表</p>
+<p><strong>方式1: 指定 data directory</strong> </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# mkdir -p /mdata/general</span><br><span class="line">[root@localhost ~]# cd /mdata/general/</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 设置文件所有者为mysql(第一个mysql是用户,第二个为用户组)</span><br><span class="line">[root@localhost general]# chown mysql.mysql /mdata/general/</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 连接mysql,选择数据库创建表,并且将该表创建于刚刚创建的通用表空间目录</span></span><br><span class="line">mysql&gt; create table test1.test_ger(a int) data directory='/mdata/general';</span><br><span class="line">Query OK, 0 rows affected (0.50 sec)</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost general]# tree</span><br><span class="line">.</span><br><span class="line">└── test1</span><br><span class="line">    └── test_ger.ibd</span><br><span class="line"></span><br><span class="line">1 directory, 1 file</span><br><span class="line"></span><br><span class="line">[root@localhost general]# cd /var/lib/mysql/test1/</span><br><span class="line">[root@localhost test1]# ll</span><br><span class="line">-rw-r----- 1 mysql mysql  8554 1月  29 01:41 test_ger.frm</span><br><span class="line">-rw-r----- 1 mysql mysql    33 1月  29 01:41 test_ger.isl</span><br><span class="line"><span class="meta">#</span>cat test_ger.isl 一个文本文件，内容就是idb文件的路径，做了一个链接</span><br><span class="line">[root@localhost test1]# cat test_ger.isl </span><br><span class="line">/mdata/general/test1/test_ger.ibd</span><br></pre></td></tr></table></figure>
+<p><strong>方式2: 使用通用表空间</strong>  </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1.创建通用表空间 (file_block_size就是指定page_size大小)</span></span><br><span class="line">mysql&gt; create tablespace ger_space add datafile '/mdata/general/ger_space.ibd' file_block_size=16384;</span><br><span class="line">Query OK, 0 rows affected (0.15 sec)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查看目录</span></span><br><span class="line">[root@localhost mysql]<span class="comment"># cd /mdata/general/</span></span><br><span class="line">[root@localhost general]<span class="comment"># ll ger*</span></span><br><span class="line">-rw-r<span class="comment">----- 1 mysql mysql 65536 1月  29 01:56 ger_space.ibd</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查看通用表空间信息</span></span><br><span class="line">mysql&gt; select * from information_schema.innodb_sys_tablespaces where name = 'ger_space'\G;</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">         SPACE: 153</span><br><span class="line">          NAME: ger_space</span><br><span class="line">          FLAG: 2048</span><br><span class="line">   FILE_FORMAT: Any</span><br><span class="line">    ROW_FORMAT: Any</span><br><span class="line">     PAGE_SIZE: 16384 <span class="comment">--页大小16K</span></span><br><span class="line"> ZIP_PAGE_SIZE: 0</span><br><span class="line">    SPACE_TYPE: General</span><br><span class="line"> FS_BLOCK_SIZE: 4096</span><br><span class="line">     FILE_SIZE: 65536</span><br><span class="line">ALLOCATED_SIZE: 32768</span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在通用表空间创建一张表</span></span><br><span class="line">mysql&gt; <span class="keyword">create</span> <span class="keyword">table</span> test1.test_ger2(a <span class="built_in">int</span>) <span class="keyword">tablespace</span>=ger_space;</span><br><span class="line">Query OK, 0 rows affected (0.13 sec)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查看表信息</span></span><br><span class="line">mysql&gt; show create table test_ger2;</span><br><span class="line">+<span class="comment">-----------+----------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">| Table     | <span class="keyword">Create</span> <span class="keyword">Table</span>                                                                                                                     |</span><br><span class="line">+<span class="comment">-----------+----------------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">| test_ger2 | <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`test_ger2`</span> (</span><br><span class="line">  <span class="string">`a`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span></span><br><span class="line">) <span class="comment">/*!50100 TABLESPACE `ger_space` */</span> <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8mb4 |</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>撤销表空间（Undo Tablespaces）</p>
+<ul>
+<li><p>撤销表空间，用来保存回滚日志，即undo logs, undo Log 的数据默认在系统表空间ibdata1文件中</p>
+</li>
+<li><p>可以通过 <code>innodb_undo_directory</code>属性 查看回滚表空间的位置。默认路径是mysql的数据存储路径。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_undo_directory';</span><br><span class="line">+<span class="comment">-----------------------+-------+</span></span><br><span class="line">| Variable_name         | Value |</span><br><span class="line">+<span class="comment">-----------------------+-------+</span></span><br><span class="line">| innodb_undo_directory | ./    |</span><br><span class="line">+<span class="comment">-----------------------+-------+</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>InnoDB使用的undo表空间由 <code>innodb_undo_tablespaces</code> 配置选项控制，设置undo独立表空间个数，范围为0-128， 默认为0，0表示不开启独立undo表空间 ,且 undo日志存储在ibdata1文件中。 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_undo_tablespace%';</span><br><span class="line">+<span class="comment">-------------------------+-------+</span></span><br><span class="line">| Variable_name           | Value |</span><br><span class="line">+<span class="comment">-------------------------+-------+</span></span><br><span class="line">| innodb_undo_tablespaces | 0     |</span><br><span class="line">+<span class="comment">-------------------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.01</span> sec)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<pre><code>**什么时候需要来设置这个参数 ?** 
+
+当DB写压力较大时，可以设置独立undo表空间，把undo从 ibdata文件中分离开来，指定 `innodb_undo_directory` 目录存放，可以制定到高速磁盘上，加快undo log 的读写性能。
+</code></pre><ul>
+<li><p>undo日志使用共享表空间存在的问题</p>
+<p>因为共享表空间不会自动收缩,即使事务关闭,undo log也会一直占用空间, 所以可能会出现因为大事物而导致ibdata1文件过大的问题.</p>
+<p>MySQL5.7中引入了一个新的参数 <code>innodb_undo_log_truncate</code></p>
+<p>表示是否开启自动收缩undolog的表空间的操作。如果配置为<code>ON</code>，并且配置了2个或2个以上的undolog表空间数据文件，当某一个日志文件大小超过设置的最大值之后，就会自动的收缩表空间数据文件。</p>
+<blockquote>
+<p>在回收表空间数据文件的时候，被回收的表空间数据文件会临时下线，为了保证undolog一直有地方可以写，此时要保证至少还有1个undolog日志文件是在线的。这就是要求<code>innodb_undo_tablespaces&gt;=2</code>的根本原因 </p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>8.0 对于undo log存储的进一步优化</p>
+<p>从MySQL8.0版本开始，MySQL默认对undo进行了分离操作，也就是说，不需要在初始化中手动配置参数，默认会在datadir目录下生成两个undo表空间文件undo_001 和 undo002 并且可以在线的增加和删除undo表空间文件, 进行动态扩容和收缩.</p>
+<p>查询undo log信息</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select tablespace_name, file_name from information_schema.files where file_type like 'undo log';</span><br><span class="line">+<span class="comment">-----------------+------------+</span></span><br><span class="line">| TABLESPACE_NAME | FILE_NAME  |</span><br><span class="line">+<span class="comment">-----------------+------------+</span></span><br><span class="line">| innodb_undo_001 | ./undo_001 |</span><br><span class="line">| innodb_undo_002 | ./undo_002 |</span><br><span class="line">+<span class="comment">-----------------+------------+</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 文件位置 /var/lib/mysql</span></span><br><span class="line">[root@localhost mysql]<span class="comment"># ll undo*</span></span><br><span class="line">-rw-r<span class="comment">-----. 1 mysql mysql 16777216 12月 31 00:21 undo_001</span></span><br><span class="line">-rw-r<span class="comment">-----. 1 mysql mysql 16777216 12月 31 00:21 undo_002</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>临时表空间（Temporary Tablespaces）</p>
+<ul>
+<li><p>用户创建的临时表和磁盘内部临时表创建于共享临时表空间中。MySQL 5.7起，开始采用独立的临时表空间,命名ibtmp1文件，初始化12M，且默认无上限。</p>
+</li>
+<li><p>全局临时表空间默认是数据目录的ibtmp1文件，所有临时表共享,可以通过<code>innodb_temp_data_file_path</code> 属性指定临时表空间的位置。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select @@innodb_temp_data_file_path;</span><br><span class="line">+<span class="comment">------------------------------+</span></span><br><span class="line">| @@innodb_temp_data_file_path |</span><br><span class="line">+<span class="comment">------------------------------+</span></span><br><span class="line">| ibtmp1:12M:autoextend        |</span><br><span class="line">+<span class="comment">------------------------------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p>需要注意的是: 临时表空间最好是设置最大增长限制,否则可能会导致 ibtmp1文件过大,占用过多的磁盘空间.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 设置了上限的大小，当数据文件达到最大大小时，查询将失败，并显示一条错误消息，表明表已满，查询不能往下执行，避免 ibtmp1 过大 (需要生成临时表的SQL无法被执行,一般这种SQL效率也比较低，可借此机会进行优化)</span></span><br><span class="line">innodb_temp_data_file_path=ibtmp1:12M:autoextend:max:500M</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><code>tmp_table_size</code> 参数配置内部内存临时表的大小。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; set global tmp_table_size=16*1024*1024;</span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; show variables like 'tmp_table_size';</span><br><span class="line">+<span class="comment">----------------+----------+</span></span><br><span class="line">| Variable_name  | Value    |</span><br><span class="line">+<span class="comment">----------------+----------+</span></span><br><span class="line">| tmp_table_size | 16777216 |</span><br><span class="line">+<span class="comment">----------------+----------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注: 如果内存中的临时表超出限制，MySQL自动将其转换为磁盘上的MyISAM表tmp_table_size最大值是18446744073709551615</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>如何监控临时表与临时表空间使用情况</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show status like '%tmp%';</span><br><span class="line">+<span class="comment">-------------------------+-------+</span></span><br><span class="line">| Variable_name           | Value |</span><br><span class="line">+<span class="comment">-------------------------+-------+</span></span><br><span class="line">| Created_tmp_disk_tables | 0     |</span><br><span class="line">| Created_tmp_files       | 6     |</span><br><span class="line">| Created_tmp_tables      | 11    |</span><br><span class="line">+<span class="comment">-------------------------+-------+</span></span><br><span class="line">3 rows in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p>建议Created_tmp_disk_tables / Created_tmp_tables不要超过25%。如果Created_tmp_disk_tables数量很大，查看是否有很多慢sql，是否有很多使用临时表的语句。加大tmp_table_size的值。</p>
+<p>还可以选择择机重启实例，释放 ibtmp1 文件，和 ibdata1 不同，ibtmp1 重启时会被重新初始化而 ibdata1 则不可以</p>
+</li>
+</ul>
+<h4 id="2-数据字典-Data-Dictionary"><a href="#2-数据字典-Data-Dictionary" class="headerlink" title="2. 数据字典 ( Data Dictionary )"></a>2. 数据字典 ( Data Dictionary )</h4><ul>
+<li><p>数据字典（InnoDB Data Dictionary）</p>
+<p>MySQL中，数据字典包括了: 表结构、数据库名或表名、字段的数据类型、视图、索引、表字段信息、MySQL版本信息、存储过程、触发器等内容.</p>
+<p>InnoDB数据字典由内部系统表组成，这些表包含用于查找表、索引和表字段等对象的元数据。元数据物理上位于InnoDB系统表空间中。在MySQL8.0之前 由于历史原因，数据字典元数据在一定程度上与InnoDB表元数据文件（.frm文件）中存储的信息重叠。</p>
+<p><img src="/images/02_图片/18.jpg" style="width:550px;  ">  </p>
+</li>
+</ul>
+<blockquote>
+<p>注: MySQL8.0版本以后 将所有原先存放于数据字典文件中的信息，全部存放到数据库系统表中，即将之前版本的 .frm,.opt等文件都移除了，不再通过文件的方式存储数据字典信息</p>
+</blockquote>
+<h4 id="3-双写缓冲区-Doublewrite-Buffer-Files"><a href="#3-双写缓冲区-Doublewrite-Buffer-Files" class="headerlink" title="3. 双写缓冲区  ( Doublewrite Buffer Files)"></a>3. 双写缓冲区  ( Doublewrite Buffer Files)</h4><ul>
+<li><p><strong>什么是写失效 ( 部分页失效 )</strong> </p>
+<p>InnoDB的页和操作系统的页大小不一致，InnoDB页大小一般为16K，操作系统页大小为4K，InnoDB的页写入到磁盘时，一个页需要分4次写。</p>
+<p>如果存储引擎正在写入页的数据到磁盘时发生了宕机，可能出现页只写了一部分的情况，比如只写了4K，就宕机了，这种情况叫做部分写失效（partial page write），可能会导致数据丢失。</p>
+<p><img src="/images/02_图片/19.jpg" style="width:650px;  "> </p>
+</li>
+</ul>
+<ul>
+<li><p><strong>双写缓冲区 Doublewrite Buffer</strong> </p>
+<p>为了解决写失效问题，InnoDB实现了double write buffer Files, 它位于<strong>系统表空间</strong>，是一个存储区域。</p>
+<p>在BufferPool的page页刷新到磁盘真正的位置前，会先将数据存在Doublewrite 缓冲区。这样在宕机重启时，如果出现数据页损坏，那么在应用redo log之前，需要通过该页的副本来还原该页，然后再进行redo log重做，double write实现了InnoDB引擎数据页的可靠性.</p>
+</li>
+</ul>
+<p>   默认情况下启用双写缓冲区，如果要禁用Doublewrite 缓冲区，可以将<code>innodb_doublewrite</code>设置为0。</p>
+   <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%innodb_doublewrite%';</span><br><span class="line">+<span class="comment">--------------------+-------+</span></span><br><span class="line">| Variable_name      | Value |</span><br><span class="line">+<span class="comment">--------------------+-------+</span></span><br><span class="line">| innodb_doublewrite | ON    |</span><br><span class="line">+<span class="comment">--------------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.01</span> sec)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><strong>数据双写流程</strong></p>
+<p><img src="/images/02_图片/21.jpg" style="width:650px;  "> </p>
+<p><strong>第一次写：</strong></p>
+<p>刷脏页的时候，通过<strong>memcpy</strong>函数将脏页复制到内存中的<strong>double write buffer</strong>。<strong>double write buffer</strong>再分两次、每次1MB,，顺序写入共享表空间的物理磁盘上。</p>
+<p><strong>第二次写：</strong></p>
+<p>在完成double write页的写入后，再将double wirite buffer中的页写入各个表的<strong>独立表空间</strong>文件中(数据文件 .ibd)。</p>
+</li>
+</ul>
+<ul>
+<li><p><strong>为什么写两次 ?</strong></p>
+<p>可能有的同学会有疑问，为啥写两次，刷一次数据文件保存数据不就可以了，为什么还要写共享表空间 ?其实是因为共享表空间是在ibdbata文件中划出2M连续的空间，专门给double write刷脏页用的, 由于在这个过程中，<strong>double write页的存储是连续的，因此写入磁盘为顺序写，性能很高</strong>；完成double write后，再将脏页写入实际的各个表空间文件，这时写入就是离散的了.</p>
+</li>
+</ul>
+<ul>
+<li><p><strong>Change Buffer</strong> </p>
+<p> 系统表空间中的change buffer是内存缓冲池中change buffer的备份，也就是说被持久化到了系统表空间中。在崩溃恢复的时候会从系统表空间的change buffer中读取信息到buffer pool。</p>
+</li>
+</ul>
+<h4 id="4-重做日志-redo-log"><a href="#4-重做日志-redo-log" class="headerlink" title="4. 重做日志 ( redo log )"></a>4. 重做日志 ( redo log )</h4><ul>
+<li><p><strong>WAL（Write-Ahead Logging）机制</strong></p>
+<p>WAL 的全称是 Write-Ahead Logging，中文称预写式日志(日志先行)，是一种数据安全写入机制。就是先写日志，然后再写入磁盘，这样既能提高性能又可以保证数据的安全性。Mysql中的redo log就是采用WAL机制。</p>
+<p><strong>为什么使用WAL ?</strong> </p>
+<p>磁盘的写操作是随机IO，比较耗性能，所以如果把每一次的更新操作都先写入log中，那么就成了顺序写操作，实际更新操作由后台线程再根据log异步写入。这样对于client端，延迟就降低了。并且，由于顺序写入大概率是在一个磁盘块内，这样产生的io次数也大大降低。所以WAL的核心在于<strong>将随机写转变为了顺序写</strong>，降低了客户端的延迟，提升了吞吐量.</p>
+</li>
+</ul>
+<ul>
+<li><p><strong>redo log 基本概念</strong> </p>
+<p>InnoDB引擎对数据的更新，是先将更新记录写入redo log日志，然后会在系统空闲的时候或者是按照设定的更新策略再将日志中的内容更新到磁盘之中。这就是所谓的预写式技术（Write Ahead logging）。这种技术可以大大减少IO操作的频率，提升数据刷新的效率。</p>
+<p>redo log：被称作重做日志, 包括两部分：一个是内存中的日志缓冲： <code>redo log buffer</code>，另一个是磁盘上的日志文件： <code>redo log file</code> 。 </p>
+<p>mysql 每执行一条 DML 语句，先将记录写入 redo log buffer ( redo日志记录的是事务对数据库做了哪些修改 ) 。后续某个时间点再一次性将多个操作记录写到 redo log file 。当故障发生致使内存数据丢失后，InnoDB会在重启时，经过重放 redo，将Page恢复到崩溃之前的状态 <strong>通过Redo log可以实现事务的持久性 。</strong></p>
+</li>
+</ul>
+<ul>
+<li><p>Redo log数据落盘流程</p>
+<p>将内存中的数据页持久化到磁盘,需要下面的两个流程来完成 :</p>
+</li>
+</ul>
+<ol>
+<li><strong>脏页落盘机制</strong>     </li>
+</ol>
+<p><img src="/images/02_图片/22.jpg" style="width:550px; "> </p>
+<p>脏页是指修改了Buffer Pool中的数据页后,导致了内存中的数据页和磁盘中的数据页不一致,这时就出现了脏页.</p>
+<p>当进行数据页的修改操作时: 首先修改在缓冲池中的页，然后再以一定的频率刷新到磁盘上。页从缓冲池刷新回磁盘的操作并不是在每次页发生更新时触发，而是通过一种称为<code>CheckPoint</code>的机制刷新回磁盘。 </p>
+<p><strong>checkpoint机制</strong> </p>
+<p>思考一下这个场景：如果重做日志可以无限地增大，同时缓冲池也足够大，那么是不需要将缓冲池中页的新版本刷新回磁盘。因为当发生宕机时，完全可以通过重做日志来恢复整个数据库系统中的数据到宕机发生的时刻。</p>
+<p>Checkpoint(检查点)技术主要解决以下几个问题：</p>
+<ol>
+<li><p>缩短数据库的恢复时间</p>
+</li>
+<li><p>缓冲池不够用时，将脏页刷新到磁盘</p>
+</li>
+<li><p>重做日志不可用时，刷新脏页。</p>
+</li>
+</ol>
+<p>脏页落盘的时机 采用CheckPoint检查点机制 以下机制都可通过参数控制</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sharp checkpoint：强制落盘。把内存中所有的脏页都执行落盘操作。只有当关闭数据库之前才会执行。</span><br><span class="line">fuzzy checkpoint：模糊落盘。把一部分脏页执行落盘操作</span><br><span class="line">	1.Master Thrad Checkpoint 主线程定时将脏页写入磁盘 每秒或每10s执行一次脏页。</span><br><span class="line">	2.FLUSH_LRU_LIST buffer pool有脏页换出，执行落盘</span><br><span class="line">	3.Async/Sync Flush checkpoint 当redo log快写满的时候执行落盘</span><br><span class="line">		a.当redo log超过75%小于90%会执行异步落盘</span><br><span class="line">		b.当redo log超过90%，会执行同步落盘操作。会阻塞写操作。</span><br><span class="line">	4.Dirty Page too much checkpoint 如果buffer pool中脏页太多，脏页率超过75%执行落盘</span><br></pre></td></tr></table></figure>
+<ol>
+<li><strong>redo log 持久化</strong></li>
+</ol>
+<p>缓冲区数据一般情况下是无法直接写入磁盘的，中间必须经过操作系统缓冲区( OS Buffer )。因此， redo log buffer 写入 redo logfile 实际上是先写入 OS Cache，然后再通过系统调用 fsync() 将其刷到 redo log file. </p>
+<p>Redo Buffer 持久化到 redo log 的策略，可通过<code>Innodb_flush_log_at_trx_commit</code> 设置：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0 (延迟写)</td>
+<td>事务提交时不会将 <code>redo log buffer</code>中日志写入到 <code>os buffer</code>，<br>而是每秒写入 <code>os cache</code>并调用 <code>fsync()</code>写入到 <code>redo log file</code>中。<br>也就是说设置为0时是(大约)每秒刷新写入到磁盘中的，当系统崩溃，会丢失1秒钟的数据。</td>
+</tr>
+<tr>
+<td style="text-align:center">1  (实时写,实时刷)</td>
+<td>事务每次提交都会将 <code>redo log buffer</code>中的日志写入 <code>os cache</code>并<br>调用 <code>fsync()</code>刷到 <code>redo log file</code>中。这种方式即使系统崩溃也不会丢失任何数据，但是因为每次提交都写入磁盘，IO的性能较差。</td>
+</tr>
+<tr>
+<td style="text-align:center">2 (实时写, 延时刷)</td>
+<td>每次提交都仅写入到 <code>os buffer</code>，然后是每秒调用 <code>fsync()</code>将 <code>os cache</code>中的日志写入到 <code>redo log file</code>。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>一般建议选择取值2，因为 MySQL 挂了数据没有损失，整个服务器挂了才会损失1秒的事务提交数据</p>
+<p><img src="/images/02_图片/23.jpg" style="width:650px;  "> </p>
+<ul>
+<li><p><strong>redo log日志格式</strong></p>
+<p>物理日志VS逻辑日志</p>
+<ul>
+<li><p>物理日志: 记录的是每一个page页中具体存储的值是多少，在这个数据页上做了什么修改.  比如: 某个事物将系统表空间中的第100个页面中偏移量为1000处的那个字节的值1改为2.</p>
+</li>
+<li><p>逻辑日志: 记录的是每一个page页面中具体数据是怎么变动的，它会记录一个变动的过程或SQL语句的逻辑, 比如: 把一个page页中的一个数据从1改为2，再从2改为3,逻辑日志就会记录1-&gt;2,2-&gt;3这个数据变化的过程.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>  redo日志属于物理日志, 只是记录一下事务对数据库做了哪些修改。</p>
+<p>  <img src="/images/02_图片/24.jpg" style="width:650px;  "> </p>
+<ol>
+<li><strong>type</strong>: 该条日志的类型</li>
+<li><strong>space ID</strong> : 表空间ID</li>
+<li><strong>page number</strong> : 页号</li>
+<li><strong>data</strong> : 该条redo日志的具体内容</li>
+</ol>
+<ul>
+<li><p><strong>redo log日志类型</strong> </p>
+<p>redo log根据在页面中写入数据的多少,将redo日志划分为几种不同的类型(MySQL5.7中有53种类型)。</p>
+<ul>
+<li><p><strong>MLOG_1BYTE (type=1)</strong> : 表示在页面的某个偏移量处写入<strong>1字节</strong>的redo日志类型。</p>
+</li>
+<li><p><strong>MLOG_2BYTE (type=2)</strong> : 表示在页面的某个偏移量处写入<strong>2字节</strong>的redo日志类型。</p>
+</li>
+<li><p><strong>MLOG_4BYTE (type=4)</strong> : 表示在页面的某个偏移量处写入 <strong>4字节</strong> 的redo日志类型。</p>
+</li>
+<li><p><strong>MLOG_8BYTE (type=8)</strong> : 表示在页面的某个偏移量处写入<strong>8字节</strong>的redo日志类型。</p>
+<p><img src="/images/02_图片/25.jpg" style="width:650px;  "> </p>
+</li>
+<li><p><strong>MLOG_WRITE_STRING（type=30）</strong>: 表示在页面的某个偏移量处写入一串数据，但是因为不能确定写入的具体数据占用多少字节，所以需要在日志结构中添加一个len字段。。</p>
+<p><img src="/images/02_图片/26.jpg" style="width:650px;  "> </p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong>redo log 写入机制</strong></p>
+<p>同学们已经知道 redo log buffer是用来缓存写入到redo log文件中的数据内容的,那么是不是每次redo log buffer产生内容就立即写入到磁盘进行持久化呢 ? </p>
+<p>其实不需要的,就算在事务执行期间MySQL宕机了,redo log 缓冲区中的内容丢失了,也不会有损失,因为事务并没有提交(事务提交,必然写入日志完成).</p>
+<p><strong>redo log 三种状态</strong> </p>
+<p><img src="/images/02_图片/44.jpg" style="width:650px;  "> </p>
+<ol>
+<li><p>存在于redo log buffer 内存区域中</p>
+</li>
+<li><p>向磁盘写入,但是没有真正写入磁盘,而是保存在文件系统缓存中</p>
+</li>
+<li><p>持久化到磁盘</p>
+</li>
+</ol>
+</li>
+</ul>
+<p>  如果事务没有提交的时候,redo log buffer中的部分日志有可能被持久化到磁盘吗 ?</p>
+<p>  触发真正的fsync写盘的场景</p>
+<ol>
+<li><p>redo log buffer 占用的空间即将达到 innodb_log_buffer_size 一半的时候，后台线程会主动写盘。</p>
+</li>
+<li><p>并行的事务提交的时候，顺带将某个未提交的事务的redo log buffer 持久化到磁盘。因为redo log buffer 是共享的，因此一些正在执行中的事务的redo log信息也有可能被持久化到磁盘中。</p>
+</li>
+</ol>
+<p>  <strong>组提交</strong> </p>
+<p>  MySQL 为了优化磁盘持久化的开销，会有一个 组提交（group commit）的机制</p>
+<p>  每个InnDB存储引擎至少有1个重做日志文件组（group），每个文件组下至少有两个重做日志文件，默认的为<code>ib_logfile0</code>、<code>ib_logfile1</code>；</p>
+<p>  1) 事务日志组路径，当前目录表示MyQSL数据目录为日志组目录.</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_log_group_home_dir';</span><br><span class="line">+<span class="comment">---------------------------+-------+</span></span><br><span class="line">| Variable_name             | Value |</span><br><span class="line">+<span class="comment">---------------------------+-------+</span></span><br><span class="line">| innodb_log_group_home_dir | ./    |</span><br><span class="line">+<span class="comment">---------------------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">[root@localhost mysql]<span class="comment"># ll ib_log*</span></span><br><span class="line">-rw-r<span class="comment">----- 1 mysql mysql 50331648 1月  29 03:39 ib_logfile0</span></span><br><span class="line">-rw-r<span class="comment">----- 1 mysql mysql 50331648 7月  11 2020 ib_logfile1</span></span><br></pre></td></tr></table></figure>
+<p>  2) 事务日志组中的事务日志文件个数,默认是2个.</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like 'innodb_log_files_in_group';</span><br><span class="line">+<span class="comment">---------------------------+-------+</span></span><br><span class="line">| Variable_name             | Value |</span><br><span class="line">+<span class="comment">---------------------------+-------+</span></span><br><span class="line">| innodb_log_files_in_group | 2     |</span><br><span class="line">+<span class="comment">---------------------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.01</span> sec)</span><br></pre></td></tr></table></figure>
+<p>  3) 日志组中每个重做日志的大小一致，并循环使用；</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like &apos;innodb_log_file_size&apos;;</span><br><span class="line">+----------------------+----------+</span><br><span class="line">| Variable_name        | Value    |</span><br><span class="line">+----------------------+----------+</span><br><span class="line">| innodb_log_file_size | 50331648 |</span><br><span class="line">+----------------------+----------+</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<p>  InnoDB 以环型方式(circular fashion)写入数据到重做日志文件，当文件满了的时候，会自动切换到日志文件2，当重做日志文件2也写满时，会再切换到重做日志文件1；</p>
+<p>  <img src="/images/02_图片/27.jpg" style="width:650px;  "> </p>
+<p>  <strong>write pos</strong>: 表示日志当前记录的位置，当ib_logfile_4写满后，会从ib_logfile_1从头开始记录；</p>
+<p>  <strong>check point</strong>: 表示将日志记录的修改写进磁盘，完成数据落盘，数据落盘后checkpoint会将日志上的相关记录擦除掉，即 <code>write pos -&gt; checkpoint</code>  之间的部分是redo log空着的部分，用于记录新的记录，<code>checkpoint -&gt; write pos</code> 之间是redo log 待落盘的数据修改记录</p>
+<p>  如果 write pos 追上 checkpoint，表示写满，这时候不能再执行新的更新，得停下来先擦掉一些记录，把 checkpoint 推进一下。</p>
+<h4 id="5-撤销日志-undo-log"><a href="#5-撤销日志-undo-log" class="headerlink" title="5. 撤销日志 ( undo log )"></a>5. 撤销日志 ( undo log )</h4><ul>
+<li><p><strong>undo log 基本概念</strong></p>
+<p>undo log是一种用于撤销回退的日志，在数据库事务开始之前，MySQL会先记录更新前的数据到 undo log日志文件里面，当事务回滚时或者数据库崩溃时，可以利用 undo log来进行回退。</p>
+<p>Undo Log产生和销毁：Undo Log在事务开始前产生；事务在提交时，并不会立刻删除undo log，innodb会将该事务对应的undo log放入到删除列表中，后面会通过后台线程purge thread进行回收处理。</p>
+<p><strong>注意: undo log也会产生redo log，因为undo log也要实现持久性保护。</strong></p>
+</li>
+</ul>
+<ul>
+<li><p><strong>undo log的作用</strong></p>
+<ol>
+<li><p>提供回滚操作【<strong>undo log实现事务的原子性</strong>】</p>
+<p>在数据修改的时候，不仅记录了redo log，还记录了相对应的undo log，如果因为某些原因导致事务执行失败了，可以借助undo log进行回滚。</p>
+<p>undo log 和 redo log 记录物理日志不一样，它是<strong>逻辑日志</strong>。可以认为当delete一条记录时，undo log中会记录一条对应的insert记录，反之亦然，当update一条记录时，它记录一条对应相反的update记录。</p>
+</li>
+</ol>
+</li>
+</ul>
+<ol>
+<li><p>提供多版本控制(MVCC)【<strong>undo log实现多版本并发控制（MVCC）</strong>】</p>
+<p>MVCC，即多版本控制。在MySQL数据库InnoDB存储引擎中，用undo Log来实现多版本并发控制(MVCC)。当读取的某一行被其他事务锁定时，它可以从undo log中分析出该行记录以前的数据版本是怎样的，从而让用户能够读取到当前事务操作之前的数据【快照读】。</p>
+<p><strong>快照读：</strong></p>
+<p>SQL读取的数据是快照版本【可见版本】，也就是历史版本，不用加锁，普通的SELECT就是快照读。</p>
+<p><strong>当前读：</strong></p>
+<p>SQL读取的数据是最新版本(最新版本指的是修改且已经提交的数据)。除了在执行修改语句的时候，需要执行当前读，然后再更新数据之外，select语句也有可能是当前读,比如: select … lock in share mode、select … for update。</p>
+</li>
+</ol>
+<ul>
+<li><p><strong>undo log 的工作原理</strong></p>
+<p>在更新数据之前，MySQL会提前生成undo log日志，当事务提交的时候，并不会立即删除undo log，因为后面可能需要进行回滚操作，要执行回滚（rollback）操作时，从缓存中读取数据。</p>
+<p>undo log日志的删除是通过通过后台purge线程进行回收处理的。</p>
+<p><img src="/images/02_图片/29.jpg" style="width:750px;  "> </p>
+<ol>
+<li>事务A执行update更新操作，在事务没有提交之前，会将旧版本数据备份到对应的undo buffer中，然后再由undo buffer持久化到磁盘中的undo log文件中, 之后才会对user进行更新操作,然后持久化到磁盘.</li>
+<li>在事务A执行的过程中,事务B对User进行了查询</li>
+</ol>
+</li>
+</ul>
+<ul>
+<li><p><strong>Undo log的存储机制</strong> </p>
+<p>为了保证事务并发操作时，在写各自的undo log时不产生冲突，InnoDB采用回滚段的方式来维护undo log的并发写入和持久化。</p>
+<p><code>rollback segment</code> 称为回滚段 共有128个，每个回滚段中有1024个<code>undo log segment</code> ,即支持<code>128*1024</code>个<code>undo</code>操作,最多支持131072个并发事务执行。</p>
+</li>
+</ul>
+<p>  接下来我们一起来看一下,一条INSERT语句的undo log具体都存储着哪些内容</p>
+<p>  <strong>1) 事务ID</strong></p>
+<p>  事务执行过程中在对某个表执行增、删、改操作时，InnoDB就会给这个事务分配一个唯一的事务ID。</p>
+<p>  可以通过 <code>information_schema.INNODB_TRX</code> 来查询当前系统中运行的事务信息.</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">START</span> <span class="keyword">TRANSACTION</span>;</span><br><span class="line">	<span class="keyword">select</span> * <span class="keyword">from</span> test1.a1;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"><span class="comment">--trx_id 就是事务ID,InnoDB 在内存维护了一个全局变量来表示事务ID，每当要分配一个事务ID时，就获取这个变量值，然后把这个变量自增1</span></span><br><span class="line"><span class="keyword">select</span> </span><br><span class="line">	trx_id , </span><br><span class="line">	trx_state ,</span><br><span class="line">    trx_started,</span><br><span class="line">    trx_isolation_level</span><br><span class="line"><span class="keyword">from</span> information_schema.INNODB_TRX;</span><br></pre></td></tr></table></figure>
+<p>  <strong>2) 行记录的隐藏列</strong></p>
+<p>  InnoDB引擎管理的数据表中每行行记录,都存在着三个隐藏列:</p>
+<p>  <img src="/images/02_图片/45.jpg" style="width:550px;  ">  </p>
+<ul>
+<li><code>DB_ROW_ID</code> : 如果没有为表显式的定义主键，并且表中也没有定义唯一索引，那么InnoDB会自动为表添加一个row_id的隐藏列作为主键。</li>
+<li><code>DB_TRX_ID</code> : 事务中对某条记录做增删改时,就会将这个事务的事务ID写入到trx_id中.</li>
+<li><code>DB_ROLL_PTR</code>: 回滚指针,指向undo log的指针</li>
+</ul>
+<p>  <strong>3) INSERT语句的undo log回滚日志结构</strong> </p>
+<p>  插入一条数据对应的undo操作其实就是根据主键删除这条数据就行了。所以 insert 对应的 undo log 主要是把这条记录的主键记录上</p>
+<p>  <img src="/images/02_图片/46.jpg" style="width:550px; height:100px; "> </p>
+<ul>
+<li>start、end：指向记录开始和结束的位置。</li>
+<li>主键列信息：记录INSERT这行数据的主键ID信息，或者唯一列信息。</li>
+<li>table id：表空间ID。</li>
+<li>undo no：在当前事务中 undo log 的编号,从0开始。</li>
+<li>undo type：undo log 的类型，insert语句的undo log类型是 <code>TRX_UNDO_INSERT_REC</code>。</li>
+</ul>
+<p>  <strong>4) undo回滚链</strong> </p>
+<p>  通过一个事物操作,我们一起来看一下回滚链的形成.</p>
+<p>  <img src="/images/02_图片/47.jpg" style="width:750px;  ">    </p>
+<ul>
+<li><p><strong>undo log 相关参数</strong></p>
+<p>MySQL 与undo相关的参数设置:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%undo%';</span><br><span class="line">+<span class="comment">--------------------------+------------+</span></span><br><span class="line">| Variable_name            | Value      |</span><br><span class="line">+<span class="comment">--------------------------+------------+</span></span><br><span class="line">| innodb_max_undo_log_size | 1073741824 |</span><br><span class="line">| innodb_undo_directory    | ./         |</span><br><span class="line">| innodb_undo_log_truncate | OFF        |</span><br><span class="line">| innodb_undo_logs         | 128        |</span><br><span class="line">| innodb_undo_tablespaces  | 0          |</span><br><span class="line">+<span class="comment">--------------------------+------------+</span></span><br><span class="line"></span><br><span class="line">mysql&gt; show global variables like '%truncate%';</span><br><span class="line">+<span class="comment">--------------------------------------+-------+</span></span><br><span class="line">| Variable_name                        | Value |</span><br><span class="line">+<span class="comment">--------------------------------------+-------+</span></span><br><span class="line">| innodb_purge_rseg_truncate_frequency | 128   |</span><br><span class="line">| innodb_undo_log_truncate             | OFF   |</span><br><span class="line">+<span class="comment">--------------------------------------+-------+</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><strong>innodb_max_undo_log_size</strong></p>
+<p>表示每一个undolog对应的日志文件的最大值，默认最大值为1GB大小，默认初始化大小为10MB。</p>
+<p>日志文件达到该阈值之后，且参数 <code>innodb_undo_log_truncate=ON</code>，才会触发truncate回收（收缩）动作，被truncate后的表空间文件大小缩小到undolog表空间数据文件默认的1OMB大小。否则即便是到达最大值之后，也不会自动回收undolog的表空间。</p>
+</li>
+<li><p><strong>innodb_undo_directory</strong>  </p>
+<p>指定undo log日志的存储目录，默认值为 ./。</p>
+</li>
+<li><p><strong>innodb_undo_logs </strong></p>
+<p>在MySQL5.6版本之后，可以通过此参数自定义多少个rollback segment，默认值为128。</p>
+</li>
+<li><p><strong>innodb_undo_tablespaces</strong> </p>
+<p>设置undo独立表空间个数，范围为0-128， 默认为0，0表示表示不开启独立undo表空间 且 undo日志存储在ibdata文件中。</p>
+<p>什么时候需要来设置这个参数 ?</p>
+<p>当DB写压力较大时，可以设置独立undo表空间，把undo从 ibdata文件中分离开来，指定 <code>innodb_undo_directory</code> 目录存放，可以制定到高速磁盘上，加快undo log 的读写性能。</p>
+</li>
+<li><p><strong>innodb_undo_log_truncate</strong></p>
+<p>表示是否开启自动收缩undolog的表空间的操作。如果配置为<code>ON</code>，并且配置了2个或2个以上的undolog表空间数据文件，当某一个日志文件大小超过设置的最大值之后，就会自动的收缩表空间数据文件。</p>
+<blockquote>
+<p>在回收表空间数据文件的时候，被回收的表空间数据文件会临时下线，为了保证undolog一直有地方可以写，此时要保证至少还有1个undolog日志文件是在线的。这就是要求<code>innodb_undo_tablespaces&gt;=2</code>的根本原因 </p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="6-二进制日志-binlog"><a href="#6-二进制日志-binlog" class="headerlink" title="6. 二进制日志 ( binlog )"></a>6. 二进制日志 ( binlog )</h4><ul>
+<li><p><strong>binlog基本概念</strong> </p>
+<p>binlog是一个二进制格式的文件，用于记录用户对数据库更新的SQL语句信息，例如更改数据库表和更改内容的SQL语句都会记录到binlog里，但是不会记录SELECT和SHOW这类操作。</p>
+<p>binlog的特点</p>
+<ul>
+<li>binlog在MySQL的Server层实现(引擎共用)</li>
+</ul>
+</li>
+<li>binlog为逻辑日志,记录的是一条SQL语句的原始逻辑<ul>
+<li>binlog不限制大小,追加写入,不会覆盖以前的日志.</li>
+<li>默认情况下，binlog日志是二进制格式的，不能使用查看文本工具的命令（比如，cat，vi等）查看，而使用mysqlbinlog解析查看。</li>
+</ul>
+</li>
+</ul>
+<p>  开启Binlog日志有以下两个最重要的使用场景:</p>
+<ol>
+<li>主从复制：在主库中开启Binlog功能，这样主库就可以把Binlog传递给从库，从库拿到Binlog后实现数据恢复达到主从数据一致性。</li>
+<li>数据恢复：通过mysqlbinlog工具来恢复数据。</li>
+</ol>
+<ul>
+<li><p><strong>binlog日志的三种模式</strong>  </p>
+<ul>
+<li><p>ROW（row-based replication, RBR）：日志中会记录每一行数据被修改的情况，然后在slave端对相同的数据进行修改。</p>
+<p>优点：能清楚记录每一个行数据的修改细节，能完全实现主从数据同步和数据的恢复。而且不会出现某些特定情况下存储过程或function，以及trigger的调用和触发器无法被正确复制的问题。</p>
+<p>缺点：批量操作，会产生大量的日志，尤其是alter table会让日志暴涨。</p>
+</li>
+<li><p>STATMENT（statement-based replication, SBR）：记录每一条修改数据的SQL语句（批量修改时，记录的不是单条SQL语句，而是批量修改的SQL语句事件）, slave在复制的时候SQL进程会解析成和原来master端执行过的相同的SQL再次执行。简称SQL语句复制。</p>
+<p>优点：日志量小，减少磁盘IO，提升存储和恢复速度</p>
+<p>缺点：在某些情况下会导致主从数据不一致，比如last_insert_id()、now()等函数。</p>
+<p><img src="/images/02_图片/30.jpg" style="width:550px;  "> </p>
+</li>
+<li><p>MIXED（mixed-based replication, MBR）：以上两种模式的混合使用，一般会使用STATEMENT模式保存binlog，对于STATEMENT模式无法复制的操作使用ROW模式保存binlog，MySQL会根据执行的SQL语句选择写入模式。</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>  <strong>企业场景如何选择binlog的模式</strong></p>
+<ol>
+<li><p>如果生产中使用MySQL的特殊功能相对少（存储过程、触发器、函数）。选择默认的语句模式，Statement。</p>
+</li>
+<li><p>如果生产中使用MySQL的特殊功能较多的，可以选择Mixed模式。</p>
+</li>
+<li><p>如果生产中使用MySQL的特殊功能较多，又希望数据最大化一致，此时最好Row 模式；但是要注意，该模式的binlog日志量增长非常快.</p>
+</li>
+</ol>
+<ul>
+<li><p><strong>Binlog写入机制</strong> </p>
+<p><strong>1) binlog文件结构</strong>  </p>
+<p>MySQL的binlog文件中记录的是对数据库的各种修改操作，用来表示修改操作的数据结构是Log event。不同的修改操作对应的不同的log event。</p>
+<p>比较常用的log event有：<code>Query event</code>、<code>Row event</code>、<code>Xid event</code>等。binlog文件的内容就是各种Log event的集合。</p>
+<p><img src="/images/02_图片/31.jpg" style="width:550px;  "> </p>
+</li>
+</ul>
+<p>  <strong>2) binlog落盘策略</strong> </p>
+<p>  binlog 的写入顺序: <code>binlog cache (write)</code> -&gt; <code>OS cache</code>  -&gt; <code>(fsync) disk.</code></p>
+<p>  write表示: 写入文件系统缓存,fsync表示持久化到磁盘的时机</p>
+<p>  binlog刷数据到磁盘由参数sync_binlog进行配置</p>
+<ul>
+<li>sync_binlog=0 的时候，表示每次提交事务都只 write,不 fsync;</li>
+<li>sync_binlog=1 的时候，表示每次提交事务都会执行 fsync;</li>
+<li><p>sync_binlog=N(N&gt;1) 的时候，表示每次提交事务都 write，但累积 N 个事务后才 fsync。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like '%sync_binlog%';</span><br><span class="line">+<span class="comment">---------------+-------+</span></span><br><span class="line">| Variable_name | Value |</span><br><span class="line">+<span class="comment">---------------+-------+</span></span><br><span class="line">| sync_binlog   | 1     |</span><br><span class="line">+<span class="comment">---------------+-------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意: 不建议将这个参数设成 0，比较常见的是将其设置为 100~1000 中的某个数值。如果设置成0，主动重启丢失的数据不可控制。设置成1，效率低下，设置成N(N&gt;1)，则主机重启，造成最多N个事务的binlog日志丢失，但是性能高，丢失数据量可控。</p>
+</blockquote>
+</li>
+</ul>
+<p>  <strong>3) binlog 写入流程</strong> </p>
+<p>  <img src="/images/02_图片/48.jpg" style="width:650px;  "> </p>
+<ol>
+<li>根据记录模式和操作触发event事件生成log event.</li>
+<li>事务执行过程中，先把日志(log event) 写到binlog cache，事务提交的时候，再把binlog cache写到binlog文件中。</li>
+<li>binlog cache，系统为每个线程分配了一片binlog cache内存 (每个线程都有自己的binlog cache，共用一份binlog文件) .</li>
+<li>事务提交的时候，执行器把binlog cache里完整的事务写入binlog中。并清空binlog cache.</li>
+</ol>
+<ul>
+<li><p><strong>redo log 和 binlog的区别</strong></p>
+<ol>
+<li><p>redo log是InnoDB引擎特有的；binlog是MySQL的Server层实现的，所有引擎都可以使用</p>
+</li>
+<li><p>redo log是物理日志，记录的是“在XXX数据页上做了XXX修改”；binlog是逻辑日志，记录的是原始逻辑，其记录是对应的SQL语句</p>
+</li>
+<li><p>redo log是循环写的，空间一定会用完，需要write pos和check point搭配；binlog是追加写，写到一定大小会切换到下一个，并不会覆盖以前的日志</p>
+</li>
+<li><p>Redo Log作为服务器异常宕机后事务数据自动恢复使用，Binlog可以作为主从复制和数据恢复使用。Binlog没有自动crash-safe能力</p>
+<blockquote>
+<p>CrashSafe指MySQL服务器宕机重启后，能够保证：<br>所有已经提交的事务的数据仍然存在。<br>所有没有提交的事务的数据自动回滚。</p>
+</blockquote>
+</li>
+</ol>
+</li>
+</ul>
+<ul>
+<li><p><strong>Binlog命令操作</strong></p>
+<p><strong>1. 使用sql命令查看binlog文件</strong>  </p>
+<ul>
+<li><p>启用Binlog</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/my.cnf</span><br><span class="line"></span><br><span class="line">--增加下面几个参数</span><br><span class="line">binlog-format=ROW</span><br><span class="line">log-bin=mysqlbinlog</span><br><span class="line">server-id=1</span><br><span class="line"></span><br><span class="line">-- 重启mysql</span><br><span class="line">systemctl restart mysqld</span><br></pre></td></tr></table></figure>
+<p><strong>binlog-format</strong>: 文件模式</p>
+<p><strong>log-bin</strong>: mysql会根据这个配置自动设置log_bin为on状态，自动设置log_bin_index文件为你指定的文件名后跟.index</p>
+<p><strong>server-id</strong>=1:  随机指定一个不能和其他集群中机器重名的字符串，如果只有一台机器，那就可以随便指定了</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>启动成功之后，我们可以登陆查看我们的配置是否起作用</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">  mysql&gt;</span> show variables like '%log_bin%';</span><br><span class="line">  +---------------------------------+----------------------------------+</span><br><span class="line">  | Variable_name                   | Value                            |</span><br><span class="line">  +---------------------------------+----------------------------------+</span><br><span class="line">| log_bin                         | ON                               |</span><br><span class="line">  | log_bin_basename                | /var/lib/mysql/mysqlbinlog       |</span><br><span class="line">| log_bin_index                   | /var/lib/mysql/mysqlbinlog.index |</span><br><span class="line">  | log_bin_trust_function_creators | OFF                              |</span><br><span class="line">  | log_bin_use_v1_row_events       | OFF                              |</span><br><span class="line">  | sql_log_bin                     | ON                               |</span><br><span class="line">  +---------------------------------+----------------------------------+</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<pre><code>**log_bin**: 是否开启binlog日志 
+
+**log_bin_basename**: 基础文件名
+</code></pre><p>  <strong>log_bin_index</strong> : binlog文件的索引文件，管理所有binlog文件</p>
+<p>  <strong>sql_log_bin</strong>: 表示当前会话是否记录 bin log，默认值on(当sql_log_bin关闭后，主库服务器上的改动不记录bin log，不会复制到从库)。</p>
+<ul>
+<li><p>查看binlog文件列表</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">  mysql&gt;</span> show binary logs;</span><br><span class="line">+--------------------+-----------+</span><br><span class="line">  | Log_name           | File_size |</span><br><span class="line">  +--------------------+-----------+</span><br><span class="line">  | mysqlbinlog.000001 |       177 |</span><br><span class="line">  | mysqlbinlog.000002 |       177 |</span><br><span class="line">  | mysqlbinlog.000003 |       154 |</span><br><span class="line">  +--------------------+-----------+</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>查看正在写入的binlog文件</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">master</span> <span class="keyword">status</span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>查看binlog文件信息</p>
+<p>  使用show binlog events命令查询到的每一行数据就是一个binlog管理事件</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show binlog events;</span><br><span class="line">+<span class="comment">--------------------+-----+----------------+-----------+-------------+---------------------------------------+</span></span><br><span class="line">| Log_name           | Pos | Event_type     | Server_id | End_log_pos | Info                                  |</span><br><span class="line">+<span class="comment">--------------------+-----+----------------+-----------+-------------+---------------------------------------+</span></span><br><span class="line">| mysqlbinlog.000001 |   4 | Format_desc    |         1 |         123 | Server ver: 5.7.30-log, Binlog ver: 4 |</span><br><span class="line">| mysqlbinlog.000001 | 123 | Previous_gtids |         1 |         154 |                                       |</span><br><span class="line">| mysqlbinlog.000001 | 154 | <span class="keyword">Stop</span>           |         <span class="number">1</span> |         <span class="number">177</span> |                                       |</span><br><span class="line">+<span class="comment">--------------------+-----+----------------+-----------+-------------+-----------</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<pre><code>参数说明
+
+1. **Log_name**：当前事件所在的binlog文件名称；
+
+2. **Pos**：当前事件的开始位置，每个事件都占用固定的字节大小，结束位置(**End_log_position**)减去Pos，就是这个事件占用的字节数。
+
+   &gt; 第一个事件位置并不是从0开始，而是从4。Mysql通过文件中的前4个字节，来判断这是不是一个binlog文件。这种方式很常见，很多格式文件，如pdf、doc、jpg等，都会通常前几个特定字符判断是否是合法文件。
+
+3. **Event_type**：表示事件的类型；
+
+4. **Server_id**：表示产生这个事件的mysql server_id，通过设置my.cnf中的server-id选项进行配置；
+
+5. **End_log_position**：下一个事件的开始位置；
+
+6. **Info**：当前事件的描述信息。
+</code></pre><ul>
+<li><p>查看指定binlog文件内容</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show binlog events in 'mysqlbinlog.000001'\G;</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">   Log_name: mysqlbinlog.000001</span><br><span class="line">        Pos: 4</span><br><span class="line"> Event_type: Format_desc</span><br><span class="line">  Server_id: 1</span><br><span class="line">End_log_pos: 123</span><br><span class="line">       Info: Server ver: 5.7.30-log, Binlog ver: 4</span><br><span class="line">*************************** 2. row ***************************</span><br><span class="line">   Log_name: mysqlbinlog.000001</span><br><span class="line">        Pos: 123</span><br><span class="line"> Event_type: Previous_gtids</span><br><span class="line">  Server_id: 1</span><br><span class="line">End_log_pos: 154</span><br><span class="line">       Info: </span><br><span class="line">*************************** 3. row ***************************</span><br><span class="line">   Log_name: mysqlbinlog.000001</span><br><span class="line">        Pos: 154</span><br><span class="line"> Event_type: <span class="keyword">Stop</span></span><br><span class="line">  Server_id: <span class="number">1</span></span><br><span class="line">End_log_pos: <span class="number">177</span></span><br><span class="line">     Info: </span><br><span class="line"><span class="number">3</span> <span class="keyword">rows</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"> </span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p><strong>2. 使用mysqlbinlog命令查看binlog文件</strong>     </p>
+<ul>
+<li><p>mysql给我们提供了一个用于查看binlog日志的工具，叫做<strong>mysqlbinlog</strong></p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">  [root@localhost mysql]<span class="comment"># mysqlbinlog mysqlbinlog.000001</span></span><br><span class="line"><span class="comment">/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=1*/</span>;</span><br><span class="line">  <span class="comment">/*!50003 SET @OLD_COMPLETION_TYPE=@@COMPLETION_TYPE,COMPLETION_TYPE=0*/</span>;</span><br><span class="line">DELIMITER <span class="comment">/*!*/</span>;</span><br><span class="line">  <span class="comment"># at 4</span></span><br><span class="line">  <span class="comment">#220125  6:40:35 server id 1  end_log_pos 123 CRC32 0x1e570724  Start: binlog v 4, server v 5.7.30-log created 220125  6:40:35 at startup</span></span><br><span class="line">  <span class="keyword">ROLLBACK</span><span class="comment">/*!*/</span>;</span><br><span class="line">BINLOG '</span><br><span class="line">  4wvwYQ8BAAAAdwAAAHsAAAAAAAQANS43LjMwLWxvZwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</span><br><span class="line">AAAAAAAAAAAAAAAAAADjC/BhEzgNAAgAEgAEBAQEEgAAXwAEGggAAAAICAgCAAAACgoKKioAEjQA</span><br><span class="line">  ASQHVx4=</span><br><span class="line">  '<span class="comment">/*!*/</span>;</span><br><span class="line">  <span class="comment"># at 123</span></span><br><span class="line">  <span class="comment">#220125  6:40:35 server id 1  end_log_pos 154 CRC32 0x43fa19f1  Previous-GTIDs</span></span><br><span class="line">  <span class="comment"># [empty]</span></span><br><span class="line">  <span class="comment"># at 154</span></span><br><span class="line">  <span class="comment">#220125  6:41:17 server id 1  end_log_pos 177 CRC32 0x205de899  Stop</span></span><br><span class="line">  <span class="keyword">SET</span> @@SESSION.GTID_NEXT= <span class="string">'AUTOMATIC'</span> <span class="comment">/* added by mysqlbinlog */</span> <span class="comment">/*!*/</span>;</span><br><span class="line">  DELIMITER ;</span><br><span class="line">  <span class="comment"># End of log file</span></span><br><span class="line">  <span class="comment">/*!50003 SET COMPLETION_TYPE=@OLD_COMPLETION_TYPE*/</span>;</span><br><span class="line">  <span class="comment">/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=0*/</span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>输出指定position位置的binlog日志</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqlbinlog --start-position=&apos;154&apos; --stop-position=&apos;177&apos;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>输出指定position位置的binlog日志到指定文件中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqlbinlog --start-position=&apos;154&apos; --stop-position=&apos;177&apos; mysqlbinlog.000001 &gt; test.log</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>输出指定position位置的binlog日志到压缩文件中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqlbinlog --start-position=&quot;指定开始位置&quot; --stop-position=&quot;指定结束位置&quot; binlog文件|gzip &gt; 压缩文件名</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>输出指定开始时间的binlog日志</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqlbinlog --start-datetime=&quot;yyyy-MM-dd HH:mm:ss&quot; binlog文件</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="7-新版本结构演变"><a href="#7-新版本结构演变" class="headerlink" title="7. 新版本结构演变"></a>7. 新版本结构演变</h4><p><img src="/images/02_图片/33.jpg" style="width:650px;  "> </p>
+<ul>
+<li><p>MySQL 5.7 版本</p>
+<ul>
+<li><p>将 Undo日志表空间从共享表空间 ibdata 文件中分离出来，可以在安装 MySQL 时由用户自行指定文件大小和数量。</p>
+</li>
+<li><p>增加了 temporary 临时表空间，里面存储着临时表或临时查询结果集的数据。</p>
+</li>
+<li><p>Buffer Pool 大小可以动态修改，无需重启数据库实例。</p>
+</li>
+</ul>
+</li>
+<li><p>MySQL 8.0 版本</p>
+<ul>
+<li>将InnoDB表的数据字典和Undo都从共享表空间ibdata中彻底分离出来了，以前需要ibdata中数据字典与独立表空间ibd文件中数据字典一致才行，8.0版本就不需要了。</li>
+<li>temporary 临时表空间也可以配置多个物理文件，而且均为 InnoDB 存储引擎并能创建索引，这样加快了处理的速度。</li>
+<li>用户可以像 Oracle 数据库那样设置一些表空间，每个表空间对应多个物理文件，每个表空间可以给多个表使用，但一个表只能存储在一个表空间中。</li>
+<li>将Doublewrite Buffer从共享表空间ibdata中也分离出来了。</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/21/mysql/001.MySQL_InnoDB内存结构/" rel="next" title="MySQL_InnoDB内存结构">
+                <i class="fa fa-chevron-left"></i> MySQL_InnoDB内存结构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/08/mysql/003MySQL_InnoDB线程模型/" rel="prev" title="Mysql_InnoDB线程模型">
+                Mysql_InnoDB线程模型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">83</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">17</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-磁盘结构"><span class="nav-text">InnoDB 磁盘结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-表空间-Tablespaces"><span class="nav-text">1. 表空间 ( Tablespaces )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-数据字典-Data-Dictionary"><span class="nav-text">2. 数据字典 ( Data Dictionary )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-双写缓冲区-Doublewrite-Buffer-Files"><span class="nav-text">3. 双写缓冲区  ( Doublewrite Buffer Files)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-重做日志-redo-log"><span class="nav-text">4. 重做日志 ( redo log )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-撤销日志-undo-log"><span class="nav-text">5. 撤销日志 ( undo log )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-二进制日志-binlog"><span class="nav-text">6. 二进制日志 ( binlog )</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-新版本结构演变"><span class="nav-text">7. 新版本结构演变</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

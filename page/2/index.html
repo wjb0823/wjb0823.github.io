@@ -298,7 +298,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/002.MySQL_InnoDB磁盘结构/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/15/elasticsearch/004.Elasticsearch_内核原理浅析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -318,7 +318,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2018/03/21/mysql/002.MySQL_InnoDB磁盘结构/" class="post-title-link" itemprop="url">Mysql_InnoDB磁盘结构</a>
+                <a href="/2018/07/15/elasticsearch/004.Elasticsearch_内核原理浅析/" class="post-title-link" itemprop="url">Elasticsearch_原理 API</a>
               
             
           </h1>
@@ -343,10 +343,24 @@
                 
               
 
-              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
+              <time title="创建时间：2018-07-15 14:15:27" itemprop="dateCreated datePublished" datetime="2018-07-15T14:15:27+08:00">2018-07-15</time>
             </span>
           
 
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2023-02-22 16:06:34" itemprop="dateModified" datetime="2023-02-22T16:06:34+08:00">2023-02-22</time>
+              </span>
+            
           
 
           
@@ -358,7 +372,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Elasticsearch/" itemprop="url" rel="index"><span itemprop="name">Elasticsearch</span></a></span>
 
                 
                 
@@ -399,15 +413,17 @@
         
           
             <p>
-              InnoDB 磁盘结构InnoDB磁盘主要包含Tablespaces，InnoDB Data Dictionary、Doublewrite Buffer、redo log和Undo Logs。
+              数据写入写入数据的整体流程
 
-Tablespaces: 表空间分为系统表空间（ibdata1文件）、临时表空间、常规表空间、Undo表
+客户端选择ES的某个node发送请求过去，这个node就是协调节点coordinating node。
+协调节点对document进行路由，将请求转发给对应的primary shard。
+primary shard 处理请求，然后将数据同步到 replica node。
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2018/03/21/mysql/002.MySQL_InnoDB磁盘结构/#more" rel="contents">
+              <a class="btn" href="/2018/07/15/elasticsearch/004.Elasticsearch_内核原理浅析/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -467,7 +483,7 @@ Tablespaces: 表空间分为系统表空间（ibdata1文件）、临时表空间
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/008.MySQL_事务原理/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/28/elasticsearch/003.Elasticsearch_mapping/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -487,7 +503,7 @@ Tablespaces: 表空间分为系统表空间（ibdata1文件）、临时表空间
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2018/03/21/mysql/008.MySQL_事务原理/" class="post-title-link" itemprop="url">Mysql_事务原理</a>
+                <a href="/2018/05/28/elasticsearch/003.Elasticsearch_mapping/" class="post-title-link" itemprop="url">Elasticsearch_Restful API</a>
               
             
           </h1>
@@ -512,7 +528,191 @@ Tablespaces: 表空间分为系统表空间（ibdata1文件）、临时表空间
                 
               
 
-              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
+              <time title="创建时间：2018-05-28 14:15:27" itemprop="dateCreated datePublished" datetime="2018-05-28T14:15:27+08:00">2018-05-28</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2023-02-22 16:06:23" itemprop="dateModified" datetime="2023-02-22T16:06:23+08:00">2023-02-22</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Elasticsearch/" itemprop="url" rel="index"><span itemprop="name">Elasticsearch</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>
+              查看mapping
+GET /index/_mapping/type
+只能创建index时手动建立mapping，或者新增field mapping，但是不能update field mapping
+PUT /website&#123;  &quot;mappings&quot;: &#123;  
+              ...
+            </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2018/05/28/elasticsearch/003.Elasticsearch_mapping/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/01/mysql/008.MySQL_事务原理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2018/05/01/mysql/008.MySQL_事务原理/" class="post-title-link" itemprop="url">Mysql_事务原理</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-05-01 22:15:27" itemprop="dateCreated datePublished" datetime="2018-05-01T22:15:27+08:00">2018-05-01</time>
             </span>
           
 
@@ -576,7 +776,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2018/03/21/mysql/008.MySQL_事务原理/#more" rel="contents">
+              <a class="btn" href="/2018/05/01/mysql/008.MySQL_事务原理/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -636,7 +836,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/013.MySQL_慢查询优化/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/01/mysql/007.MySQL_事务筑基/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -656,7 +856,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2018/03/21/mysql/013.MySQL_慢查询优化/" class="post-title-link" itemprop="url">MySQL_慢查询优化</a>
+                <a href="/2018/05/01/mysql/007.MySQL_事务筑基/" class="post-title-link" itemprop="url">Mysql_事务筑基</a>
               
             
           </h1>
@@ -681,7 +881,7 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
                 
               
 
-              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
+              <time title="创建时间：2018-05-01 22:15:27" itemprop="dateCreated datePublished" datetime="2018-05-01T22:15:27+08:00">2018-05-01</time>
             </span>
           
 
@@ -737,18 +937,14 @@ MVCC最大的好处是读不加锁，读写不冲突。在读多写
         
           
             <p>
-              慢查询日志分析1.慢查询设置与测试1) 慢查询介绍
-
-MySQL的慢查询，全名是慢查询日志，是MySQL提供的一种日志记录，用来记录在MySQL中响应时间超过阈值的语句。
-
-默认情况下，MySQL数据库并不启动慢查询日志，需要手动来设置这个参数。
-如果不是调优需要的话，一般不建议启动该参数，因为开启
+              ACID特性在关系型数据库管理系统中，一个逻辑工作单元要成为事务，必须满足这 4 个特性，即所谓的 ACID：原子性（Atomicity）、一致性（Consistency）、隔离性（Isolation）和持久性（Durability）。
+1.原子性原子性：事务是一个原子操作单元，其对数据的修改，要么
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2018/03/21/mysql/013.MySQL_慢查询优化/#more" rel="contents">
+              <a class="btn" href="/2018/05/01/mysql/007.MySQL_事务筑基/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -808,7 +1004,7 @@ MySQL的慢查询，全名是慢查询日志，是MySQL提供的一种日志记�
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/004MySQL_InnoDB数据文件/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/01/mysql/006.Mysql_事务/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -828,7 +1024,7 @@ MySQL的慢查询，全名是慢查询日志，是MySQL提供的一种日志记�
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2018/03/21/mysql/004MySQL_InnoDB数据文件/" class="post-title-link" itemprop="url">Mysql_InnoDB数据文件</a>
+                <a href="/2018/05/01/mysql/006.Mysql_事务/" class="post-title-link" itemprop="url">Mysql_事务</a>
               
             
           </h1>
@@ -853,7 +1049,343 @@ MySQL的慢查询，全名是慢查询日志，是MySQL提供的一种日志记�
                 
               
 
-              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
+              <time title="创建时间：2018-05-01 22:15:27" itemprop="dateCreated datePublished" datetime="2018-05-01T22:15:27+08:00">2018-05-01</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>
+              1 事务概述事务处理可以用来维护数据库的完整性，保证成批的 SQL 语句要么全部执行，要么全部不执行。事务用来管理DDL、DML、DCL操作，比如 insert,update,delete 语句，默认是自动提交的。一般来说，事务是必须满足4个条件（ACID）：Atomicity（原子性）Consis
+              ...
+            </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2018/05/01/mysql/006.Mysql_事务/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/09/mysql/005.MySQL_InnoDB参数优化/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2018/04/09/mysql/005.MySQL_InnoDB参数优化/" class="post-title-link" itemprop="url">Mysql_InnoDB参数优化</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-04-09 22:15:27" itemprop="dateCreated datePublished" datetime="2018-04-09T22:15:27+08:00">2018-04-09</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>
+              InnoDB 参数优化1.内存相关参数优化1.Buffer Pool参数优化 
+1.1 缓冲池内存大小配置    
+一个大的日志缓冲区允许大量的事务在提交之前不写日志到磁盘。因此，如果你有很多事务的更新，插入或删除操作，通过设置这个参数会大量的减少磁盘I/O的次数数。建议: 在专用数据库服务器上，可
+              ...
+            </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2018/04/09/mysql/005.MySQL_InnoDB参数优化/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/08/mysql/004MySQL_InnoDB数据文件/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2018/04/08/mysql/004MySQL_InnoDB数据文件/" class="post-title-link" itemprop="url">Mysql_InnoDB数据文件</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-04-08 22:15:27" itemprop="dateCreated datePublished" datetime="2018-04-08T22:15:27+08:00">2018-04-08</time>
             </span>
           
 
@@ -919,7 +1451,7 @@ MySQL的慢查询，全名是慢查询日志，是MySQL提供的一种日志记�
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2018/03/21/mysql/004MySQL_InnoDB数据文件/#more" rel="contents">
+              <a class="btn" href="/2018/04/08/mysql/004MySQL_InnoDB数据文件/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -979,7 +1511,7 @@ MySQL的慢查询，全名是慢查询日志，是MySQL提供的一种日志记�
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/003MySQL_InnoDB线程模型/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/08/mysql/003MySQL_InnoDB线程模型/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -999,7 +1531,7 @@ MySQL的慢查询，全名是慢查询日志，是MySQL提供的一种日志记�
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2018/03/21/mysql/003MySQL_InnoDB线程模型/" class="post-title-link" itemprop="url">Mysql_InnoDB线程模型</a>
+                <a href="/2018/04/08/mysql/003MySQL_InnoDB线程模型/" class="post-title-link" itemprop="url">Mysql_InnoDB线程模型</a>
               
             
           </h1>
@@ -1024,7 +1556,7 @@ MySQL的慢查询，全名是慢查询日志，是MySQL提供的一种日志记�
                 
               
 
-              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
+              <time title="创建时间：2018-04-08 22:15:27" itemprop="dateCreated datePublished" datetime="2018-04-08T22:15:27+08:00">2018-04-08</time>
             </span>
           
 
@@ -1088,7 +1620,7 @@ InnoDB存储引擎是多线程的模型，因此其后台有多个不同的后�
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2018/03/21/mysql/003MySQL_InnoDB线程模型/#more" rel="contents">
+              <a class="btn" href="/2018/04/08/mysql/003MySQL_InnoDB线程模型/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1148,7 +1680,7 @@ InnoDB存储引擎是多线程的模型，因此其后台有多个不同的后�
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/007.MySQL_事务筑基/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/22/mysql/002.MySQL_InnoDB磁盘结构/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -1168,7 +1700,7 @@ InnoDB存储引擎是多线程的模型，因此其后台有多个不同的后�
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2018/03/21/mysql/007.MySQL_事务筑基/" class="post-title-link" itemprop="url">Mysql_事务筑基</a>
+                <a href="/2018/03/22/mysql/002.MySQL_InnoDB磁盘结构/" class="post-title-link" itemprop="url">Mysql_InnoDB磁盘结构</a>
               
             
           </h1>
@@ -1193,7 +1725,7 @@ InnoDB存储引擎是多线程的模型，因此其后台有多个不同的后�
                 
               
 
-              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
+              <time title="创建时间：2018-03-22 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-22T22:15:27+08:00">2018-03-22</time>
             </span>
           
 
@@ -1249,14 +1781,15 @@ InnoDB存储引擎是多线程的模型，因此其后台有多个不同的后�
         
           
             <p>
-              ACID特性在关系型数据库管理系统中，一个逻辑工作单元要成为事务，必须满足这 4 个特性，即所谓的 ACID：原子性（Atomicity）、一致性（Consistency）、隔离性（Isolation）和持久性（Durability）。
-1.原子性原子性：事务是一个原子操作单元，其对数据的修改，要么
+              InnoDB 磁盘结构InnoDB磁盘主要包含Tablespaces，InnoDB Data Dictionary、Doublewrite Buffer、redo log和Undo Logs。
+
+Tablespaces: 表空间分为系统表空间（ibdata1文件）、临时表空间、常规表空间、Undo表
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2018/03/21/mysql/007.MySQL_事务筑基/#more" rel="contents">
+              <a class="btn" href="/2018/03/22/mysql/002.MySQL_InnoDB磁盘结构/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1486,7 +2019,7 @@ InnoDB 内存结构1. Buffer PoolBu
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/016.MySQL_索引优化实战/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/014.RocketMQ_消息积压/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -1506,7 +2039,7 @@ InnoDB 内存结构1. Buffer PoolBu
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2018/03/21/mysql/016.MySQL_索引优化实战/" class="post-title-link" itemprop="url">MySQL_索引优化实战</a>
+                <a href="/2017/12/21/rocketmq/014.RocketMQ_消息积压/" class="post-title-link" itemprop="url">RocketMQ_消息积压</a>
               
             
           </h1>
@@ -1531,10 +2064,24 @@ InnoDB 内存结构1. Buffer PoolBu
                 
               
 
-              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
+              <time title="创建时间：2017-12-21 22:15:27" itemprop="dateCreated datePublished" datetime="2017-12-21T22:15:27+08:00">2017-12-21</time>
             </span>
           
 
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2017-12-27 22:15:27" itemprop="dateModified" datetime="2017-12-27T22:15:27+08:00">2017-12-27</time>
+              </span>
+            
           
 
           
@@ -1546,7 +2093,7 @@ InnoDB 内存结构1. Buffer PoolBu
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/RocketMQ/" itemprop="url" rel="index"><span itemprop="name">RocketMQ</span></a></span>
 
                 
                 
@@ -1587,356 +2134,14 @@ InnoDB 内存结构1. Buffer PoolBu
         
           
             <p>
-              1.索引单表优化下面是一张用户通讯表的表结构信息,这张表来源于真实企业的实际项目中,有接近500万条数据.
-CREATE TABLE user_contacts (  id INT(11) NOT NULL AUTO_INCREMENT,  user_id INT(11) DEFAULT NULL 
-              ...
+              高并发
+
+              
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2018/03/21/mysql/016.MySQL_索引优化实战/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/012.MySQL_索引优化/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="最光阴">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="生活值得">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2018/03/21/mysql/012.MySQL_索引优化/" class="post-title-link" itemprop="url">MySQL_索引优化</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-
-          
-          
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
-            </span>
-          
-
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          <br>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>
-              Explain性能分析1.Explain 概述使用 EXPLAIN 关键字可以模拟优化器来执行SQL查询语句，从而知道MySQL是如何处理我们的SQL语句的。分析出查询语句或是表结构的性能瓶颈。
-
-MySQL查询过程
-
- 
-通过explain我们可以获得以下信息：
-
-表的读取顺序
-数据读取操作的操作
-              ...
-            </p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2018/03/21/mysql/012.MySQL_索引优化/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/mysql/006.Mysql_事务/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="最光阴">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="生活值得">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2018/03/21/mysql/006.Mysql_事务/" class="post-title-link" itemprop="url">Mysql_事务</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-
-          
-          
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-03-21 22:15:27" itemprop="dateCreated datePublished" datetime="2018-03-21T22:15:27+08:00">2018-03-21</time>
-            </span>
-          
-
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          <br>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>
-              1 事务概述事务处理可以用来维护数据库的完整性，保证成批的 SQL 语句要么全部执行，要么全部不执行。事务用来管理DDL、DML、DCL操作，比如 insert,update,delete 语句，默认是自动提交的。一般来说，事务是必须满足4个条件（ACID）：Atomicity（原子性）Consis
-              ...
-            </p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2018/03/21/mysql/006.Mysql_事务/#more" rel="contents">
+              <a class="btn" href="/2017/12/21/rocketmq/014.RocketMQ_消息积压/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -2307,188 +2512,6 @@ MySQL查询过程
           
             <div class="post-button text-center">
               <a class="btn" href="/2017/12/21/rocketmq/016.RocketMQ_消息限流/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/015.RocketMQ_高可用方案/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="最光阴">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="生活值得">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2017/12/21/rocketmq/015.RocketMQ_高可用方案/" class="post-title-link" itemprop="url">RocketMQ_高可用方案</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-
-          
-          
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-12-21 22:15:27" itemprop="dateCreated datePublished" datetime="2017-12-21T22:15:27+08:00">2017-12-21</time>
-            </span>
-          
-
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2017-12-27 22:15:27" itemprop="dateModified" datetime="2017-12-27T22:15:27+08:00">2017-12-27</time>
-              </span>
-            
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/RocketMQ/" itemprop="url" rel="index"><span itemprop="name">RocketMQ</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          <br>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>
-              针对这种场景，我们通常都会在你发送消息到MQ的那个系统中设计高可用的降级方案，这个降级方案通常的思路是，你需要在你发送消息到MQ代码里去try catch捕获异常，如果你发现发送消息到MQ有异常，此时你需要进行重试。
-如果你发现连续重试了比如超过3次还是失败，说明此时可能就是你的MQ集群彻底崩溃了，
-              ...
-            </p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2017/12/21/rocketmq/015.RocketMQ_高可用方案/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -3101,7 +3124,7 @@ MySQL查询过程
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/014.RocketMQ_消息积压/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/007.RocketMQ_消息丢失/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -3121,7 +3144,7 @@ MySQL查询过程
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2017/12/21/rocketmq/014.RocketMQ_消息积压/" class="post-title-link" itemprop="url">RocketMQ_消息积压</a>
+                <a href="/2017/12/21/rocketmq/007.RocketMQ_消息丢失/" class="post-title-link" itemprop="url">RocketMQ_消息丢失</a>
               
             
           </h1>
@@ -3216,14 +3239,31 @@ MySQL查询过程
         
           
             <p>
-              高并发
+              消息丢失场景
+发送消息丢失
+Broker消息丢失
 
-              
+
+os cache
+磁盘坏了丢失
+
+
+消费者消息丢失
+
+
+自动ack，但是业务没有处理成功
+解决发送消息丢失事务消息机制
+生产者先发一个half消息
+发送half消息成功，生产者处理自己的业务，执行本地事务
+
+
+如果本地事务失败，发送rollbac
+              ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2017/12/21/rocketmq/014.RocketMQ_消息积压/#more" rel="contents">
+              <a class="btn" href="/2017/12/21/rocketmq/007.RocketMQ_消息丢失/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -3652,7 +3692,7 @@ consumer group是有多个consumer，我们要把多个queue分配给多个consu
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/003.RocketMQ_Producer/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/012.RocketMQ_权限机制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -3672,7 +3712,7 @@ consumer group是有多个consumer，我们要把多个queue分配给多个consu
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2017/12/21/rocketmq/003.RocketMQ_Producer/" class="post-title-link" itemprop="url">RocketMQ_Producer</a>
+                <a href="/2017/12/21/rocketmq/012.RocketMQ_权限机制/" class="post-title-link" itemprop="url">RocketMQ_权限机制</a>
               
             
           </h1>
@@ -3767,15 +3807,19 @@ consumer group是有多个consumer，我们要把多个queue分配给多个consu
         
           
             <p>
-              Broker发现每30秒到NameServer，拉一次Broker路由信息。
-基于队列的消息分发机制发送消息，肯定是指定一个topic，往topic里去进行一个发送，把一个消息发送到我们的topic里去，获取topic有哪些queue，这些queue分布再哪些broker上。
-失败重试：发送失败会重
-              ...
+              
+首先在broker的配置文件中添加配置：aclEnable=true
+在${ROCKET_HOME}/store/conf目录下放一个plain_acl.yml
+创建Producer和Consumer的时候指定账号
+
+
+
+              
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2017/12/21/rocketmq/003.RocketMQ_Producer/#more" rel="contents">
+              <a class="btn" href="/2017/12/21/rocketmq/012.RocketMQ_权限机制/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
