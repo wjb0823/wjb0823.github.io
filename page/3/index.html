@@ -298,7 +298,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/012.RocketMQ_权限机制/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/004.RocketMQ_Broker/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -318,7 +318,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2017/12/21/rocketmq/012.RocketMQ_权限机制/" class="post-title-link" itemprop="url">RocketMQ_权限机制</a>
+                <a href="/2017/12/21/rocketmq/004.RocketMQ_Broker/" class="post-title-link" itemprop="url">RocketMQ_Broker</a>
               
             
           </h1>
@@ -413,19 +413,26 @@
         
           
             <p>
-              
-首先在broker的配置文件中添加配置：aclEnable=true
-在${ROCKET_HOME}/store/conf目录下放一个plain_acl.yml
-创建Producer和Consumer的时候指定账号
+              Broker主从、集群概念主从：
+
+第一组Broker
 
 
+brokerName相同-&gt;OrderBroker01
+brokeId不同(主从)-&gt;brokerId=0，brokerId=1
 
-              
+
+第二组Broker
+
+
+brokerName相同-&gt;OrderBroker02
+brok
+              ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2017/12/21/rocketmq/012.RocketMQ_权限机制/#more" rel="contents">
+              <a class="btn" href="/2017/12/21/rocketmq/004.RocketMQ_Broker/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -485,7 +492,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/011.RocketMQ_过滤机制/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/001.RocketMQ_整体架构/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -505,7 +512,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2017/12/21/rocketmq/011.RocketMQ_过滤机制/" class="post-title-link" itemprop="url">RocketMQ_过滤机制</a>
+                <a href="/2017/12/21/rocketmq/001.RocketMQ_整体架构/" class="post-title-link" itemprop="url">RocketMQ_整体架构</a>
               
             
           </h1>
@@ -612,7 +619,7 @@
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2017/12/21/rocketmq/011.RocketMQ_过滤机制/#more" rel="contents">
+              <a class="btn" href="/2017/12/21/rocketmq/001.RocketMQ_整体架构/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -672,7 +679,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/009.RocketMQ_延迟消息/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/mysql/012.MySQL_索引优化/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -692,7 +699,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2017/12/21/rocketmq/009.RocketMQ_延迟消息/" class="post-title-link" itemprop="url">RocketMQ_延迟消息</a>
+                <a href="/2017/12/21/mysql/012.MySQL_索引优化/" class="post-title-link" itemprop="url">MySQL_索引原理与优化</a>
               
             
           </h1>
@@ -746,7 +753,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/RocketMQ/" itemprop="url" rel="index"><span itemprop="name">RocketMQ</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a></span>
 
                 
                 
@@ -787,203 +794,21 @@
         
           
             <p>
-              高并发单机10万。几十万并发采用集群。 
-海量数据分布式存储
-高可用解决思路：主从架构、多副本策略
-数据路由 完整架构原理图 TODO：路由信息里有什么
-思考：
+              Explain性能分析1.Explain 概述使用 EXPLAIN 关键字可以模拟优化器来执行SQL查询语句，从而知道MySQL是如何处理我们的SQL语句的。分析出查询语句或是表结构的性能瓶颈。
 
+MySQL查询过程
 
-              
-            </p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2017/12/21/rocketmq/009.RocketMQ_延迟消息/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
+ 
+通过explain我们可以获得以下信息：
 
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/008.RocketMQ_消息重试/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="最光阴">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="生活值得">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2017/12/21/rocketmq/008.RocketMQ_消息重试/" class="post-title-link" itemprop="url">RocketMQ_消息重试</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-
-          
-          
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-12-21 22:15:27" itemprop="dateCreated datePublished" datetime="2017-12-21T22:15:27+08:00">2017-12-21</time>
-            </span>
-          
-
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2017-12-27 22:15:27" itemprop="dateModified" datetime="2017-12-27T22:15:27+08:00">2017-12-27</time>
-              </span>
-            
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/RocketMQ/" itemprop="url" rel="index"><span itemprop="name">RocketMQ</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          <br>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>
-              一个针对你这个ConsumeGroup的重试队列，如果返回RECONSUME_LATER，它会把这个消息放到重试队列，消费组：OrderConsumeGroup—&gt;重试队列：%Retry%OrderConsumeGroup
-重试规则：
-16次：1S 5S 10S …….1H 2H
-重试16次失
+表的读取顺序
+数据读取操作的操作
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2017/12/21/rocketmq/008.RocketMQ_消息重试/#more" rel="contents">
+              <a class="btn" href="/2017/12/21/mysql/012.MySQL_索引优化/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1043,7 +868,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/007.RocketMQ_消息丢失/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/013.RocketMQ_消息轨迹追踪/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -1063,7 +888,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2017/12/21/rocketmq/007.RocketMQ_消息丢失/" class="post-title-link" itemprop="url">RocketMQ_消息丢失</a>
+                <a href="/2017/12/21/rocketmq/013.RocketMQ_消息轨迹追踪/" class="post-title-link" itemprop="url">RocketMQ_消息轨迹追踪</a>
               
             
           </h1>
@@ -1158,31 +983,22 @@
         
           
             <p>
-              消息丢失场景
-发送消息丢失
-Broker消息丢失
+              
+首先在broker的配置文件中添加配置：traceTopicEnable=true
+创建Producer和Consumer的时候
 
 
-os cache
-磁盘坏了丢失
 
+在RocketMQ控制台，有一个消息轨迹，创建查询任务，可以根据messageId、messageKey、Topic来查看
 
-消费者消息丢失
-
-
-自动ack，但是业务没有处理成功
-解决发送消息丢失事务消息机制
-生产者先发一个half消息
-发送half消息成功，生产者处理自己的业务，执行本地事务
-
-
-如果本地事务失败，发送rollbac
+原理：
+如果开启了traceTopi
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2017/12/21/rocketmq/007.RocketMQ_消息丢失/#more" rel="contents">
+              <a class="btn" href="/2017/12/21/rocketmq/013.RocketMQ_消息轨迹追踪/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1242,7 +1058,7 @@ os cache
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/006.RocketMQ_主从架构/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/mysql/001.MySQL_InnoDB内存结构/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -1262,7 +1078,191 @@ os cache
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2017/12/21/rocketmq/006.RocketMQ_主从架构/" class="post-title-link" itemprop="url">RocketMQ_主从架构</a>
+                <a href="/2017/12/21/mysql/001.MySQL_InnoDB内存结构/" class="post-title-link" itemprop="url">MySQL_InnoDB内存结构</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-12-21 22:15:27" itemprop="dateCreated datePublished" datetime="2017-12-21T22:15:27+08:00">2017-12-21</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2017-12-27 22:15:27" itemprop="dateModified" datetime="2017-12-27T22:15:27+08:00">2017-12-27</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>
+              InnoDB存储引擎原理与优化从MySQL 5.5版本开始默认   使用InnoDB作为引擎，它擅长处理事务，具有自动崩溃恢复的特性，在日常开发中使用非常广泛。
+下面是官方的InnoDB引擎架构图，主要分为内存结构和磁盘结构两大部分。
+    
+InnoDB 内存结构1. Buffer PoolBu
+              ...
+            </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2017/12/21/mysql/001.MySQL_InnoDB内存结构/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/rocketmq/010.RocketMQ_顺序消费/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2017/12/21/rocketmq/010.RocketMQ_顺序消费/" class="post-title-link" itemprop="url">RocketMQ_顺序消费</a>
               
             
           </h1>
@@ -1357,18 +1357,14 @@ os cache
         
           
             <p>
-              RocketMQ自身的pull模式
-基于从节点pull模式的主从同步
+              取模
 
-消息丢失消息丢失的解决：同步刷盘+同步复制
-读写分离主从漂移+惰性读写分离机制
-默认情况下，rocketmq是不倾向于主动让你直接长期进行读写分离的，倾向于写和读，都是在主节点来进行的，从节点主要是用于进行数据复制和同步，实现热
-              ...
+              
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2017/12/21/rocketmq/006.RocketMQ_主从架构/#more" rel="contents">
+              <a class="btn" href="/2017/12/21/rocketmq/010.RocketMQ_顺序消费/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -2107,7 +2103,7 @@ os cache
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/27/redis/002Redis_数据类型/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/27/redis/003Redis_数据结构_链表/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -2127,7 +2123,7 @@ os cache
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2017/09/27/redis/002Redis_数据类型/" class="post-title-link" itemprop="url">Redis_数据类型</a>
+                <a href="/2017/09/27/redis/003Redis_数据结构_链表/" class="post-title-link" itemprop="url">Redis_底层数据结构_SDS</a>
               
             
           </h1>
@@ -2215,175 +2211,7 @@ os cache
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2017/09/27/redis/002Redis_数据类型/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/27/redis/003Redis_数据结构_SDS/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="最光阴">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="生活值得">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2017/09/27/redis/003Redis_数据结构_SDS/" class="post-title-link" itemprop="url">Redis_底层数据结构_SDS</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-
-          
-          
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2017-09-27 23:15:27" itemprop="dateCreated datePublished" datetime="2017-09-27T23:15:27+08:00">2017-09-27</time>
-            </span>
-          
-
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          <br>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>
-              官网对Redis的每种数据结构和使用的命令介绍的还是很详细的，这里就不依依举例说明了，不明白的大家可以查询官网文档。这里简单总结下各种数据结构的命令使用。
-1. 全局key操作--删flushdb          --清空当前选择的数据库del mykey mykey2 --删除了两个 Keys-
-              ...
-            </p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2017/09/27/redis/003Redis_数据结构_SDS/#more" rel="contents">
+              <a class="btn" href="/2017/09/27/redis/003Redis_数据结构_链表/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -2611,7 +2439,7 @@ os cache
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/27/redis/003Redis_数据结构_链表/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/27/redis/003Redis_数据结构_SDS/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -2631,7 +2459,7 @@ os cache
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2017/09/27/redis/003Redis_数据结构_链表/" class="post-title-link" itemprop="url">Redis_底层数据结构_SDS</a>
+                <a href="/2017/09/27/redis/003Redis_数据结构_SDS/" class="post-title-link" itemprop="url">Redis_底层数据结构_SDS</a>
               
             
           </h1>
@@ -2719,7 +2547,175 @@ os cache
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2017/09/27/redis/003Redis_数据结构_链表/#more" rel="contents">
+              <a class="btn" href="/2017/09/27/redis/003Redis_数据结构_SDS/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/27/redis/002Redis_数据类型/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2017/09/27/redis/002Redis_数据类型/" class="post-title-link" itemprop="url">Redis_数据类型</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-09-27 23:15:27" itemprop="dateCreated datePublished" datetime="2017-09-27T23:15:27+08:00">2017-09-27</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>
+              官网对Redis的每种数据结构和使用的命令介绍的还是很详细的，这里就不依依举例说明了，不明白的大家可以查询官网文档。这里简单总结下各种数据结构的命令使用。
+1. 全局key操作--删flushdb          --清空当前选择的数据库del mykey mykey2 --删除了两个 Keys-
+              ...
+            </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2017/09/27/redis/002Redis_数据类型/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -2949,7 +2945,7 @@ Redis不仅仅支持简单的k
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/01/02/jvm/007.JVM_调优/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/01/02/jvm/009.JVM_调优/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -2969,7 +2965,7 @@ Redis不仅仅支持简单的k
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2017/01/02/jvm/007.JVM_调优/" class="post-title-link" itemprop="url">JVM_调优</a>
+                <a href="/2017/01/02/jvm/009.JVM_调优/" class="post-title-link" itemprop="url">JVM_调优</a>
               
             
           </h1>
@@ -3067,7 +3063,7 @@ Full GC的触
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2017/01/02/jvm/007.JVM_调优/#more" rel="contents">
+              <a class="btn" href="/2017/01/02/jvm/009.JVM_调优/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -3127,7 +3123,7 @@ Full GC的触
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/08/23/jvm/005.JVM_垃圾收集算法、垃圾收集器、内存分配策略/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/08/23/jvm/007.JVM_GC日志分析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -3147,7 +3143,183 @@ Full GC的触
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2016/08/23/jvm/005.JVM_垃圾收集算法、垃圾收集器、内存分配策略/" class="post-title-link" itemprop="url">JVM_垃圾收集算法、垃圾收集器、内存分配策略</a>
+                <a href="/2016/08/23/jvm/007.JVM_GC日志分析/" class="post-title-link" itemprop="url">JVM_GC日志分析</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2016-08-23 14:15:27" itemprop="dateCreated datePublished" datetime="2016-08-23T14:15:27+08:00">2016-08-23</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>
+              YGC日志分析代码    
+参数
+-XX：+PrintGCDetils：打印详细的gc日志
+
+-XX：+PrintGCTimeStamps：这个参数可以打印出来每次GC发生的时间
+
+-Xloggc：gclog：这个参数可以设置将gc日志写入一个磁盘文件
+
+
+-XX:NewSize=5242880-X
+              ...
+            </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2016/08/23/jvm/007.JVM_GC日志分析/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/08/23/jvm/005.JVM_垃圾收集机制、垃圾收集算法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2016/08/23/jvm/005.JVM_垃圾收集机制、垃圾收集算法/" class="post-title-link" itemprop="url">JVM_垃圾收集机制、垃圾收集算法</a>
               
             
           </h1>
@@ -3237,7 +3409,7 @@ Full GC的触
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2016/08/23/jvm/005.JVM_垃圾收集算法、垃圾收集器、内存分配策略/#more" rel="contents">
+              <a class="btn" href="/2016/08/23/jvm/005.JVM_垃圾收集机制、垃圾收集算法/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -3297,7 +3469,7 @@ Full GC的触
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/08/23/jvm/006.JVM_参数总结/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/08/23/jvm/008.JVM_参数总结/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -3317,7 +3489,7 @@ Full GC的触
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2016/08/23/jvm/006.JVM_参数总结/" class="post-title-link" itemprop="url">JVM_参数总结</a>
+                <a href="/2016/08/23/jvm/008.JVM_参数总结/" class="post-title-link" itemprop="url">JVM_参数总结</a>
               
             
           </h1>
@@ -3409,7 +3581,7 @@ Full GC的触
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2016/08/23/jvm/006.JVM_参数总结/#more" rel="contents">
+              <a class="btn" href="/2016/08/23/jvm/008.JVM_参数总结/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -3469,7 +3641,7 @@ Full GC的触
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/07/14/jvm/004.JVM_对象的创建/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/08/23/jvm/006.JVM_垃圾收集器、内存分配策略/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -3489,7 +3661,7 @@ Full GC的触
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2016/07/14/jvm/004.JVM_对象的创建/" class="post-title-link" itemprop="url">JVM_对象创建</a>
+                <a href="/2016/08/23/jvm/006.JVM_垃圾收集器、内存分配策略/" class="post-title-link" itemprop="url">JVM_垃圾收集器、内存分配策略</a>
               
             
           </h1>
@@ -3514,7 +3686,7 @@ Full GC的触
                 
               
 
-              <time title="创建时间：2016-07-14 14:15:27" itemprop="dateCreated datePublished" datetime="2016-07-14T14:15:27+08:00">2016-07-14</time>
+              <time title="创建时间：2016-08-23 14:15:27" itemprop="dateCreated datePublished" datetime="2016-08-23T14:15:27+08:00">2016-08-23</time>
             </span>
           
 
@@ -3570,186 +3742,30 @@ Full GC的触
         
           
             <p>
-              2 HotSpot对象探秘2.1 对象的创建Java 中对象的创建就是在堆上分配内存空间的过程，此处说的对象创建仅限于 new 关键字创建的普通 Java 对象，不包括数组和Class对象。
+              4 垃圾收集器4.1 垃圾收集器分类
+新生代收集器
 
-检测类是否被加载当虚拟机遇到 new 指令时，首先先去检查这个指令的参数是否能在常量池中定位到一个类的符号
+Serial 收集器
+
+ParNew 收集器
+
+ParNew 收集器，是 Serial 收集器的多线程版。
+
+
+Parallel Scavenge 收集器
+
+
+
+老年代收集器
+
+Serial Old 收集器
+Serial Old 收集器，是 Se
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2016/07/14/jvm/004.JVM_对象的创建/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/24/jvm/003.JVM_内存溢出、内存泄漏/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="最光阴">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="生活值得">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2016/06/24/jvm/003.JVM_内存溢出、内存泄漏/" class="post-title-link" itemprop="url">JVM_内存区域、内存溢出异常</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-
-          
-          
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2016-06-24 14:15:27" itemprop="dateCreated datePublished" datetime="2016-06-24T14:15:27+08:00">2016-06-24</time>
-            </span>
-          
-
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          <br>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>
-              内存溢出
-Java 堆溢出Java 堆溢出的原因，有可能是内存泄露，可以使用 MAT 进行分析。
-虚拟机栈和本地方法栈溢出关于虚拟机栈和本地方法栈，在 Java 虚拟机规范中描述了两种异常：
-如果线程请求的栈深度大于虚拟机所允许的最大深度，将抛出 StackOverflowError 异常。
-如果虚
-              ...
-            </p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2016/06/24/jvm/003.JVM_内存溢出、内存泄漏/#more" rel="contents">
+              <a class="btn" href="/2016/08/23/jvm/006.JVM_垃圾收集器、内存分配策略/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -3840,7 +3856,7 @@ Java 堆溢出Java 堆溢出的原因，有可能是内存泄露，可以使用 
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">81</span>
+                    <span class="site-state-item-count">83</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
