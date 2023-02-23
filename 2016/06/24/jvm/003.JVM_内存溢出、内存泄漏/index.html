@@ -102,10 +102,22 @@
 <meta property="og:site_name" content="生活值得">
 <meta property="og:description" content="内存溢出 Java 堆溢出Java 堆溢出的原因，有可能是内存泄露，可以使用 MAT 进行分析。 虚拟机栈和本地方法栈溢出关于虚拟机栈和本地方法栈，在 Java 虚拟机规范中描述了两种异常： 如果线程请求的栈深度大于虚拟机所允许的最大深度，将抛出 StackOverflowError 异常。 如果虚拟机在扩展栈时无法申请到足够的内存空间，则抛出 OutOfMemoryError 异常。   运行时">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/jvm/026.png">
+<meta property="og:image" content="http://yoursite.com/images/jvm/027.png">
+<meta property="og:image" content="http://yoursite.com/images/jvm/028.png">
+<meta property="og:image" content="http://yoursite.com/images/jvm/029.png">
+<meta property="og:image" content="http://yoursite.com/images/jvm/030.png">
+<meta property="og:image" content="http://yoursite.com/images/jvm/031.png">
+<meta property="og:image" content="http://yoursite.com/images/jvm/032.png">
+<meta property="og:image" content="http://yoursite.com/images/jvm/033.png">
+<meta property="og:image" content="http://yoursite.com/images/jvm/034.png">
+<meta property="og:image" content="http://yoursite.com/images/jvm/035.png">
+<meta property="og:image" content="http://yoursite.com/images/jvm/036.png">
 <meta property="og:updated_time" content="2016-06-24T06:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM_内存区域、内存溢出异常">
 <meta name="twitter:description" content="内存溢出 Java 堆溢出Java 堆溢出的原因，有可能是内存泄露，可以使用 MAT 进行分析。 虚拟机栈和本地方法栈溢出关于虚拟机栈和本地方法栈，在 Java 虚拟机规范中描述了两种异常： 如果线程请求的栈深度大于虚拟机所允许的最大深度，将抛出 StackOverflowError 异常。 如果虚拟机在扩展栈时无法申请到足够的内存空间，则抛出 OutOfMemoryError 异常。   运行时">
+<meta name="twitter:image" content="http://yoursite.com/images/jvm/026.png">
 
 
 
@@ -415,6 +427,45 @@
 <p>但是，即使这样，Java也还是存在着内存泄漏的情况，java导致内存泄露的原因很明确：长生命周期的 </p>
 <p>对象持有短生命周期对象的引用就很可能发生内存泄露，尽管短生命周期对象已经不再需要，但是因为 </p>
 <p>长生命周期对象持有它的引用而导致不能被回收，这就是java中内存泄露的发生场景。</p>
+<h1 id="如何在JVM内存溢出的时候自动dump内存快照"><a href="#如何在JVM内存溢出的时候自动dump内存快照" class="headerlink" title="如何在JVM内存溢出的时候自动dump内存快照"></a>如何在JVM内存溢出的时候自动dump内存快照</h1><p>添加参数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-XX:+HeapDumpOnOutOfMemoryError </span><br><span class="line">-XX:HeapDumpPath=/usr/local/app/oom</span><br></pre></td></tr></table></figure>
+<h1 id="MAT工具分析快照文件"><a href="#MAT工具分析快照文件" class="headerlink" title="MAT工具分析快照文件"></a>MAT工具分析快照文件</h1><h2 id="元数据区内存溢出"><a href="#元数据区内存溢出" class="headerlink" title="元数据区内存溢出"></a>元数据区内存溢出</h2><p>代码：</p>
+<p><img src="/images/jvm/026.png" style="width:600px">    </p>
+<p>参数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-XX:+UseParNewGC </span><br><span class="line">-XX:+UseConcMarkSweepGC </span><br><span class="line">-XX:MetaspaceSize=10m </span><br><span class="line">-XX:MaxMetaspaceSize=10m </span><br><span class="line">-XX:+PrintGCDetails </span><br><span class="line">-Xloggc:gc.log</span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError </span><br><span class="line">-XX:HeapDumpPath=/</span><br></pre></td></tr></table></figure>
+<p>程序运行后得到gc.log和java_pid910.hprof。</p>
+<h3 id="分析gc-log"><a href="#分析gc-log" class="headerlink" title="分析gc.log"></a>分析gc.log</h3><p><strong>第一次GC，是Allocation Failure，是一次YGC。</strong></p>
+<p><img src="/images/jvm/027.png" style="width:600px">    </p>
+<p>因为上述代码不光是动态生成类，本身它也对应很多对象的，因此你在while（true）循环里不停的创建对象，当然会塞满Eden区了，大家看上述日志：【ParNew：139776K-&gt;2677K（157248K），0.0038770 secs】</p>
+<p><strong>第二次GC，是MetaData GC Threshold，代表MetaData满了，触发FullGC</strong></p>
+<p><img src="/images/jvm/028.png" style="width:600px">    </p>
+<p>20290K-&gt;2161K（506816K），这个就是说堆内存（年轻代+老年代）一共是500MB左右，然后有20MB左右的内存被使用了，这个必然是年轻代用的。</p>
+<p>然后Full GC必然会带着一次Young GC，因此这次Full GC其实是执行了ygc了，所以回收了很多对象，剩下了2161KB的对象，这个大概就是JVM的一些内置对象了。</p>
+<p>然后直接就把这些对象放入老年代，为什么呢，因为下面的日志：【CMS：0K-&gt;2161K（349568K），0.0721349 secs】</p>
+<p>这里明显说了，Full GC带着CMS进行了老年代的Old GC，结果人家本来是0KB，什么都没有，然后从年轻代转移来了2161KB的对象，所以老年代变成2161KB了。</p>
+<p>接着看日志：【Metaspace：9201K-&gt;9201K（1058816K）】</p>
+<p>此时Metaspace区域已经使用了差不多9MB左右的内存了，此时明显是发现离我们限制的10MB内存很接近了，所以触发了Full GC，但是对Metaspace GC后发现类全部存活了，因此还是剩余9MB左右的类在Metaspace里。</p>
+<p><strong>第三次GC，Last ditch collection FullGC</strong></p>
+<p><img src="/images/jvm/029.png" style="width:600px">    </p>
+<p>Last ditch collection，就是说，最后一次拯救的机会了，因为之前Metaspace回收了一次但是没有类可以回收，所以新的类无法放入Metaspace了，所以再最后试一试Full GC，能不能回收掉一些。</p>
+<p>结果如下：【Metaspace：9201K-&gt;9201K（1058816K）】，0.0165055 secs】</p>
+<p>Metaspace区域还是无法回收掉任何的类，几乎还是占满了我们设置的10MB左右。</p>
+<p>接着就直接JVM退出了，退出的时候就打印出了当前内存的一个情况，年轻代和老年代几乎没占用，但是Metaspace的Jcapacity是10MB，使用了9MB左右，无法再继续使用了，所以触发了内存溢出。</p>
+<p><img src="/images/jvm/030.png" style="width:600px">    </p>
+<h3 id="分析内存快照"><a href="#分析内存快照" class="headerlink" title="分析内存快照"></a>分析内存快照</h3><p><img src="/images/jvm/031.png" style="width:600px">    </p>
+<p>从这里可以看到实例最多的就是AppClassLoader。为啥有这么多的ClassLoader呢？一看就是CGLIB之类的东西在动态生成类的时候搞出来的，我们可以点击上图的Details进去看看。</p>
+<p><img src="/images/jvm/032.png" style="width:600px">    </p>
+<p><img src="/images/jvm/033.png" style="width:600px">    </p>
+<p>看到这里就真相大白了，是我们自己的哪个类里搞出来了一大堆的动态生成的类，所以填满了Metaspace区域。</p>
+<p>所以此时直接去代码里排查动态生成类的代码即可。</p>
+<p>解决这个问题的办法也很简单，直接对Enhancer做一个缓存，只有一个，不要无限制的去生成类就可以了。</p>
+<h2 id="栈内存溢出"><a href="#栈内存溢出" class="headerlink" title="栈内存溢出"></a>栈内存溢出</h2><p>代码：方法的递归调用</p>
+<p><img src="/images/jvm/034.png" style="width:600px">    </p>
+<h2 id="堆内存溢出"><a href="#堆内存溢出" class="headerlink" title="堆内存溢出"></a>堆内存溢出</h2><p>代码：</p>
+<p><img src="/images/jvm/035.png" style="width:600px">    </p>
+<p>参数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-Xms10m </span><br><span class="line">-Xmx10m </span><br><span class="line">-XX:+PrintGCDetails </span><br><span class="line">-Xloggcgc.log</span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError </span><br><span class="line">-XX:HeapDumpPath=./</span><br><span class="line">-XX:+UseParNewGC </span><br><span class="line">-XX:+UseConcMarkSweepGC</span><br></pre></td></tr></table></figure>
+<h3 id="分析内存快照-1"><a href="#分析内存快照-1" class="headerlink" title="分析内存快照"></a>分析内存快照</h3><p><img src="/images/jvm/036.png" style="width:600px">    </p>
 
       
     </div>
@@ -677,7 +728,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#内存溢出"><span class="nav-text">内存溢出</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内存泄漏"><span class="nav-text">内存泄漏</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#内存溢出"><span class="nav-text">内存溢出</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内存泄漏"><span class="nav-text">内存泄漏</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#如何在JVM内存溢出的时候自动dump内存快照"><span class="nav-text">如何在JVM内存溢出的时候自动dump内存快照</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MAT工具分析快照文件"><span class="nav-text">MAT工具分析快照文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#元数据区内存溢出"><span class="nav-text">元数据区内存溢出</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分析gc-log"><span class="nav-text">分析gc.log</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分析内存快照"><span class="nav-text">分析内存快照</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#栈内存溢出"><span class="nav-text">栈内存溢出</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#堆内存溢出"><span class="nav-text">堆内存溢出</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分析内存快照-1"><span class="nav-text">分析内存快照</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
