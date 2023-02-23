@@ -94,18 +94,18 @@
 
 
 
-  <meta name="description" content="3 内存溢出异常 Java 堆溢出Java 堆溢出的原因，有可能是内存泄露，可以使用 MAT 进行分析。  虚拟机栈和本地方法栈溢出关于虚拟机栈和本地方法栈，在 Java 虚拟机规范中描述了两种异常：  如果线程请求的栈深度大于虚拟机所允许的最大深度，将抛出 StackOverflowError 异常。 如果虚拟机在扩展栈时无法申请到足够的内存空间，则抛出 OutOfMemoryError 异常。">
+  <meta name="description" content="内存溢出 Java 堆溢出Java 堆溢出的原因，有可能是内存泄露，可以使用 MAT 进行分析。 虚拟机栈和本地方法栈溢出关于虚拟机栈和本地方法栈，在 Java 虚拟机规范中描述了两种异常： 如果线程请求的栈深度大于虚拟机所允许的最大深度，将抛出 StackOverflowError 异常。 如果虚拟机在扩展栈时无法申请到足够的内存空间，则抛出 OutOfMemoryError 异常。   运行时">
 <meta name="keywords" content="JVM">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM_内存区域、内存溢出异常">
-<meta property="og:url" content="http://yoursite.com/2016/06/24/jvm/003.JVM_内存溢出异常/index.html">
+<meta property="og:url" content="http://yoursite.com/2016/06/24/jvm/003.JVM_内存溢出、内存泄漏/index.html">
 <meta property="og:site_name" content="生活值得">
-<meta property="og:description" content="3 内存溢出异常 Java 堆溢出Java 堆溢出的原因，有可能是内存泄露，可以使用 MAT 进行分析。  虚拟机栈和本地方法栈溢出关于虚拟机栈和本地方法栈，在 Java 虚拟机规范中描述了两种异常：  如果线程请求的栈深度大于虚拟机所允许的最大深度，将抛出 StackOverflowError 异常。 如果虚拟机在扩展栈时无法申请到足够的内存空间，则抛出 OutOfMemoryError 异常。">
+<meta property="og:description" content="内存溢出 Java 堆溢出Java 堆溢出的原因，有可能是内存泄露，可以使用 MAT 进行分析。 虚拟机栈和本地方法栈溢出关于虚拟机栈和本地方法栈，在 Java 虚拟机规范中描述了两种异常： 如果线程请求的栈深度大于虚拟机所允许的最大深度，将抛出 StackOverflowError 异常。 如果虚拟机在扩展栈时无法申请到足够的内存空间，则抛出 OutOfMemoryError 异常。   运行时">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2016-06-24T06:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM_内存区域、内存溢出异常">
-<meta name="twitter:description" content="3 内存溢出异常 Java 堆溢出Java 堆溢出的原因，有可能是内存泄露，可以使用 MAT 进行分析。  虚拟机栈和本地方法栈溢出关于虚拟机栈和本地方法栈，在 Java 虚拟机规范中描述了两种异常：  如果线程请求的栈深度大于虚拟机所允许的最大深度，将抛出 StackOverflowError 异常。 如果虚拟机在扩展栈时无法申请到足够的内存空间，则抛出 OutOfMemoryError 异常。">
+<meta name="twitter:description" content="内存溢出 Java 堆溢出Java 堆溢出的原因，有可能是内存泄露，可以使用 MAT 进行分析。 虚拟机栈和本地方法栈溢出关于虚拟机栈和本地方法栈，在 Java 虚拟机规范中描述了两种异常： 如果线程请求的栈深度大于虚拟机所允许的最大深度，将抛出 StackOverflowError 异常。 如果虚拟机在扩展栈时无法申请到足够的内存空间，则抛出 OutOfMemoryError 异常。   运行时">
 
 
 
@@ -113,7 +113,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2016/06/24/jvm/003.JVM_内存溢出异常/">
+  <link rel="canonical" href="http://yoursite.com/2016/06/24/jvm/003.JVM_内存溢出、内存泄漏/">
 
 
 
@@ -302,7 +302,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/24/jvm/003.JVM_内存溢出异常/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/24/jvm/003.JVM_内存溢出、内存泄漏/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -398,26 +398,23 @@
       
 
       
-        <h1 id="3-内存溢出异常"><a href="#3-内存溢出异常" class="headerlink" title="3 内存溢出异常"></a>3 内存溢出异常</h1><ul>
-<li><p><strong>Java 堆溢出</strong><br>Java 堆溢出的原因，有可能是内存泄露，可以使用 MAT 进行分析。</p>
-</li>
-<li><p><strong>虚拟机栈和本地方法栈溢出</strong><br>关于虚拟机栈和本地方法栈，在 Java 虚拟机规范中描述了两种异常：</p>
-<ul>
+        <h1 id="内存溢出"><a href="#内存溢出" class="headerlink" title="内存溢出"></a>内存溢出</h1><ul>
+<li><strong>Java 堆溢出</strong><br>Java 堆溢出的原因，有可能是内存泄露，可以使用 MAT 进行分析。</li>
+<li><strong>虚拟机栈和本地方法栈溢出</strong><br>关于虚拟机栈和本地方法栈，在 Java 虚拟机规范中描述了两种异常：<ul>
 <li>如果线程请求的栈深度大于虚拟机所允许的最大深度，将抛出 StackOverflowError 异常。</li>
 <li>如果虚拟机在扩展栈时无法申请到足够的内存空间，则抛出 OutOfMemoryError 异常。</li>
 </ul>
 </li>
-<li><p><strong>运行时常量池溢出</strong><br>这里要注意的一点是：因为 JDK7将常量池和静态变量放到 Java 堆里，所以无法触发运行时常量池溢出。</p>
-</li>
-<li><p><strong>方法区的内存溢出</strong><br>因为 JDK8 将方法区放到MetaSpace中，所以无法触发方法区的内存溢出溢出。如果想要触发，可以使用 JDK7 的版本。</p>
-</li>
-<li><p><strong>元数据区的内存溢出</strong><br>JDK8 使用MetaSpace替代了永久带</p>
-</li>
-<li><p><strong>直接内存溢出</strong><br>当各个直接内存总和大于物理内存限制</p>
-</li>
+<li><strong>运行时常量池溢出</strong><br>这里要注意的一点是：因为 JDK7将常量池和静态变量放到 Java 堆里，所以无法触发运行时常量池溢出。</li>
+<li><strong>方法区的内存溢出</strong><br>因为 JDK8 将方法区放到MetaSpace中，所以无法触发方法区的内存溢出溢出。如果想要触发，可以使用 JDK7 的版本。</li>
+<li><strong>元数据区的内存溢出</strong><br>JDK8 使用MetaSpace替代了永久带</li>
+<li><strong>直接内存溢出</strong><br>当各个直接内存总和大于物理内存限制</li>
 </ul>
-<p>详细内存溢出分析文章看实战篇</p>
-<p>参考资料：<br><a href="https://book.douban.com/subject/24722612/" target="_blank" rel="noopener">深入理解Java虚拟机:JVM高级特性与最佳实践</a></p>
+<h1 id="内存泄漏"><a href="#内存泄漏" class="headerlink" title="内存泄漏"></a>内存泄漏</h1><p>内存泄漏是指不再被使用的对象或者变量一直被占据在内存中。理论上来说，Java是有GC垃圾回收机制 </p>
+<p>的，也就是说，不再被使用的对象，会被GC自动回收掉，自动从内存中清除。 </p>
+<p>但是，即使这样，Java也还是存在着内存泄漏的情况，java导致内存泄露的原因很明确：长生命周期的 </p>
+<p>对象持有短生命周期对象的引用就很可能发生内存泄露，尽管短生命周期对象已经不再需要，但是因为 </p>
+<p>长生命周期对象持有它的引用而导致不能被回收，这就是java中内存泄露的发生场景。</p>
 
       
     </div>
@@ -680,7 +677,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#3-内存溢出异常"><span class="nav-text">3 内存溢出异常</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#内存溢出"><span class="nav-text">内存溢出</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内存泄漏"><span class="nav-text">内存泄漏</span></a></li></ol></div>
             
 
           </div>
