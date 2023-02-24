@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="基于lua脚本的加锁逻辑 getLock()方法的时候，获取到的Lock对象是RedissonLock对象。里面封装了一个ConnectionManager里获取的一个CommandExecutor。CommandExecutor用来执行底层的redis命令。  计算key的hash，对slot数量取模，定位到slot。根据这个slot的编号，获取到这个slot是属于哪个master实例的。  加">
+<meta name="keywords" content="分布式,分布式锁">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式锁_Redis和Zookeeper分布式锁">
+<meta property="og:url" content="http://yoursite.com/2020/05/01/分布式/012.分布式锁_Redission可重入锁源码分析/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="基于lua脚本的加锁逻辑 getLock()方法的时候，获取到的Lock对象是RedissonLock对象。里面封装了一个ConnectionManager里获取的一个CommandExecutor。CommandExecutor用来执行底层的redis命令。  计算key的hash，对slot数量取模，定位到slot。根据这个slot的编号，获取到这个slot是属于哪个master实例的。  加">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-01T06:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式锁_Redis和Zookeeper分布式锁">
+<meta name="twitter:description" content="基于lua脚本的加锁逻辑 getLock()方法的时候，获取到的Lock对象是RedissonLock对象。里面封装了一个ConnectionManager里获取的一个CommandExecutor。CommandExecutor用来执行底层的redis命令。  计算key的hash，对slot数量取模，定位到slot。根据这个slot的编号，获取到这个slot是属于哪个master实例的。  加">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/05/01/分布式/012.分布式锁_Redission可重入锁源码分析/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>分布式锁_Redis和Zookeeper分布式锁 | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/01/分布式/012.分布式锁_Redission可重入锁源码分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">分布式锁_Redis和Zookeeper分布式锁
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-05-01 14:15:27" itemprop="dateCreated datePublished" datetime="2020-05-01T14:15:27+08:00">2020-05-01</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/分布式锁/" itemprop="url" rel="index"><span itemprop="name">分布式锁</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="基于lua脚本的加锁逻辑"><a href="#基于lua脚本的加锁逻辑" class="headerlink" title="基于lua脚本的加锁逻辑"></a>基于lua脚本的加锁逻辑</h1><ol>
+<li>getLock()方法的时候，获取到的Lock对象是RedissonLock对象。里面封装了一个ConnectionManager里获取的一个CommandExecutor。CommandExecutor用来执行底层的redis命令。 </li>
+<li>计算key的hash，对slot数量取模，定位到slot。根据这个slot的编号，获取到这个slot是属于哪个master实例的。 </li>
+<li>加锁的时候，走以下脚本： </li>
+</ol>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"if (redis.call('exists', KEYS[1]) == 0) then "</span> +</span><br><span class="line">    <span class="string">"redis.call('hset', KEYS[1], ARGV[2], 1); "</span> +</span><br><span class="line">    <span class="string">"redis.call('pexpire', KEYS[1], ARGV[1]); "</span> +</span><br><span class="line">    <span class="string">"return nil; "</span> +</span><br><span class="line"> <span class="string">"end; "</span> +</span><br><span class="line"> <span class="string">"if (redis.call('hexists', KEYS[1], ARGV[2]) == 1) then "</span> +</span><br><span class="line">    <span class="string">"redis.call('hincrby', KEYS[1], ARGV[2], 1); "</span> +</span><br><span class="line">    <span class="string">"redis.call('pexpire', KEYS[1], ARGV[1]); "</span> +</span><br><span class="line">    <span class="string">"return nil; "</span> +</span><br><span class="line"> <span class="string">"end; "</span> +</span><br><span class="line"> <span class="string">"return redis.call('pttl', KEYS[1]);"</span>,</span><br></pre></td></tr></table></figure>
+<p>KEYS[1] = anyLock<br>ARGV[1] = 30000<br>ARGV[2] = 8743c9c0-0795-4907-87fd-6c719a6b4586:1<br>加锁的时候，判断一下，如果“anyLock”这个key不存在，那么就进行加锁。实际加锁的时候执行了hset KEYS[1] ARGV[2] 1 和pexpire KEYS[1] ARGV[1]，一个是设置map中的value等于1，一个是给这个key设置一个过期时间。<br>加锁的时候，如果key已经存在，给map中的value+1，然后再设置过期时间为30秒。<br>加锁成功都是返回null。 </p>
+<h1 id="watchdog维持加锁"><a href="#watchdog维持加锁" class="headerlink" title="watchdog维持加锁"></a>watchdog维持加锁</h1><p>加锁之后会返回一个RFuture，如果加锁是成功的，会开启一个调度任务，默认是延迟10秒后执行，每10秒一次，如果锁还是存在的，那么就会延长锁的过期时间到30秒。</p>
+<p><strong>如果持有锁的那台机器宕机了呢？</strong></p>
+<p>此时其他的客户端最多就是再等待30秒就可以获取到这把锁了。</p>
+<h1 id="可重入加锁"><a href="#可重入加锁" class="headerlink" title="可重入加锁"></a>可重入加锁</h1><p>当已经对一个锁加锁之后，同一个客户端的其他线程或者是其他客户端的线程，尝试对这个key进行加锁会怎么样？</p>
+<p>同一个客户端的其他线程：比如ARGV[2] = 8743c9c0-0795-4907-87fd-6c719a6b4586:2是这样的，key肯定不同。</p>
+<p>其他客户端的线程，如果key相同了，lua脚本返回的是ttl。证明加锁不成功，此时就会走阻塞逻辑。进入一个while(true)死循环。循环内会再次尝试去获取这个分布式的锁，如果成功，退出死循环，如果失败，就会等待一段时间，再次投入到while(true)死循环的逻辑内，尝试去获取锁。</p>
+<h1 id="释放锁"><a href="#释放锁" class="headerlink" title="释放锁"></a>释放锁</h1><p>如果此时线程只加过一次锁，此时26cebeaa-e3b0-4097-8192-d62d0d0214b8:1对应的值本来是1，此时递减1，此时就是对应的counter = 0，就会删除这个锁key，返回的值是1。</p>
+<p>如果此时线程加过多次锁，此时26cebeaa-e3b0-4097-8192-d62d0d0214b8:1对应的值是2，说明这个线程加过两次锁，递减1之后，还是1，大于0，刷新一下这个锁key的生存周期是30秒，返回的值是0。</p>
+<h1 id="tryLock"><a href="#tryLock" class="headerlink" title="tryLock"></a>tryLock</h1><p>传入一个获取锁的超时时间time，如果说在time范围内，获取到了锁，就会返回true，如果始终无法获取到锁的话，那么就会在time指定的最大时间之后，就返回一个false。</p>
+<h1 id="超时锁自动释放"><a href="#超时锁自动释放" class="headerlink" title="超时锁自动释放"></a>超时锁自动释放</h1><p>就是我们自己定义了一个leaseTime和TimeUnit。</p>
+<p>就是不会启动watchdog，锁到时间了就过期。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/分布式/" rel="tag"># 分布式</a>
+          
+            <a href="/tags/分布式锁/" rel="tag"># 分布式锁</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/04/26/springsourceanalysis/001.Spring生命周期-Xml配置元信息解析/" rel="next" title="Spring生命周期-Xml配置元信息解析">
+                <i class="fa fa-chevron-left"></i> Spring生命周期-Xml配置元信息解析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/05/01/分布式/015.分布式锁_RedLock锁实现/" rel="prev" title="分布式锁_Redis和Zookeeper分布式锁">
+                分布式锁_Redis和Zookeeper分布式锁 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">89</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">20</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基于lua脚本的加锁逻辑"><span class="nav-text">基于lua脚本的加锁逻辑</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#watchdog维持加锁"><span class="nav-text">watchdog维持加锁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#可重入加锁"><span class="nav-text">可重入加锁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#释放锁"><span class="nav-text">释放锁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tryLock"><span class="nav-text">tryLock</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#超时锁自动释放"><span class="nav-text">超时锁自动释放</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

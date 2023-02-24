@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="RedissonFairLock是RedissonLock的子类，整体的锁的技术框架的实现，都是跟之前讲解的RedissonLock是一样的，无非就是重载了一些方法，加锁和释放锁的lua脚本的逻辑稍微复杂了一些。 加锁脚本1234567891011121314151617181920212223242526272829303132333435363738394041&quot;while true do &quot;">
+<meta name="keywords" content="分布式,分布式锁">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式锁_Redis和Zookeeper分布式锁">
+<meta property="og:url" content="http://yoursite.com/2020/05/01/分布式/013.分布式锁_Redission可重入的公平锁/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="RedissonFairLock是RedissonLock的子类，整体的锁的技术框架的实现，都是跟之前讲解的RedissonLock是一样的，无非就是重载了一些方法，加锁和释放锁的lua脚本的逻辑稍微复杂了一些。 加锁脚本1234567891011121314151617181920212223242526272829303132333435363738394041&quot;while true do &quot;">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-01T06:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式锁_Redis和Zookeeper分布式锁">
+<meta name="twitter:description" content="RedissonFairLock是RedissonLock的子类，整体的锁的技术框架的实现，都是跟之前讲解的RedissonLock是一样的，无非就是重载了一些方法，加锁和释放锁的lua脚本的逻辑稍微复杂了一些。 加锁脚本1234567891011121314151617181920212223242526272829303132333435363738394041&quot;while true do &quot;">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/05/01/分布式/013.分布式锁_Redission可重入的公平锁/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>分布式锁_Redis和Zookeeper分布式锁 | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/01/分布式/013.分布式锁_Redission可重入的公平锁/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">分布式锁_Redis和Zookeeper分布式锁
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-05-01 14:15:27" itemprop="dateCreated datePublished" datetime="2020-05-01T14:15:27+08:00">2020-05-01</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/分布式锁/" itemprop="url" rel="index"><span itemprop="name">分布式锁</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>RedissonFairLock是RedissonLock的子类，整体的锁的技术框架的实现，都是跟之前讲解的RedissonLock是一样的，无非就是重载了一些方法，加锁和释放锁的lua脚本的逻辑稍微复杂了一些。</p>
+<h1 id="加锁脚本"><a href="#加锁脚本" class="headerlink" title="加锁脚本"></a>加锁脚本</h1><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"while true do "</span></span><br><span class="line">+ <span class="string">"local firstThreadId2 = redis.call('lindex', KEYS[2], 0);"</span></span><br><span class="line">+ <span class="string">"if firstThreadId2 == false then "</span></span><br><span class="line">    + <span class="string">"break;"</span></span><br><span class="line">+ <span class="string">"end; "</span></span><br><span class="line">+ <span class="string">"local timeout = tonumber(redis.call('zscore', KEYS[3], firstThreadId2));"</span></span><br><span class="line">+ <span class="string">"if timeout &lt;= tonumber(ARGV[4]) then "</span></span><br><span class="line">    + <span class="string">"redis.call('zrem', KEYS[3], firstThreadId2); "</span></span><br><span class="line">    + <span class="string">"redis.call('lpop', KEYS[2]); "</span></span><br><span class="line">+ <span class="string">"else "</span></span><br><span class="line">    + <span class="string">"break;"</span></span><br><span class="line">+ <span class="string">"end; "</span></span><br><span class="line">+ <span class="string">"end;"</span></span><br><span class="line"></span><br><span class="line">  + <span class="string">"if (redis.call('exists', KEYS[1]) == 0) and ((redis.call('exists', KEYS[2]) == 0) "</span></span><br><span class="line">        + <span class="string">"or (redis.call('lindex', KEYS[2], 0) == ARGV[2])) then "</span> +</span><br><span class="line">        <span class="string">"redis.call('lpop', KEYS[2]); "</span> +</span><br><span class="line">        <span class="string">"redis.call('zrem', KEYS[3], ARGV[2]); "</span> +</span><br><span class="line">        <span class="string">"redis.call('hset', KEYS[1], ARGV[2], 1); "</span> +</span><br><span class="line">        <span class="string">"redis.call('pexpire', KEYS[1], ARGV[1]); "</span> +</span><br><span class="line">        <span class="string">"return nil; "</span> +</span><br><span class="line">    <span class="string">"end; "</span> +</span><br><span class="line">    <span class="string">"if (redis.call('hexists', KEYS[1], ARGV[2]) == 1) then "</span> +</span><br><span class="line">        <span class="string">"redis.call('hincrby', KEYS[1], ARGV[2], 1); "</span> +</span><br><span class="line">        <span class="string">"redis.call('pexpire', KEYS[1], ARGV[1]); "</span> +</span><br><span class="line">        <span class="string">"return nil; "</span> +</span><br><span class="line">    <span class="string">"end; "</span> +</span><br><span class="line">        </span><br><span class="line">    <span class="string">"local firstThreadId = redis.call('lindex', KEYS[2], 0); "</span> +</span><br><span class="line">    <span class="string">"local ttl; "</span> + </span><br><span class="line">    <span class="string">"if firstThreadId ~= false and firstThreadId ~= ARGV[2] then "</span> + </span><br><span class="line">        <span class="string">"ttl = tonumber(redis.call('zscore', KEYS[3], firstThreadId)) - tonumber(ARGV[4]);"</span> + </span><br><span class="line">    <span class="string">"else "</span></span><br><span class="line">      + <span class="string">"ttl = redis.call('pttl', KEYS[1]);"</span> + </span><br><span class="line">    <span class="string">"end; "</span> + </span><br><span class="line">        </span><br><span class="line">    <span class="string">"local timeout = ttl + tonumber(ARGV[3]);"</span> + </span><br><span class="line">    <span class="string">"if redis.call('zadd', KEYS[3], timeout, ARGV[2]) == 1 then "</span> +</span><br><span class="line">        <span class="string">"redis.call('rpush', KEYS[2], ARGV[2]);"</span> +</span><br><span class="line">    <span class="string">"end; "</span> +</span><br><span class="line">    <span class="string">"return ttl;"</span>,</span><br></pre></td></tr></table></figure>
+<p>涉及参数：</p>
+<p>KEYS = Arrays.</p>
+<p>KEYS[1] = anyLock，锁的名字(Redisson内部变量名称为name)。</p>
+<p>KEYS[2] = redisson_lock_queue:anyLock，基于Redis的List数据结构实现的一个队列(Redisson内部变量名称为threadsQueueName)</p>
+<p>KEYS[3] = redisson_lock_timeout:anyLock，基于Redis的Sorted Set数据结构实现的一个Set数据集合，有序集合，可以自动按照你给每个数据指定的一个分数score来进行排序(Redisson内部变量名称为timeoutSetName)。</p>
+<p>ARGV =  internalLockLeaseTime, getLockName(threadId), currentTime + threadWaitTime, currentTime</p>
+<p>ARGV[1] = 30000毫秒<br>ARGV[2] = UUID:threadId<br>ARGV[3] = 当前时间（10:00:00） + 5000毫秒 = 10:00:05<br>ARGV[4] = 当前时间（10:00:00）</p>
+<h2 id="客户端A加锁"><a href="#客户端A加锁" class="headerlink" title="客户端A加锁"></a>客户端A加锁</h2><ol>
+<li><strong>进入死循环</strong>，<code>lindex redisson_lock_queue:anyLock 0</code>，就是从<code>redisson_lock_queue:anyLock</code>这个队列中取出来第一个元素，刚开始，队列是空的，所以什么都获取不到，此时就会直接退出while true死循环。</li>
+<li><strong>加锁</strong></li>
+</ol>
+<ul>
+<li><code>exists anyLock</code>，锁不存在</li>
+<li><code>exists redisson_lock_queue:anyLock</code>，队列不存在 or <code>redis.call(&#39;lindex&#39;, KEYS[2], 0) == ARGV[2])</code>，这个队列存在，但是排在队头的第一个元素，是当前这个线程</li>
+</ul>
+<p>上面的条件满足：<strong>执行加锁</strong></p>
+<p><strong>加锁步骤：</strong></p>
+<ol>
+<li><ol>
+<li><code>lpop redisson_lock_queue:{anyLock}</code>，弹出队列的第一个元素，现在队列是空的，所以什么都不会干。</li>
+<li><code>zrem redisson_lock_timeout:{anyLock} UUID:threadId</code>，从set集合中删除threadId对应的元素，此时因为这个set集合是空的，所以什么都不会干。</li>
+<li><code>hset anyLock UUID:threadId 1</code>，加锁。</li>
+<li><code>pexpire anyLock 30000</code>，将这个锁key的生存时间设置为30000毫秒。</li>
+</ol>
+</li>
+<li><p><strong>返回一个nil</strong>，在外层代码中，就会认为是加锁成功，此时就会开启一个watchdog看门狗定时调度的程序，每隔10秒判断一下，当前这个线程是否还对这个锁key持有着锁，如果是，则刷新锁key的生存时间为30000毫秒。</p>
+</li>
+</ol>
+<h2 id="客户端B加锁"><a href="#客户端B加锁" class="headerlink" title="客户端B加锁"></a>客户端B加锁</h2><ol>
+<li><strong>进入死循环</strong>，<code>lindex redisson_lock_queue:anyLock 0</code>，就是从<code>redisson_lock_queue:anyLock</code>这个队列中取出来第一个元素，刚开始，队列是空的，所以什么都获取不到，此时就会直接退出while true死循环。</li>
+<li><strong>加锁</strong> </li>
+</ol>
+<p>此时锁存在。不会加锁。</p>
+<ol>
+<li><p><strong>进入等待队列</strong></p>
+</li>
+<li><ol>
+<li>从队列中获取第一个元素，此时队列是空的。</li>
+<li>获取anyLock剩余的生存时间，作为ttl的值，ttl假设这里还有20000毫秒。</li>
+<li>计算timeout = ttl + 当前时间 + 5000毫秒 = 20000毫秒 + 10:00:00 + 5000毫秒 = 10:00:25。</li>
+</ol>
+</li>
+</ol>
+<p><strong>将timeout添加到Set集合中</strong>，<code>zadd redisson_lock_timeout:anyLock 10:00:25 UUID_02:threadId_02</code>，元素的值是UUID_02:threadId_02，它对应的分数是10:00:25。</p>
+<p><strong>将UUID_02:threadId_02插入到队列的头部</strong>，<code>rpush redisson_lock_queue:anyLock UUID_02:theadId_02</code>。</p>
+<ol>
+<li><strong>返回的是ttl</strong>，也就是anyLock剩余的生存时间，如果拿到的返回值是ttl是一个数字的话，那么此时客户端B而言就会进入一个while true的死循环，每隔一段时间都尝试去进行加锁，重新执行这段lua脚本。</li>
+</ol>
+<h2 id="客户端C加锁"><a href="#客户端C加锁" class="headerlink" title="客户端C加锁"></a>客户端C加锁</h2><ol>
+<li><strong>进入while true死循环</strong>，获取队列中的第一个元素，客户端B正在队列里排队。</li>
+<li><p><strong>取出客户端B的timeout，</strong>在判断这个第一个元素有没timeout，如果没有到期就退出死循环。</p>
+</li>
+<li><ol>
+<li>如果到期了，在队列和Set集合中移除该元素。</li>
+<li>如果没有到期，就退出死循环，去执行进入等待队列流程。</li>
+</ol>
+</li>
+<li><p><strong>进入等待队列</strong></p>
+</li>
+</ol>
+<p>此时入队是这样的：</p>
+<p>ttl不是anyLock的过期时间了，而是队列里第一个元素的过期时间-当前时间。ttl = 10:00:25 - 10:00:05 = 20000毫秒。</p>
+<p>计算timeout = 20000毫秒 + 10:00:05 + 5000毫秒 = 10:00:30。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">zadd redisson_lock_timeout:anyLock 10:00:30 UUID_03:threadId_03。`</span><br><span class="line">`rpush redisson_lock_queue:anyLock UUID_03:theadId_03。</span><br></pre></td></tr></table></figure>
+<h1 id="客户端A可重入加锁"><a href="#客户端A可重入加锁" class="headerlink" title="客户端A可重入加锁"></a>客户端A可重入加锁</h1><p>while循环里会判断，队列里第一个元素的是否超时，超时就删除。</p>
+<p>hincrby给加锁次数累加1，重新pexpire刷新锁key的生存时间为30000毫秒，返回一个nil。</p>
+<h1 id="排队分数刷新"><a href="#排队分数刷新" class="headerlink" title="排队分数刷新"></a>排队分数刷新</h1><p>每次重试尝试加锁的时候，就判定为是这个客户端一次新的尝试加锁的行为，此时会将这个客户端对应的timeout时间往后延长。</p>
+<p>比如客户端B隔了15秒过来加锁，10:00:15，</p>
+<p>ttl = 10:00:25 - 10:00:15 = 10000毫秒<br>timeout =10000毫秒 + 10:00:15 + 5000毫秒 = 10:00:30</p>
+<p>现在timeout变成了10:00:30。</p>
+<p>客户端C：</p>
+<p>ttl = 10:00:30 - 10:00:20 = 10000毫秒。<br>timeout = 10000毫秒 + 10:00:20 + 5000毫秒 = 10:00:35。</p>
+<h1 id="队列重排"><a href="#队列重排" class="headerlink" title="队列重排"></a>队列重排</h1><p>10:00:36</p>
+<p>假设客户端B已经挂了。</p>
+<p>客户端C来再次尝试加锁，在while中判断，已经timeout，从队列和set中删除。然后退出死循环，客户端C再次入队。</p>
+<p>如果客户端A持有的锁的时间过长，这个所谓的排队是有timeout，可能会在while true死循环中将一些等待时间过长的客户端从队列和有序集合中删除，一旦删除过后，就会发生各个客户端随着自己重新尝试加锁的时间次序，重新进行一个队列中的重排，也就是排队的顺序可能会发生变化。</p>
+<h1 id="释放锁"><a href="#释放锁" class="headerlink" title="释放锁"></a>释放锁</h1><p>锁被释放的消息，肯定在他的源码中是有一些人是订阅了这个释放锁的消息的，此时他们就可以得到一个锁被释放掉的通知。</p>
+<h1 id="顺序加锁"><a href="#顺序加锁" class="headerlink" title="顺序加锁"></a>顺序加锁</h1><p>假设现在客户端C在客户端B前面</p>
+<p>客户端B来加锁来尝试重新加锁是不行的，因为此时排在队头的不是这个客户端此时只会重新计算timeout分数刷新一下有序集合中的timeout分数罢了。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/分布式/" rel="tag"># 分布式</a>
+          
+            <a href="/tags/分布式锁/" rel="tag"># 分布式锁</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/01/分布式/016.分布式锁_读写锁源码解析/" rel="next" title="分布式锁_Redis和Zookeeper分布式锁">
+                <i class="fa fa-chevron-left"></i> 分布式锁_Redis和Zookeeper分布式锁
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/05/01/分布式/011.分布式锁_Redis和Zookeeper分布式锁/" rel="prev" title="分布式锁_Redis和Zookeeper分布式锁">
+                分布式锁_Redis和Zookeeper分布式锁 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">89</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">20</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#加锁脚本"><span class="nav-text">加锁脚本</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#客户端A加锁"><span class="nav-text">客户端A加锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#客户端B加锁"><span class="nav-text">客户端B加锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#客户端C加锁"><span class="nav-text">客户端C加锁</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#客户端A可重入加锁"><span class="nav-text">客户端A可重入加锁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#排队分数刷新"><span class="nav-text">排队分数刷新</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#队列重排"><span class="nav-text">队列重排</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#释放锁"><span class="nav-text">释放锁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#顺序加锁"><span class="nav-text">顺序加锁</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

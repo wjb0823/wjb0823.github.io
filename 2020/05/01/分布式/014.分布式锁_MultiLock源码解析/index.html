@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="分布式锁其实就是，控制分布式系统不同进程共同访问共享资源的一种锁的实现。 Redis分布式锁方案方案一：SETNX + EXPIRE存在的问题：setnx和expire两个命令分开了，不是原子操作。如果执行完setnx加锁，正要执行expire命令时，进程挂了，那么这个锁无法释放。 方案二：SETNX + value值是(系统时间+过期时间)加锁代码： 1234567891011121314151">
+<meta name="keywords" content="分布式,分布式锁">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式锁_Redis和Zookeeper分布式锁">
+<meta property="og:url" content="http://yoursite.com/2020/05/01/分布式/014.分布式锁_MultiLock源码解析/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="分布式锁其实就是，控制分布式系统不同进程共同访问共享资源的一种锁的实现。 Redis分布式锁方案方案一：SETNX + EXPIRE存在的问题：setnx和expire两个命令分开了，不是原子操作。如果执行完setnx加锁，正要执行expire命令时，进程挂了，那么这个锁无法释放。 方案二：SETNX + value值是(系统时间+过期时间)加锁代码： 1234567891011121314151">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-01T06:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式锁_Redis和Zookeeper分布式锁">
+<meta name="twitter:description" content="分布式锁其实就是，控制分布式系统不同进程共同访问共享资源的一种锁的实现。 Redis分布式锁方案方案一：SETNX + EXPIRE存在的问题：setnx和expire两个命令分开了，不是原子操作。如果执行完setnx加锁，正要执行expire命令时，进程挂了，那么这个锁无法释放。 方案二：SETNX + value值是(系统时间+过期时间)加锁代码： 1234567891011121314151">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/05/01/分布式/014.分布式锁_MultiLock源码解析/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>分布式锁_Redis和Zookeeper分布式锁 | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/01/分布式/014.分布式锁_MultiLock源码解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">分布式锁_Redis和Zookeeper分布式锁
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-05-01 14:15:27" itemprop="dateCreated datePublished" datetime="2020-05-01T14:15:27+08:00">2020-05-01</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/分布式锁/" itemprop="url" rel="index"><span itemprop="name">分布式锁</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>分布式锁其实就是，控制分布式系统不同进程共同访问共享资源的一种锁的实现。</p>
+<h1 id="Redis分布式锁方案"><a href="#Redis分布式锁方案" class="headerlink" title="Redis分布式锁方案"></a>Redis分布式锁方案</h1><h2 id="方案一：SETNX-EXPIRE"><a href="#方案一：SETNX-EXPIRE" class="headerlink" title="方案一：SETNX + EXPIRE"></a>方案一：SETNX + EXPIRE</h2><p>存在的问题：setnx和expire两个命令分开了，<strong>不是原子操作</strong>。如果执行完setnx加锁，正要执行expire命令时，进程挂了，那么这个锁无法释放。</p>
+<h2 id="方案二：SETNX-value值是-系统时间-过期时间"><a href="#方案二：SETNX-value值是-系统时间-过期时间" class="headerlink" title="方案二：SETNX + value值是(系统时间+过期时间)"></a>方案二：SETNX + value值是(系统时间+过期时间)</h2><p>加锁代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">long</span> expires = System.currentTimeMillis() + expireTime; <span class="comment">//系统时间+设置的过期时间</span></span><br><span class="line">String expiresStr = String.valueOf(expires);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果当前锁不存在，返回加锁成功</span></span><br><span class="line"><span class="keyword">if</span> (jedis.setnx(key_resource_id, expiresStr) == <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125; </span><br><span class="line"><span class="comment">// 如果锁已经存在，获取锁的过期时间</span></span><br><span class="line">String currentValueStr = jedis.get(key_resource_id);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果获取到的过期时间，小于系统当前时间，表示已经过期</span></span><br><span class="line"><span class="keyword">if</span> (currentValueStr != <span class="keyword">null</span> &amp;&amp; Long.parseLong(currentValueStr) &lt; System.currentTimeMillis()) &#123;</span><br><span class="line"></span><br><span class="line">     <span class="comment">// 锁已过期，获取上一个锁的过期时间，并设置现在锁的过期时间（不了解redis的getSet命令的小伙伴，可以去官网看下哈）</span></span><br><span class="line">    String oldValueStr = jedis.getSet(key_resource_id, expiresStr);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (oldValueStr != <span class="keyword">null</span> &amp;&amp; oldValueStr.equals(currentValueStr)) &#123;</span><br><span class="line">         <span class="comment">// 考虑多线程并发的情况，只有一个线程的设置值和当前值相同，它才可以加锁</span></span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">        </span><br><span class="line"><span class="comment">//其他情况，均返回加锁失败</span></span><br><span class="line"><span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>存在的问题：</p>
+<ul>
+<li>过期时间是客户端自己生成的（System.currentTimeMillis()是当前系统的时间），必须要求分布式环境下，每个客户端的时间必须同步。</li>
+<li>TODO：如果锁过期的时候，并发多个客户端同时请求过来，都执行jedis.getSet()，最终只能有一个客户端加锁成功，但是该客户端锁的过期时间，可能被别的客户端覆盖</li>
+<li>该锁没有保存持有者的唯一标识，可能被别的客户端释放。</li>
+</ul>
+<h2 id="方案三：使用Lua脚本-包含SETNX-EXPIRE两条指令"><a href="#方案三：使用Lua脚本-包含SETNX-EXPIRE两条指令" class="headerlink" title="方案三：使用Lua脚本(包含SETNX + EXPIRE两条指令)"></a>方案三：使用Lua脚本(包含SETNX + EXPIRE两条指令)</h2><p>Lua脚本：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> redis.call(<span class="string">'setnx'</span>,KEYS[<span class="number">1</span>],ARGV[<span class="number">1</span>]) == <span class="number">1</span> <span class="keyword">then</span></span><br><span class="line">  redis.call(<span class="string">'expire'</span>,KEYS[<span class="number">1</span>],ARGV[<span class="number">2</span>])</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"><span class="keyword">end</span>;</span><br></pre></td></tr></table></figure>
+<p>加锁代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">String lua_scripts = <span class="string">"if redis.call('setnx',KEYS[1],ARGV[1]) == 1 then"</span> +</span><br><span class="line">    <span class="string">" redis.call('expire',KEYS[1],ARGV[2]) return 1 else return 0 end"</span>;   </span><br><span class="line">Object result = jedis.eval(lua_scripts, Collections.singletonList(key_resource_id), Collections.singletonList(values));</span><br><span class="line"><span class="comment">//判断是否成功</span></span><br><span class="line"><span class="keyword">return</span> result.equals(<span class="number">1L</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="方案四：SET的扩展命令（SET-EX-PX-NX）"><a href="#方案四：SET的扩展命令（SET-EX-PX-NX）" class="headerlink" title="方案四：SET的扩展命令（SET EX PX NX）"></a>方案四：SET的扩展命令（SET EX PX NX）</h3><p>存储问题：</p>
+<ol>
+<li><strong>锁过期释放了，业务还没执行完。</strong></li>
+</ol>
+<p>假设线程a获取锁成功，一直在执行临界区的代码。但是100s过去后，它还没执行完。但是，这时候锁已经过期了，此时线程b又请求过来。显然线程b就可以获得锁成功，也开始执行临界区的代码。那么问题就来了，临界区的业务代码都不是严格串行执行的啦。</p>
+<ol>
+<li><strong>锁被别的线程误删。</strong></li>
+</ol>
+<p>假设线程a执行完后，去释放锁。但是它不知道当前的锁可能是线程b持有的（线程a去释放锁时，有可能过期时间已经到了，此时线程b进来占有了锁）。那线程a就把线程b的锁释放掉了，但是线程b临界区业务代码可能都还没执行完呢。</p>
+<h3 id="方案五：SET-EX-PX-NX-value是随机值，再删除"><a href="#方案五：SET-EX-PX-NX-value是随机值，再删除" class="headerlink" title="方案五：SET EX PX NX  + value是随机值，再删除"></a>方案五：SET EX PX NX  + value是随机值，再删除</h3><p>见&lt;<a href="#cWTi6">最简单的分布式锁</a>&gt;</p>
+<p>存储问题：</p>
+<p>解决了锁被别的线程误删问题，还是存在<strong>锁过期释放，业务没执行完。</strong></p>
+<h3 id="方案六：Redisson框架"><a href="#方案六：Redisson框架" class="headerlink" title="方案六：Redisson框架"></a>方案六：Redisson框架</h3><p>方案五还是可能存在「<strong>锁过期释放，业务没执行完</strong>」的问题。有些小伙伴认为，稍微把锁过期时间设置长一些就可以啦。其实我们设想一下，是否可以给获得锁的线程，开启一个<strong>定时守护线程</strong>，每隔一段时间<strong>检查锁是否还存在</strong>，存在则对<strong>锁的过期时间延长</strong>，防止锁过期提前释放。</p>
+<p>只要线程一加锁成功，就会启动一个watch dog看门狗，它是一个后台线程，会每隔10秒检查一下，如果线程1还持有锁，那么就会不断的延长锁key的生存时间。因此，Redisson就是使用Redisson解决了「锁过期释放，业务没执行完」问题。</p>
+<h3 id="方案七：多机实现的分布式锁Redlock-Redisson"><a href="#方案七：多机实现的分布式锁Redlock-Redisson" class="headerlink" title="方案七：多机实现的分布式锁Redlock+Redisson"></a>方案七：多机实现的分布式锁Redlock+Redisson</h3><p>前面六种方案都只是基于<strong>单机版</strong>的讨论，还不是很完美。如果线程一在Redis的master节点上拿到了锁，但是加锁的key还没同步到slave节点。恰好这时，master节点发生故障，一个slave节点就会升级为master节点。线程二就可以获取同个key的锁啦，但线程一也已经拿到锁了，锁的安全性就没了。</p>
+<p>为了解决这个问题，Redis作者 antirez提出一种高级的分布式锁算法：<a href="#70135502">RedLock算法</a>。</p>
+<hr>
+<h1 id="最简单的分布式锁"><a href="#最简单的分布式锁" class="headerlink" title="最简单的分布式锁"></a>最简单的分布式锁</h1><p><strong>加锁：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET my:lock 随机值 NX PX 30000</span><br></pre></td></tr></table></figure>
+<p>NX的意思就是只有key不存在的时候才会设置成功。<br>PX 30000的意思是30秒后锁自动释放。</p>
+<p><strong>释放锁</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">if redis.call(&quot;get&quot;,KEYS[1]) == ARGV[1] then</span><br><span class="line">return redis.call(&quot;del&quot;,KEYS[1])</span><br><span class="line">else</span><br><span class="line">    return 0</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>为啥要用随机值呢？因为如果某个客户端获取到了锁，但是阻塞了很长时间才执行完，此时可能已经自动释放锁了，此时可能别的客户端已经获取到了这个锁，要是你这个时候直接删除key的话会有问题，所以得用随机值加上面的lua脚本来释放锁。</p>
+<h1 id="RedLock算法"><a href="#RedLock算法" class="headerlink" title="RedLock算法"></a>RedLock算法</h1><ol>
+<li>获取当前时间戳，单位是毫秒。</li>
+<li>跟上面类似，轮流尝试在每个master节点上创建锁，过期时间较短，一般就几十毫秒。</li>
+<li>尝试在大多数节点上建立一个锁，比如5个节点就要求是3个节点（n / 2 +1）。</li>
+<li>客户端计算建立好锁的时间，如果建立锁的时间小于超时时间，就算建立成功了。</li>
+<li>要是锁建立失败了，那么就依次删除这个锁。(即便有些master节点根本就没有加锁成功，也需要解锁，以防止有些漏网之鱼)</li>
+<li>只要别人建立了一把分布式锁，你就得不断轮询去尝试获取锁。</li>
+</ol>
+<p>有两个问题，第一是实现过程和步骤太复杂，上锁的过程和机制很重，很复杂，导致很脆弱，各种意想不到的情况都可能发生；第二是并不健壮，不一定能完全实现健壮的分布式锁的语义。</p>
+<h1 id="Zookeeper分布式锁"><a href="#Zookeeper分布式锁" class="headerlink" title="Zookeeper分布式锁"></a>Zookeeper分布式锁</h1><p>zk分布式锁，就是某个节点尝试创建临时znode，此时创建成功了就获取了这个锁；这个时候别的客户端来创建锁会失败，只能注册个监听器监听这个锁。释放锁就是删除这个znode，一旦释放掉就会通知客户端，然后有一个等待着的客户端就可以再次重新枷锁。</p>
+<h1 id="Redis分布式锁和ZK分布式锁的对比"><a href="#Redis分布式锁和ZK分布式锁的对比" class="headerlink" title="Redis分布式锁和ZK分布式锁的对比"></a>Redis分布式锁和ZK分布式锁的对比</h1><ol>
+<li><strong>性能方面</strong><br>redis分布式锁，其实需要自己不断去尝试获取锁，比较消耗性能；zk分布式锁，获取不到锁，注册个监听器即可，不需要不断主动尝试获取锁，性能开销较小。 </li>
+<li><strong>自动失效</strong><br>如果是redis获取锁的那个客户端bug了或者挂了，那么只能等待超时时间之后才能释放锁；而zk的话，因为创建的是临时znode，只要客户端挂了，znode就没了，此时就自动释放锁。 </li>
+<li><strong>对锁的语义支持</strong><br>redisson：redis分布式锁的支持，非常不错，可重入锁、读写锁、公平锁、信号量、CountDownLatch，很多种复杂的锁的语义，可以支持我们将分布式锁玩儿的非常的好。<br>如果有zookeeper的环境，而且你的分布式锁的需求很简单，就是普通的悲观锁模型就可以了，不涉及到什么公平锁、读写锁之类的东西，那么可以考虑基    于zk的分布式锁模型。 </li>
+</ol>
+<h1 id="Redis分布式锁的问题"><a href="#Redis分布式锁的问题" class="headerlink" title="Redis分布式锁的问题"></a>Redis分布式锁的问题</h1><p>第一种方案：基于redis单实例，无法保证高可用。</p>
+<p>第二种方案：基于redis主从架构+哨兵，保证高可用，master宕机，slave接替，但是有隐患，master宕机的一瞬间，还没异步复制锁到slave，导致重复加锁的问题，高可用是高可用了，但是锁的实现有漏洞。</p>
+<p>第三种方案：基于redis多master集群（redis-cluster，或者redis部署多机器，twitter开源的twemproxy做客户端集群分片，豌豆荚开源的codis做集群分片，都行），redlock算法，实现过程太复杂繁琐，很脆弱，多节点同时设置分布式锁，但是失效时间都不一样，随着不同的linux机器的时间不同步，以及各种你无法考虑到的问题，很可能出现重复加锁。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/分布式/" rel="tag"># 分布式</a>
+          
+            <a href="/tags/分布式锁/" rel="tag"># 分布式锁</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/01/分布式/011.分布式锁_Redis和Zookeeper分布式锁/" rel="next" title="分布式锁_Redis和Zookeeper分布式锁">
+                <i class="fa fa-chevron-left"></i> 分布式锁_Redis和Zookeeper分布式锁
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/11/28/java/012Java_Socket/" rel="prev" title="Java_Socket">
+                Java_Socket <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">89</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">20</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis分布式锁方案"><span class="nav-text">Redis分布式锁方案</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#方案一：SETNX-EXPIRE"><span class="nav-text">方案一：SETNX + EXPIRE</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方案二：SETNX-value值是-系统时间-过期时间"><span class="nav-text">方案二：SETNX + value值是(系统时间+过期时间)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方案三：使用Lua脚本-包含SETNX-EXPIRE两条指令"><span class="nav-text">方案三：使用Lua脚本(包含SETNX + EXPIRE两条指令)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#方案四：SET的扩展命令（SET-EX-PX-NX）"><span class="nav-text">方案四：SET的扩展命令（SET EX PX NX）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案五：SET-EX-PX-NX-value是随机值，再删除"><span class="nav-text">方案五：SET EX PX NX  + value是随机值，再删除</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案六：Redisson框架"><span class="nav-text">方案六：Redisson框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案七：多机实现的分布式锁Redlock-Redisson"><span class="nav-text">方案七：多机实现的分布式锁Redlock+Redisson</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最简单的分布式锁"><span class="nav-text">最简单的分布式锁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RedLock算法"><span class="nav-text">RedLock算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Zookeeper分布式锁"><span class="nav-text">Zookeeper分布式锁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis分布式锁和ZK分布式锁的对比"><span class="nav-text">Redis分布式锁和ZK分布式锁的对比</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis分布式锁的问题"><span class="nav-text">Redis分布式锁的问题</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
