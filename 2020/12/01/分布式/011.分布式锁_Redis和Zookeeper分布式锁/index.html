@@ -94,18 +94,18 @@
 
 
 
-  <meta name="description" content="分布式锁其实就是，控制分布式系统不同进程共同访问共享资源的一种锁的实现。 Redis分布式锁方案方案一：SETNX + EXPIRE存在的问题：setnx和expire两个命令分开了，不是原子操作。如果执行完setnx加锁，正要执行expire命令时，进程挂了，那么这个锁无法释放。 方案二：SETNX + value值是(系统时间+过期时间)加锁代码： 1234567891011121314151">
+  <meta name="description" content="分布式锁其实就是，控制分布式系统不同进程共同访问共享资源的一种锁的实现。 Redis Set命令介绍1set key value [expiration EX seconds|PX milliseconds] [NX|XX]  EX seconds：将键的过期时间设置为 seconds 秒。SET key value EX seconds 等同于 SETEX key seconds value">
 <meta name="keywords" content="分布式,分布式锁">
 <meta property="og:type" content="article">
 <meta property="og:title" content="分布式锁_Redis和Zookeeper分布式锁">
 <meta property="og:url" content="http://yoursite.com/2020/12/01/分布式/011.分布式锁_Redis和Zookeeper分布式锁/index.html">
 <meta property="og:site_name" content="生活值得">
-<meta property="og:description" content="分布式锁其实就是，控制分布式系统不同进程共同访问共享资源的一种锁的实现。 Redis分布式锁方案方案一：SETNX + EXPIRE存在的问题：setnx和expire两个命令分开了，不是原子操作。如果执行完setnx加锁，正要执行expire命令时，进程挂了，那么这个锁无法释放。 方案二：SETNX + value值是(系统时间+过期时间)加锁代码： 1234567891011121314151">
+<meta property="og:description" content="分布式锁其实就是，控制分布式系统不同进程共同访问共享资源的一种锁的实现。 Redis Set命令介绍1set key value [expiration EX seconds|PX milliseconds] [NX|XX]  EX seconds：将键的过期时间设置为 seconds 秒。SET key value EX seconds 等同于 SETEX key seconds value">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2020-12-01T06:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式锁_Redis和Zookeeper分布式锁">
-<meta name="twitter:description" content="分布式锁其实就是，控制分布式系统不同进程共同访问共享资源的一种锁的实现。 Redis分布式锁方案方案一：SETNX + EXPIRE存在的问题：setnx和expire两个命令分开了，不是原子操作。如果执行完setnx加锁，正要执行expire命令时，进程挂了，那么这个锁无法释放。 方案二：SETNX + value值是(系统时间+过期时间)加锁代码： 1234567891011121314151">
+<meta name="twitter:description" content="分布式锁其实就是，控制分布式系统不同进程共同访问共享资源的一种锁的实现。 Redis Set命令介绍1set key value [expiration EX seconds|PX milliseconds] [NX|XX]  EX seconds：将键的过期时间设置为 seconds 秒。SET key value EX seconds 等同于 SETEX key seconds value">
 
 
 
@@ -406,6 +406,16 @@
 
       
         <p>分布式锁其实就是，控制分布式系统不同进程共同访问共享资源的一种锁的实现。</p>
+<h1 id="Redis-Set命令介绍"><a href="#Redis-Set命令介绍" class="headerlink" title="Redis Set命令介绍"></a>Redis Set命令介绍</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set key value [expiration EX seconds|PX milliseconds] [NX|XX]</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>EX seconds：将键的过期时间设置为 seconds 秒。<br>SET key value EX seconds 等同于 SETEX key seconds value</p>
+</li>
+<li><p>PX millisecounds：将键的过期时间设置为 milliseconds 毫秒。<br>SET key value PX milliseconds 等同于 PSETEX key milliseconds value</p>
+</li>
+<li><p>NX:只在键不存在的时候，才对键进行设置操作。</p>
+<p>SET key value NX 等同于 SETNX key value</p>
+</li>
+</ul>
 <h1 id="Redis分布式锁方案"><a href="#Redis分布式锁方案" class="headerlink" title="Redis分布式锁方案"></a>Redis分布式锁方案</h1><h2 id="方案一：SETNX-EXPIRE"><a href="#方案一：SETNX-EXPIRE" class="headerlink" title="方案一：SETNX + EXPIRE"></a>方案一：SETNX + EXPIRE</h2><p>存在的问题：setnx和expire两个命令分开了，<strong>不是原子操作</strong>。如果执行完setnx加锁，正要执行expire命令时，进程挂了，那么这个锁无法释放。</p>
 <h2 id="方案二：SETNX-value值是-系统时间-过期时间"><a href="#方案二：SETNX-value值是-系统时间-过期时间" class="headerlink" title="方案二：SETNX + value值是(系统时间+过期时间)"></a>方案二：SETNX + value值是(系统时间+过期时间)</h2><p>加锁代码：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">long</span> expires = System.currentTimeMillis() + expireTime; <span class="comment">//系统时间+设置的过期时间</span></span><br><span class="line">String expiresStr = String.valueOf(expires);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果当前锁不存在，返回加锁成功</span></span><br><span class="line"><span class="keyword">if</span> (jedis.setnx(key_resource_id, expiresStr) == <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125; </span><br><span class="line"><span class="comment">// 如果锁已经存在，获取锁的过期时间</span></span><br><span class="line">String currentValueStr = jedis.get(key_resource_id);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果获取到的过期时间，小于系统当前时间，表示已经过期</span></span><br><span class="line"><span class="keyword">if</span> (currentValueStr != <span class="keyword">null</span> &amp;&amp; Long.parseLong(currentValueStr) &lt; System.currentTimeMillis()) &#123;</span><br><span class="line"></span><br><span class="line">     <span class="comment">// 锁已过期，获取上一个锁的过期时间，并设置现在锁的过期时间（不了解redis的getSet命令的小伙伴，可以去官网看下哈）</span></span><br><span class="line">    String oldValueStr = jedis.getSet(key_resource_id, expiresStr);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (oldValueStr != <span class="keyword">null</span> &amp;&amp; oldValueStr.equals(currentValueStr)) &#123;</span><br><span class="line">         <span class="comment">// 考虑多线程并发的情况，只有一个线程的设置值和当前值相同，它才可以加锁</span></span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">        </span><br><span class="line"><span class="comment">//其他情况，均返回加锁失败</span></span><br><span class="line"><span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -511,8 +521,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2020/12/02/分布式/012.分布式锁_Redission可重入锁源码解析/" rel="prev" title="分布式锁_Redission可重入锁源码解析">
-                分布式锁_Redission可重入锁源码解析 <i class="fa fa-chevron-right"></i>
+              <a href="/2020/12/01/分布式/001.分布式唯一ID生成方案/" rel="prev" title="分布式唯一ID生成方案">
+                分布式唯一ID生成方案 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -582,7 +592,7 @@
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">89</span>
+                    <span class="site-state-item-count">90</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -641,7 +651,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -698,7 +710,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">20</span>
+                      
+                    
+                    <span class="site-state-item-count">21</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -736,7 +750,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis分布式锁方案"><span class="nav-text">Redis分布式锁方案</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#方案一：SETNX-EXPIRE"><span class="nav-text">方案一：SETNX + EXPIRE</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方案二：SETNX-value值是-系统时间-过期时间"><span class="nav-text">方案二：SETNX + value值是(系统时间+过期时间)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方案三：使用Lua脚本-包含SETNX-EXPIRE两条指令"><span class="nav-text">方案三：使用Lua脚本(包含SETNX + EXPIRE两条指令)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#方案四：SET的扩展命令（SET-EX-PX-NX）"><span class="nav-text">方案四：SET的扩展命令（SET EX PX NX）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案五：SET-EX-PX-NX-value是随机值，再删除"><span class="nav-text">方案五：SET EX PX NX  + value是随机值，再删除</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案六：Redisson框架"><span class="nav-text">方案六：Redisson框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案七：多机实现的分布式锁Redlock-Redisson"><span class="nav-text">方案七：多机实现的分布式锁Redlock+Redisson</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最简单的分布式锁"><span class="nav-text">最简单的分布式锁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RedLock算法"><span class="nav-text">RedLock算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Zookeeper分布式锁"><span class="nav-text">Zookeeper分布式锁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis分布式锁和ZK分布式锁的对比"><span class="nav-text">Redis分布式锁和ZK分布式锁的对比</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis分布式锁的问题"><span class="nav-text">Redis分布式锁的问题</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis-Set命令介绍"><span class="nav-text">Redis Set命令介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis分布式锁方案"><span class="nav-text">Redis分布式锁方案</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#方案一：SETNX-EXPIRE"><span class="nav-text">方案一：SETNX + EXPIRE</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方案二：SETNX-value值是-系统时间-过期时间"><span class="nav-text">方案二：SETNX + value值是(系统时间+过期时间)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方案三：使用Lua脚本-包含SETNX-EXPIRE两条指令"><span class="nav-text">方案三：使用Lua脚本(包含SETNX + EXPIRE两条指令)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#方案四：SET的扩展命令（SET-EX-PX-NX）"><span class="nav-text">方案四：SET的扩展命令（SET EX PX NX）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案五：SET-EX-PX-NX-value是随机值，再删除"><span class="nav-text">方案五：SET EX PX NX  + value是随机值，再删除</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案六：Redisson框架"><span class="nav-text">方案六：Redisson框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案七：多机实现的分布式锁Redlock-Redisson"><span class="nav-text">方案七：多机实现的分布式锁Redlock+Redisson</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最简单的分布式锁"><span class="nav-text">最简单的分布式锁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RedLock算法"><span class="nav-text">RedLock算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Zookeeper分布式锁"><span class="nav-text">Zookeeper分布式锁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis分布式锁和ZK分布式锁的对比"><span class="nav-text">Redis分布式锁和ZK分布式锁的对比</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis分布式锁的问题"><span class="nav-text">Redis分布式锁的问题</span></a></li></ol></div>
             
 
           </div>

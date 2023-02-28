@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="数据库自增主键使用数据库的id自增策略（如: Mysql的auto_increment）。 优点：  简单，天然有序。  缺点：  并发性不好，数据库写压力大。 数据库故障后不可使用。 存在数量泄露风险。  适用场景：分库分表是因为数据量大，但是低并发低负载， 数据库单机有高可用问题，必须上高可用方案，另外是单表数据一直增长也是个问题，一般不会直接投入生产。投入生产环境的时候会用下面说的flick">
+<meta name="keywords" content="分布式,分布式唯一ID">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式唯一ID生成方案">
+<meta property="og:url" content="http://yoursite.com/2020/12/01/分布式/001.分布式唯一ID生成方案/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="数据库自增主键使用数据库的id自增策略（如: Mysql的auto_increment）。 优点：  简单，天然有序。  缺点：  并发性不好，数据库写压力大。 数据库故障后不可使用。 存在数量泄露风险。  适用场景：分库分表是因为数据量大，但是低并发低负载， 数据库单机有高可用问题，必须上高可用方案，另外是单表数据一直增长也是个问题，一般不会直接投入生产。投入生产环境的时候会用下面说的flick">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="file:///C:/Users/ADMINI~1.SC-/AppData/Local/Temp/ksohtml14004/wps1.jpg">
+<meta property="og:updated_time" content="2020-12-01T06:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式唯一ID生成方案">
+<meta name="twitter:description" content="数据库自增主键使用数据库的id自增策略（如: Mysql的auto_increment）。 优点：  简单，天然有序。  缺点：  并发性不好，数据库写压力大。 数据库故障后不可使用。 存在数量泄露风险。  适用场景：分库分表是因为数据量大，但是低并发低负载， 数据库单机有高可用问题，必须上高可用方案，另外是单表数据一直增长也是个问题，一般不会直接投入生产。投入生产环境的时候会用下面说的flick">
+<meta name="twitter:image" content="file:///C:/Users/ADMINI~1.SC-/AppData/Local/Temp/ksohtml14004/wps1.jpg">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/12/01/分布式/001.分布式唯一ID生成方案/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>分布式唯一ID生成方案 | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/01/分布式/001.分布式唯一ID生成方案/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">分布式唯一ID生成方案
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-12-01 14:15:27" itemprop="dateCreated datePublished" datetime="2020-12-01T14:15:27+08:00">2020-12-01</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/分布式唯一ID/" itemprop="url" rel="index"><span itemprop="name">分布式唯一ID</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="数据库自增主键"><a href="#数据库自增主键" class="headerlink" title="数据库自增主键"></a>数据库自增主键</h1><p>使用数据库的id自增策略（如: Mysql的auto_increment）。</p>
+<p><strong>优点：</strong></p>
+<ul>
+<li>简单，天然有序。</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>并发性不好，数据库写压力大。</li>
+<li>数据库故障后不可使用。</li>
+<li>存在数量泄露风险。</li>
+</ul>
+<p>适用场景：分库分表是因为数据量大，但是低并发低负载，</p>
+<p>数据库单机有高可用问题，必须上高可用方案，另外是单表数据一直增长也是个问题，一般不会直接投入生产。投入生产环境的时候会用下面说的flickr的数据库唯一id生成方案</p>
+<h1 id="UUID"><a href="#UUID" class="headerlink" title="UUID"></a>UUID</h1><p><strong>优点：</strong></p>
+<ul>
+<li>本地生成，没有所谓的并发压力</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<p>太长了！作为主键绝对是不靠谱的！数据库频繁页分裂问题！</p>
+<p>适用场景：除数据库主键之外的其他唯一键场景，都适合，这个方案一般不考虑在分布式唯一ID生成里，在我们的主题里，其实可以忽略</p>
+<h1 id="Snowflake方案"><a href="#Snowflake方案" class="headerlink" title="Snowflake方案"></a>Snowflake方案</h1><p>核心思想：64个bit位，</p>
+<ul>
+<li>41位放时间（最多使用69年），</li>
+<li>10位放机器标识（最多把snowflake程序部署在1024台机器上），</li>
+<li>12位放序号（每毫秒，每台机器，可以顺序生成4096个ID），</li>
+<li>最高位1个bit是0</li>
+</ul>
+<p>snowflake程序分布式部署在多台机器上，每台机器生成的每个ID，都是这一毫秒、机器id、序号，每台机器每毫秒最多4096个ID，分布式方案可以抗高并发，最多1024台机器，纯基于内存生成，性能很高。</p>
+<p><strong>优点：</strong></p>
+<ul>
+<li>高性能，高并发，分布式，可伸缩，最多扩展1024台机器，ID绝对够用</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<p>光是开源算法还不用，还得考虑时钟回拨等一系列问题，如果要解决那堆问题，需要开发很多机制，开发完了还得独立部署，有独立部署和维护的成本。</p>
+<p>适用场景：有高并发生成唯一ID场景，基于snowflake算法自研，加入时钟回拨解决方案，多机房方案，等等，各种生产方案，有人力去维护，有少数大厂采用了这个方案，可以作为生产级方案，但是需要解决很多问题。</p>
+<h1 id="Redis自增机制"><a href="#Redis自增机制" class="headerlink" title="Redis自增机制"></a>Redis自增机制</h1><p>核心思想：Redis单线程，绝对有序自增，incrby；集群部署，比如5台机器，那么每台机器的初始值依次为1、2、3、4、5，每台机器的自增步长是5，第1台机器就是1、6、11、16、21，第2台机器就是2、7、12、17、22，以此类推，直到第5台机器就是5、10、15、20、25</p>
+<p><strong>优点：</strong></p>
+<ul>
+<li>不用额外开发，一般公司都提供redis集群，直接用就行</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li><p>客户端需要自己封装，基于Jedis去封装，客户端里需要写死Redis机器数量，每次获取1个ID，都是找到一台机器，然后按步长去incrby，接着返回给系统；</p>
+</li>
+<li><p>扩容麻烦，如果5台机器抗不住并发了怎么办？扩容的时候加机器，客户端需要修改代码，或者基于动态感知，这其实也有开发成本，另外扩容的时候，步长就会改变，那之前的ID怎么办？都得重新洗掉，全部从头开始计算，极为麻烦</p>
+</li>
+</ul>
+<p>适用场景：鉴于他的缺点，一般不用redis集群玩自增主键生成；分库分表了，然后每秒在万左右的高并发，但是可预见的不会达到几万以及十万级的并发，那么此时可以用Redis单机去生成自增主键，避免redis集群扩容的步长改变问题；但是还得部署Redis主从同步+哨兵高可用，可是主从同步是异步的，有id重复问题，所以最终生产一般不用</p>
+<h1 id="基于时间-业务id的组合"><a href="#基于时间-业务id的组合" class="headerlink" title="基于时间+业务id的组合"></a>基于时间+业务id的组合</h1><p>核心思想：比如打车软件，可以用时间戳+起点编号+车牌号作为一个id，业务组合上是不会有重复的；比如电商订单，可以用时间戳+用户id，一个用户在1毫秒内一般最多就下一个订单，一般不会重复，除非用户基于程序刷单，否则手点的情况下，这个组合id一般没问题，还可以加个下单渠道、第一个商品id等其他业务id组合起来</p>
+<p><strong>优点：</strong></p>
+<ul>
+<li>实现简单，没额外成本，没并发之类的扩容问题</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>有的业务场景（比如订单之类的），还可以用这种方案，但是有的业务场景可能根本没法通过业务来组合，而且始终担心有重复问题</li>
+</ul>
+<p>适用场景：很多大厂都用这个方案，做订单编号这些，但是分库分表不光是订单，还有什么用户、账号以及各种其他的业务场景，所以部分适用于生产</p>
+<h1 id="flickr（雅虎旗下的图片分享平台）公司的方案"><a href="#flickr（雅虎旗下的图片分享平台）公司的方案" class="headerlink" title="flickr（雅虎旗下的图片分享平台）公司的方案"></a>flickr（雅虎旗下的图片分享平台）公司的方案</h1> <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`uid_sequence`</span> (  </span><br><span class="line"></span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">unsigned</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> auto_increment,  </span><br><span class="line"></span><br><span class="line">  <span class="string">`stub`</span> <span class="built_in">char</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">default</span> <span class="string">''</span>,  </span><br><span class="line"></span><br><span class="line">  PRIMARY <span class="keyword">KEY</span>  (<span class="string">`id`</span>),  </span><br><span class="line"></span><br><span class="line">  <span class="keyword">UNIQUE</span> <span class="keyword">KEY</span> <span class="string">`stub`</span> (<span class="string">`stub`</span>)  </span><br><span class="line"></span><br><span class="line">) <span class="keyword">ENGINE</span>=MyISAM;</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line"><span class="keyword">REPLACE</span> <span class="keyword">INTO</span> uid_sequence (stub) <span class="keyword">VALUES</span> (<span class="string">'test'</span>);  </span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">LAST_INSERT_ID</span>();</span><br></pre></td></tr></table></figure>
+<p>replace into语法替代insert into，避免表行数过大，一张表就一行数据，然后再select获取这个表的最新id，last_insert_id()函数是connection级别的，就你这个连接的最近insert生成的id，多个客户端之间没影响</p>
+<p>当然，其实也可以优化成这样，就是每次你一台机器要申请一个唯一id，你就REPLACE INTO uid_sequence (stub) VALUES (‘192.168.31.226’)，用你自己机器的ip地址去replace into，那么就你自己机器会有id不停自增，完了用select id from table where stub=机器地址，就可以了</p>
+<p>最多如果你要考虑到多线程并发问题，那么就在机器地址后加入线程编号，这样一台机器的不同线程，都是对自己的id在自增</p>
+<p>这个方案本质跟第一个方案没区别，唯一优化就是用replace into替代了insert into，避免表数据量过大，缺点也在于数据库并发能力不高，所以适用场景，就是分库分表的时候，低并发，用这个方案生成唯一id，低并发场景下可以用于生产</p>
+<p>而且一般会部署数据库高可用方案，两个库设置不同的起始位置和步长，分别是1、3、5，以及2、4、6</p>
+<p><img src="file:///C:\Users\ADMINI~1.SC-\AppData\Local\Temp\ksohtml14004\wps1.jpg" alt="img"> </p>
+<h1 id="基于flickr方案的高并发优化"><a href="#基于flickr方案的高并发优化" class="headerlink" title="基于flickr方案的高并发优化"></a>基于flickr方案的高并发优化</h1><p>有一种变种方案，是基于flickr方案的高并发优化，他核心问题在于每一次生成id都得找数据库，所以这就是并发瓶颈，所以这里可以把数据库优化为号段，而不是id号，什么意思呢？一起来看看</p>
+<p>每台机器都引入一个自己封装的客户端，只要一旦服务启动，就直接采用flickr方案获取一个id，但是他仅仅代表的是一个号段，什么意思呢？比如说，一个服务启动，通过flickr方案的replace into拿到一个id，假设是1吧</p>
+<p>此时你的号段可以配置为一个号段是10000个id号，那么此时你这个号段的起始id就是1 <em> 10000，然后可以把起始id设置到AtomicLong里去，还可以保存一下号段的最大id，也就是（n + 1） </em> 10000，就是2 * 10000，20000</p>
+<p>所以这个号段的id就是[10000, 20000，20000是不包含在内的</p>
+<p>接着服务里如果要获取唯一id，直接找你封装的客户端，每次拿一个id，就是AtomicLong.incrementAndGet()，直接原子递增，这样你大部分的id获取，都是在内存里通过号段内递增实现的</p>
+<p>高并发问题，解决了！！数据库仅仅用于维护号段罢了</p>
+<p>如果拿到了号段里最大id，此时对获取id的请求得阻塞住，只要拿到的id大于等于了最大id，请求全部自己陷入阻塞，比如大家都去while循环阻塞，过一会儿再次获取id，跟最大id比较</p>
+<p>发号器客户端的线程，定时轮询，一旦发现这个问题，此时就重新利用flickr方案获取一个号段，再次设置AtomicLong里的初始id以及更新最大id，在这个过程中别的任何一个线程来获取id都会发现AtomicLong自增值比最大id是大的</p>
+<p>即使是发号器客户端线程，刚刚设置了AtomicLong的值，然后还没设置volatile的最大id值，此时别的线程在while循环过程中获取了id，AotmicLong自增值一定大于之前的最大id值，也会继续陷入阻塞的</p>
+<p>只有 当发号器客户端线程更新了volatile最大id值之后，其他线程才会在while循环之后，发现AtomicLong自增值是小于最大id值的，此时就可以继续工作了，这种情况通常是很少的，所以大部分情况下，各个服务都是基于本地的号段在内存里获取id，而且全局上还是唯一的，没有高并发问题，数据库的并发也是很低的</p>
+<p>这个方案的唯一缺点就是，每次重启服务，就会浪费一个号段里还没自增到的大量id，重启后又是新的号段了，但是如果要优化，可以在spring销毁事件里，发号器内部设置一个volatile标识，不允许获取id了，接着 把AtomicLong的值持久化到本地磁盘，下次服务重启后直接从本地磁盘里读取，就不会浪费了</p>
+<p>其实这个优化以后的方案，就可以投入生产了，确实也有个别大厂是这么做的，也运行的很好。如果一定要说这个方案有什么弊端，那就是，归根结底，还是有一个数据库这么个外部依赖，其实如果方案真做好了，你还得考虑数据库的高可用方案这些东西，就是牵扯到了外部依赖，就容易做的很重</p>
+<p>另外一个问题，就是对于这个方案，你还得去做步长的配置，那么到底允许多长的步长呢？是否允许用户自己配置呢？如果不允许，你固定一个步长，那个步长会不会在一些特殊高并发场景下，比如你1000作为步长，1000个号瞬间被秒光，一个服务每秒都得请求一次数据库获取新的号段，此时你有上千个服务实例，数据库不还是抗不住？</p>
+<p>所以，这个方案适合一些没有特殊超高并发的场景，而且扩展性和灵活性不是很强，总是让人担心他的号段步长会出一些问题，但是在一些普通场景下，其实一般可能也没什么问题，所以有普通高并发场景的生产环境，还是可用的</p>
+<p>基于数据库的方案就是flickr方案以及flickr高并发优化方案，但是没有snowflake生产级方案那么具备普适性，snowflake方案不涉及什么号段问题，也不会额外依赖数据库，不需要考虑数据库高可用之类的，他自己就是peer-to-peer的一个集群架构，随时可以扩容</p>
+<p>时间戳+业务id，相当好用，推荐第一选择是他，能用时间戳+业务id的，就别搞分布式id生成，如果不行的，再考虑flickr方案或者snowflake方案</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/分布式/" rel="tag"># 分布式</a>
+          
+            <a href="/tags/分布式唯一ID/" rel="tag"># 分布式唯一ID</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/12/01/分布式/011.分布式锁_Redis和Zookeeper分布式锁/" rel="next" title="分布式锁_Redis和Zookeeper分布式锁">
+                <i class="fa fa-chevron-left"></i> 分布式锁_Redis和Zookeeper分布式锁
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/12/02/分布式/012.分布式锁_Redission可重入锁源码解析/" rel="prev" title="分布式锁_Redission可重入锁源码解析">
+                分布式锁_Redission可重入锁源码解析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">90</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">20</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据库自增主键"><span class="nav-text">数据库自增主键</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UUID"><span class="nav-text">UUID</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Snowflake方案"><span class="nav-text">Snowflake方案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis自增机制"><span class="nav-text">Redis自增机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基于时间-业务id的组合"><span class="nav-text">基于时间+业务id的组合</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#flickr（雅虎旗下的图片分享平台）公司的方案"><span class="nav-text">flickr（雅虎旗下的图片分享平台）公司的方案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基于flickr方案的高并发优化"><span class="nav-text">基于flickr方案的高并发优化</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
