@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="ApplicationContext介绍 之前在刚开始接触Spring源码的容器类我们主要分析了XmlBeanFactory，我们在现实场景中最常用的其实是ApplicationContext的体系实现类，该接口和BeanFactory一样都是Spring用来管理bean实例的容器对象，但是ApplicationContext提供的功能更丰富和实用。下面我们以ClassPathXmlApplica">
+<meta name="keywords" content="Spring,Spring源码解析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ApplicationContext源码解析">
+<meta property="og:url" content="http://yoursite.com/2020/04/26/springsourceanalysis/008.Spring源码解析-ApplicationContext源码解析/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="ApplicationContext介绍 之前在刚开始接触Spring源码的容器类我们主要分析了XmlBeanFactory，我们在现实场景中最常用的其实是ApplicationContext的体系实现类，该接口和BeanFactory一样都是Spring用来管理bean实例的容器对象，但是ApplicationContext提供的功能更丰富和实用。下面我们以ClassPathXmlApplica">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/springsource/springsource001.png">
+<meta property="og:updated_time" content="2020-04-26T15:26:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ApplicationContext源码解析">
+<meta name="twitter:description" content="ApplicationContext介绍 之前在刚开始接触Spring源码的容器类我们主要分析了XmlBeanFactory，我们在现实场景中最常用的其实是ApplicationContext的体系实现类，该接口和BeanFactory一样都是Spring用来管理bean实例的容器对象，但是ApplicationContext提供的功能更丰富和实用。下面我们以ClassPathXmlApplica">
+<meta name="twitter:image" content="http://yoursite.com/images/springsource/springsource001.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/04/26/springsourceanalysis/008.Spring源码解析-ApplicationContext源码解析/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>ApplicationContext源码解析 | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/26/springsourceanalysis/008.Spring源码解析-ApplicationContext源码解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ApplicationContext源码解析
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-04-26 23:26:27" itemprop="dateCreated datePublished" datetime="2020-04-26T23:26:27+08:00">2020-04-26</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring/Spring源码解析/" itemprop="url" rel="index"><span itemprop="name">Spring源码解析</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="ApplicationContext介绍"><a href="#ApplicationContext介绍" class="headerlink" title="ApplicationContext介绍"></a>ApplicationContext介绍</h1><p> 之前在刚开始接触Spring源码的容器类我们主要分析了XmlBeanFactory，我们在现实场景中最常用的其实是ApplicationContext的体系实现类，该接口和BeanFactory一样都是Spring用来管理bean实例的<br>容器对象，但是ApplicationContext提供的功能更丰富和实用。下面我们以ClassPathXmlApplicationContext为例，分析下源码</p>
+<h2 id="ApplicationContext类结构"><a href="#ApplicationContext类结构" class="headerlink" title="ApplicationContext类结构"></a>ApplicationContext类结构</h2><p><img src="/images/springsource/springsource001.png" alt></p>
+<p> @Test<br> public void start(){<br>     ApplicationContext context = new ClassPathXmlApplicationContext(<br>              new String[]{“spring/spring-dao.xml”,”spring/spring-service.xml”,”spring/spring-web.xml”});<br>     DataSource dataSource1 = context.getBean(“dataSource”, DataSource.class);<br>     System.out.println(dataSource1.toString());<br> }<br>2、UML类图</p>
+<p> 从ClassPathXmlApplicationContext类相关的UML类图中可以知道ApplicationContext在继承BeanFactory的基础上也有相关的扩展。所以ApplicationContext提供了比BeanFactory更多更强大的功能。</p>
+<p>下面我们依据new ClassPathXmlApplicationContext() 来分析该实例的一些功能点</p>
+<p>二、ClassPathXmlApplicationContext类<br>   1、构造方法<br>             相比于XmlBeanFactory ApplicationContext的ClassPathXmlApplicationContext，支持加载多个资源文件。</p>
+<p>/**</p>
+<ul>
+<li>ClassPathXmlApplicationContext的构造函数</li>
+<li>@param configLocations 配置资源数组</li>
+<li>@param refresh 是否刷新容器标识（该标识对应的刷新接口是该实例的核心方法）</li>
+<li>@param parent  父类的对象</li>
+<li>@throws BeansException<br>*/<br>public ClassPathXmlApplicationContext(String[] configLocations,<br> boolean refresh, ApplicationContext parent) throws BeansException {<br> //设置其父类实例<br> super(parent);<br> //添加并解析资源名称 （数组）  //针对特殊属性的的资源名比如${var} 会进行相关的变量解析。<br> this.setConfigLocations(configLocations);<br> if (refresh) {<pre><code> //刷新容器接口
+ this.refresh();
+</code></pre> }<br>}<br>上述ClassPathXmlApplicationContext实例化的过程中，除了调用父类构造方法，设置支援属性信息之外，最核心的方法就是refresh()方法，下面我们来分析一下refresh()方法做了一些什么。</li>
+</ul>
+<p>2、refresh()方法<br>//下面我们来看一下ApplicationContext的核心方法resresh();<br>//该方法几乎包含了ApplicationContext的所有功能，所以该方法比较复杂<br>//目前先大致简要叙述各个方法的作用，后面我们一一分析<br>@Override<br>public void refresh() throws BeansException, IllegalStateException {<br>    synchronized (this.startupShutdownMonitor) {<br>        //刷新容器之前的准备操作<br>        //相关变量初始化，以及对系统属性验证<br>        prepareRefresh();</p>
+<pre><code>    // 创建新的BeanFactory 这个对象实例也是该类为啥拥有和beanFactory一样功能的原因
+    ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
+
+    //beanFactory实例对象的一些特殊规则设置，添加一些实例bean，bean后置处理器，忽略某些依赖注入、指定某些依赖注入等
+    prepareBeanFactory(beanFactory);
+
+    try {
+        //spring的钩子函数，为子类扩展提供的方法，子类可以继承该类并重写该方法
+        //看到其他子类实现大多是添加一些BeanPostProcessor实例
+        postProcessBeanFactory(beanFactory);
+
+        //调用BeanFactoryPostProcessor 的相关方法主要是
+        //BeanDefinitionRegistryPostProcessor实例对象的postProcessBeanDefinitionRegistry()方法
+        //或者BeanFactoryPostProcessor 的postProcessBeanFactory()方法
+        invokeBeanFactoryPostProcessors(beanFactory);
+
+        //注册BeanPostProcessor(该方法只是注册，真正的调用是在bean的实例化阶段进行的)
+        registerBeanPostProcessors(beanFactory);
+
+        //初始化国际资源 我们可以针对不同语言或者地区提供不同的资源信息
+        //只需要设置相关的语言地区 就可以获取对应语言或者地区的资源信息 此处不关注
+        initMessageSource();
+
+        //初始化事件广播实例对象 该对象主要管理spring所有的ApplicationListener实现类
+        //使用观察者模式 如果context 发布了一些相关的事件 则该广播对象会通知所有的事件监听器
+        //最终调用相关的事件监听器 处理对应的事件
+        initApplicationEventMulticaster();
+
+        //子类进行扩展的钩子方法
+        onRefresh();
+
+        //注册事件监听器 上面实例化了事件广播实例
+        registerListeners();
+
+        //单例对象的初始化
+        finishBeanFactoryInitialization(beanFactory);
+
+        //容器实例化后通知所有的Lifecycle接口的start()方法
+        finishRefresh();
+    }
+
+    catch (BeansException ex) {
+        logger.warn(&quot;Exception encountered during context initialization - cancelling refresh attempt&quot;, ex);
+        //实例化异常 销毁相关的bean
+        destroyBeans();
+        //重置刷新标识
+        cancelRefresh(ex);
+        throw ex;
+    }
+}
+</code></pre><p>}<br>   从上面的代码中可以看到refresh()几乎包含了该类实例化的所有核心方法比较复杂，该方法主要逻辑罗列如下：</p>
+<p>prepareRefresh()： 刷新容器之前的准备操作，相关变量初始化，以及对系统属性验证。<br>obtainFreshBeanFactory()：创建新的BeanFactory<br>prepareBeanFactory(beanFactory)： beanFactory实例对象的一些特殊规则设置<br>postProcessBeanFactory()方法：spring的钩子函数，为子类扩展提供的方法<br>invokeBeanFactoryPostProcessors()方法：调用BeanFactoryPostProcessor的相关方法。<br>registerBeanPostProcessors()方法：注册BeanPostProcessor<br>initMessageSource()方法：初始化国际资源<br>initApplicationEventMulticaster()方法：初始化事件广播实例对象 该对象主要管理spring所有的ApplicationListener实现类，使用观察者模式 如果context 发布了一些相关的事件 则该广播对象会通知所有的事件监听器<br>onRefresh()方法： 子类进行扩展的钩子方法。<br>finishBeanFactoryInitialization()方法：单例对象的初始化。<br>finishRefresh()方法：容器实例化后通知所有的Lifecycle接口的start()方法。<br>destroyBeans()、cancelRefresh()实例化异常的相关操作。<br>三、refresh()方法的详细分析<br>   1、prepareRefresh()<br>           容器实例化时候执行刷新之前的准备操作。</p>
+<pre><code>   1.1、源码分析
+</code></pre><p>//1、容器刷新之前的准备操作<br>protected void prepareRefresh() {<br>    //获取容器启动时间，和后面容器启动完成后的时间只差 作为容器启动时间的统计<br>    this.startupDate = System.currentTimeMillis();<br>    //设置容器状态为激活<br>    this.active.set(true);</p>
+<pre><code>if (logger.isInfoEnabled()) {
+    logger.info(&quot;Refreshing &quot; + this);
+}
+
+//该方法是留给子类去进行扩展的
+initPropertySources();
+
+//对于容器需要依赖某些系统变量才能正常工作的场景
+//此处对于环境中的必填参数进行相关校验
+getEnvironment().validateRequiredProperties();
+</code></pre><p>}<br>  该方法主要是在ApplicationContext启动之前设置一些启动参数，比如激活状态active，容器启动时间startupDate ，以及子类扩展填充属性信息initPropertySources（），以及系统必填参数校验validateRequiredProperties()。针对该方法我们使用一个示例来理解一下其子类设置相关属性配置，并设置自动校验。</p>
+<p>  1.2、prepareRefresh()示范<br>    自定义ApplicationContext类</p>
+<p>//该方法设置了两个参数 一个开始时间 一个容器激活状态<br>//紧接着提供了一个供子类扩展的方法initPropertySources() 使用者可以通过重写该类 进行一些业务相关变量的初始化操作<br>//同时提供了一个对必填字段的校验方法getEnvironment().validateRequiredProperties();<br>//该方法的校验是Environment对象委托其属性AbstractPropertyResolver 调用其validateRequiredProperties()方法实现<br>//该方法有什么作用呢？<br>//下面我们针对如下业务场景：对于容器启动需要设置相关系统属性classPath，且对系统属性进行校验，<br>// 则此处继承ClassPathXmlApplicationContext重写了initPropertySources（）方法<br>//重写的方法中 主要为ApplicationContext设置系统变量，并添加必填字段的校验<br>class MyClassPathXmlApplicationContext extends ClassPathXmlApplicationContext{</p>
+<pre><code>MyClassPathXmlApplicationContext(String... configLocations){
+    super(configLocations);
+}
+@Override
+protected void initPropertySources() {
+    //子类扩展该方法进行了一些系统变量添加
+    String classPath = &quot;/usr/local/jdk1.9/bin&quot;;
+    Map&lt;String,Object&gt; paramMap = new HashMap&lt;String, Object&gt;();
+    paramMap.put(&quot;classPath&quot;,classPath);
+    SystemEnvironmentPropertySource seps = new SystemEnvironmentPropertySource(&quot;env&quot;, paramMap);
+    //设置必填属性
+    getEnvironment().getPropertySources().addFirst(seps);
+    getEnvironment().setRequiredProperties(&quot;classPath&quot;);
+    //设置环境中的必填参数alis校验 但是初始化属性中没有该属性会报错
+    getEnvironment().setRequiredProperties(&quot;alis&quot;);
+}
+</code></pre><p>}<br>  测试 如果注释掉最后一行代码 则实例化该ApplicationContext在必填参数校验会报错。</p>
+<p> 2、obtainFreshBeanFactory()<br>        ApplicationContext之所以包含有BeanFactory实例的特征，就是因为在该方法中实例化了一个BeanFactory，更确切的说是一个DefalutListBeanFactory实例，从而使其拥有了BeanFactory的相关功能。</p>
+<p>  2.1、obtainFreshBeanFactory()方法分析<br>/**</p>
+<ul>
+<li><p>2、加载xml形式配置的bean定义 初始化BeanFactory实例<br>*/<br>protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {<br> //见名知意 刷新BeanFactory<br> refreshBeanFactory();<br> //创建新的BeanFactory实例 DefaultListBeanFactory<br> ConfigurableListableBeanFactory beanFactory = getBeanFactory();<br> if (logger.isDebugEnabled()) {</p>
+<pre><code> logger.debug(&quot;Bean factory for &quot; + getDisplayName() + &quot;: &quot; + beanFactory);
+</code></pre><p> }<br> return beanFactory;<br>}<br>该方法中主要主要包含两个方法：</p>
+<p> refreshBeanFactory()主要是删除原先的beanFactory实例，并再创建新的BeanFactory实例。<br> getBeanFactory() 从该容器中获取上一个方法创建的beanFactory实例。<br>两个方式均在AbstractRefreshableApplicationContext类中进行了相关实现。</p>
+<p>2.2、refreshBeanFactory()<br>//具体是AbstractRefreshableApplicationContext的refreshBeanFactory()实现<br>protected final void refreshBeanFactory() throws BeansException {<br>destroyBeans() 调用beanFactory容器中所有单例对象的销毁方法（实现了DisposableBean接口的bean<br> // 或者在xml的<bean id="xx" class="XXX" destroy-method="destroyBeanTest"> 声明的 销毁方法）<br> //接着销毁beanFactory容器实例<br> //为什么要先销毁存在的 重新创建一个新的beanFactory<br> //笔者认为原因大概是因为 大部分情况下刷新接口调用频率很小，而且大多涉及到了spring容器中的单例bean实例的增、删、改<br> //而spring 管理的bean很多的情况下 没有提供相关的api对于相关bean实例的处理，在spring整个环境比较复杂的情况下<br> //直接销毁在重新创建，比耗费大量的逻辑处理要好的多，虽然耗时但是并不频繁，不失为一个折中的好办法。<br> if (hasBeanFactory()) {</bean></p>
+<pre><code> destroyBeans();
+ closeBeanFactory();
+</code></pre><p> }</p>
+<p> try {</p>
+<pre><code> //2、创建一个DefaultListBeanFactory实例对象
+ DefaultListableBeanFactory beanFactory = createBeanFactory();
+ beanFactory.setSerializationId(getId());
+ //3、beanFactory实例功能的填充
+ //3.1、该方法主要涉及两个参数的自定义
+ //(1)、allowBeanDefinitionOverriding  是否允许同名的Bean实例覆盖
+ // 在大型项目开发过程中,各个服务项目单独开发，集成在一起的时候可能出现上面的问题
+ //(2)、allowCircularReferences 是否允许循环依赖（循环依赖不多多说，感兴趣的读者可以看看笔者的博客，不贴链接了，
+ // 自己关注，自己看，看给你惯的） 两者默认都是true
+ //spring提供这种方法让我们可以改变这两个属性，从而改变整个beanFactory容器的特性（一般不需要改）
+ customizeBeanFactory(beanFactory);
+ //转载xml中定义的bean实例（和之前的我们解读beanFactory实例化一致）
+ loadBeanDefinitions(beanFactory);
+ synchronized (this.beanFactoryMonitor) {
+     this.beanFactory = beanFactory;
+ }
+</code></pre><p> }<br> catch (IOException ex) {</p>
+<pre><code> throw new ApplicationContextException(&quot;&quot;);
+</code></pre><p> }<br>}<br>该方法主要逻辑如下：</p>
+<p>销毁BeanFactory实例，重新创建BeanFactory实例，<br>customizeBeanFactory()方法设置BeanFactory实例的属性：<br>  1、allowBeanDefinitionOverriding  是否允许同名的Bean实例覆盖。<br>  2、allowCircularReferences 是否允许循环依赖。<br>spring提供这种方法让我们可以改变这两个属性，从而改变整个beanFactory容器的特性<br>加载Xml配置和BeanFactory实例解析xml配置一致， 转换为BeanDefintion。<br>上面对于创建的BeanFactory实例后设置相关属性着重介绍一下</p>
+<p>allowBeanDefinitionOverriding属性</p>
+<p> 该属性的含义是否允许同名bean实例覆盖，该场景主要发生在大型项目开发过程中,各个服务项目单独开发，集成在一起的时候可能同名Bean实例。这里属性默认为true,即允许同名bean覆盖。</p>
+</li>
+</ul>
+<p>//补充同名bean覆盖的问题示例<br>//spring-bean1.xml</p>
+<bean id="demoService" class="com.soecode.lyf.service.impl.DemoTwoServiceImpl" destroy-method="destroyBeanTest">
+
+//spring-bean2.xml
+ <bean id="demoService" name="service" class="com.soecode.lyf.service.impl.DemoServiceImpl">
+如上两个xml配置都声明同id的demoService(一定是不同xml声明同名bean，而不是在同一个xml声明两个同名的bean 会在解析xml的时候报另一个错误)。则会出现按照xml加载顺序后者覆盖前者的情况。
+
+allowCircularReferences 属性 
+
+   关于循环依赖，读者可参看笔者的这边博文  spring循环依赖。
+
+3、prepareBeanFactory()方法
+//perpareBeanFactory()方法 为beanFactory进行一些特殊的相关设置
+protected void prepareBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+    //设置类加载器
+    beanFactory.setBeanClassLoader(getClassLoader());
+    //设置SPEL表达式语言的支持
+    beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
+    //设置属性编辑注册器
+    beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
+
+    //先注册ApplicationContextAwareProcessor bean后置处理器 主要用于spring初始化
+    beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+    //设置相关接口的忽略自动装配
+    beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
+    beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);
+    beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);
+    beanFactory.ignoreDependencyInterface(ApplicationEventPublisherAware.class);
+    beanFactory.ignoreDependencyInterface(MessageSourceAware.class);
+    beanFactory.ignoreDependencyInterface(ApplicationContextAware.class);
+
+    //显示声明 遇到如下接口实例注入指定的依赖实例
+    beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
+    beanFactory.registerResolvableDependency(ResourceLoader.class, this);
+    beanFactory.registerResolvableDependency(ApplicationEventPublisher.class, this);
+    beanFactory.registerResolvableDependency(ApplicationContext.class, this);
+
+
+
+    //增加spring对AspecJ的支持
+    if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+        beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
+        beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
+    }
+
+    //注册相关的环境env实例对象
+    if (!beanFactory.containsLocalBean(ENVIRONMENT_BEAN_NAME)) {
+        beanFactory.registerSingleton(ENVIRONMENT_BEAN_NAME, getEnvironment());
+    }
+    if (!beanFactory.containsLocalBean(SYSTEM_PROPERTIES_BEAN_NAME)) {
+        beanFactory.registerSingleton(SYSTEM_PROPERTIES_BEAN_NAME, getEnvironment().getSystemProperties());
+    }
+    if (!beanFactory.containsLocalBean(SYSTEM_ENVIRONMENT_BEAN_NAME)) {
+        beanFactory.registerSingleton(SYSTEM_ENVIRONMENT_BEAN_NAME, getEnvironment().getSystemEnvironment());
+    }
+}
+perpareBeanFactory()方法 为beanFactory进行一些特殊的相关设置,主要逻辑如下：
+
+ 设置类加载器ClassLoader、表达式语言支持StandardBeanExpressionResolver、属性编辑注册器ResourceEditorRegistrar
+ ApplicationContextAwareProcessor  添加创建实例的时候编码设置相关的XXXWare同时设置忽略自动装配:EnvironmentAware，EmbeddedValueResolverAware、ResourceLoaderAware、ApplicationEventPublisherAware、MessageSourceAware、ApplicationContextAware（忽略实现了如下接口的实现类中的setter方法的实例注册 比如服务ServiceA组件实现了EnvironmentAware 则其就会重写其中的SetEnvironment(Environment environment) 这里对其的注入忽略，注意此处 对spring有一定了解的同学其实知道对于实现了XXXAware接口的bean实例创建的时候会在其对应的initializeBean()调用我们注册的会调用ApplicationContextAwareProcessor后置处理器 postProcessBeforeInitialization()方法的 invokeAwareInterfaces()方法其对应的setXXX()注入 请和ignoreDependencyType用法区分开） 请参考有关ignoreDependencyInterface和ignoreDependencyType区别
+注入指定的依赖 在Spring自动装配的时候如果一个接口有多个实现类，并且都已经放到IOC中去了那么自动装配的时候就会出异常，这里我们可以使用registerResolvableDependency() 指定注入特定的实例 。 在多个实例情况下指定注入特定实例
+添加bean后置处理器  LoadTimeWeaverAwareProcessor 增加Aspectj的支持
+注册默认的环境bean实例
+3.1、添加SpringEL表达式的支持
+      设置StandardBeanExpressionResolver实例 用于springEl表达式解析支持 从而可以使我们使用El表达式的形式 * 引用spring容器中的一些实例信息。
+
+SpEL使用#{}去进行使用，我们可以通过xml配置、注解的方式使用SpringEL表达式语法。
+
+<!--xml配置形式使用el表达式-->
+<!-- 测试SpEL的使用 -->
+<bean id="bookOne" class="com.soecode.lyf.entity.Book">
+    <property name="name" value="平凡的世界">
+    <property name="author" value="路遥">
+</property></property></bean>
+<bean id="bookTwo" class="com.soecode.lyf.entity.Book">
+    <!-- 此处使用el表达式获取bookOne实例的属性 -->
+    <property name="name" value="#{bookOne.name}">
+    <property name="author" value="#{bookOne.author}">
+</property></property></bean>
+<bean id="reader" class="com.soecode.lyf.entity.Reader">
+    <!-- 此处使用el表达式获取bookOne实例的属性 -->
+    <property name="name" value="#{bookTwo}"></property></bean>
+//类似于
+<bean id="reader" class="com.soecode.lyf.entity.Reader">
+                <!-- 此处使用el表达式获取bookOne实例的属性 -->
+                <property name="name" ref="bookTwo">
+</property></bean>
+
+<p> EL表达式详细用法参考：<a href="https://blog.csdn.net/ya_1249463314/article/details/68484422" target="_blank" rel="noopener">https://blog.csdn.net/ya_1249463314/article/details/68484422</a></p>
+<p>//注解形式使用el表达式<br>@Component<br>public class MyMessage2 {<br>   @Value(“#{systemProperties[‘user.language’]}”)<br>   private String message;<br>      public String getMessage() {<br>        return message;<br>   }<br>}<br>//beanFactory中注入StandardBeanExpressionResolver 主要是在Spring初始化bean<br>//AbstractAutowireCapableBeanFactory类的 applyPropertyValues()方法<br>3.2、注册属性编辑器<br>何为属性编辑器<br>属性编辑器的作用是针对某些属性将其转换为特定属性对象的工具方法，我们可以通过自定义属性编辑器，也可以使用spring自定义的属性编辑器进行属性转换</p>
+<p>该对象主要应用场景<br>  1、MVC模式下 json数据中的date类型 是String 则请求到后台对应的Controller 会用对应的属性编辑器将其转换为Date类型<br>  2、xml配置中的所有值的设置都是String，这个时候如果给bean的复杂类型属性设置值，需要用到属性编辑器</p>
+<p>属性编辑器相关的类及接口<br>    PropertyEditor; 属性编辑接口类<br>    PropertyEditorSupport;<br>    CustomDateEditor<br>    PropertyEditorRegistrar;<br>    PropertyEditorRegistry;<br>    PropertyEditorRegistrySupport;</p>
+<p>注册、调用方式<br>在该方法中beanFactory设置一个 ResourceEditorRegistrar 其registerCustomEditors()方法中注册了一些常见的属性编辑器<br>该类的registerCustomEditors()方法是什么时候调用的呢？ 通过追踪调用链发现一个我们比较熟悉的方法<br>AbstractBeanFactory 的initBeanWrapper()方法中该方法被调用了<br>我们顺便来回忆一下initBeanWrapper()的使用场景： spring在初始化bean实例的时候 构造器实例化BeanWrapper<br>后会调用initBeanWrapper(bw)方法 在该方法中调用了registerCustomEditors() 从而支持Bean的属性转换。</p>
+<p>有关属性编辑器的相关知识</p>
+<p>  //代码调用地方<br>（AbstractAutowireCapableBeanFactory类的doCreateBean()方法 createBeanInstance（）方法）<br>  BeanWrapperImpl bw = new BeanWrapperImpl();<br>          this.beanFactory.initBeanWrapper(bw);、</p>
+<p>3.3、注册ApplicationContextAwareProcessor<br>该类是一个bean后置处理器 会在bean实例化的时候用其postProcessBeforeInitialization().</p>
+<p> 这里我们需要关注的是invokeAwareInterfaces()方法。代码很简单主要就是针对bean实例实现XXXAware的接口 手动注入相关的组件，ignoreDependencyInterface同时忽略相关的XXXAware接口的依赖注入，registerResolvableDependency显示声明 遇到如下接口实例注入指定的依赖实例 这里针对相同接口多实例如何注入的问题进行处理 使用spring显示指定的依赖注入。</p>
+<p> 3.4添加对AspectJ的支持<br>检查容器中是否包含名称为loadTimeWeaver的bean，实际上是增加Aspectj的支持。<br>AspectJ采用编译期织入（也叫静态代理、编译时增强）、类加载期织入（也叫动态代理、运行时增强、）两种方式进行切面的织入。<br>添加BEAN后置处理器：LoadTimeWeaverAwareProcessor，在BEAN初始化之前检查BEAN是否实现了LoadTimeWeaverAware接口，如果是，则进行加载时织入，即静态代理。 </p>
+<p> 3.5 添加环境相关的bean实例<br>注入了三种类型的env实例</p>
+<p>environment：  系统环境实例对象 包含下面的两种类型的环境变量 jdk等应用服务相关的变量，操作系统相关的变量<br>systemProperties： jdk等应用服务相关的变量<br>systemEnvironment： 操作系统相关的变量<br>4、BeanFactoryPostProcessors<br>   4.1、什么是BeanFactoryPostProcessors实例<br>spring容器初始化时，从资源中读取到bean的相关定义后，保存在beanFactory的成员变量中（参考DefaultListableBeanFactory类的成员变量beanDefinitionMap），在实例化bean的操作就是依据这些bean的定义来进行实例化，而在实例化之前，spring允许我们通过自定义扩展来改变bean的定义，定义一旦变了，后面的实例也就变了，而beanFactory后置处理器，即BeanFactoryPostProcessor就是用来改变bean定义的；我们应用最常见的BeanFactoryPostProcessor 实现类是PropertyPlaceholderConfigurer该类支持我们使用${xxx}来声明bean定义的，该bean实例化的时候 先生成对应的BeanDefintion 我们的PropertyPlaceholderConfigurer 会获取配置中的相关信息最终修改BeanDefinition。</p>
+<p>/**</p>
+<ul>
+<li>比如</li>
+<li>//该方式便是声明了一个PropertyPlaceholderConfigurer实例</li>
+<li><context:property-placeholder location="classpath:jdbc.properties"><br>*</context:property-placeholder></li>
+<li><!-- 2.数据库连接池 bean定义中的属性使用${变量引用} --></li>
+<li><bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"></bean></li>
+<li><!-- 配置连接池属性 --></li>
+<li><property name="driverClass" value="${jdbc.driver}"></property></li>
+<li><property name="jdbcUrl" value="${jdbc.url}"></property></li>
+<li><property name="user" value="${jdbc.username}"></property></li>
+<li><property name="password" value="${jdbc.password}"></property></li>
+<li>&lt;/bean&gt;<br>*/<br>在实例化ComboPooledDataSource实例的时候，会通过PropertyPlaceholderConfigurer修改该DataSource对应的BeanDefintion将其中的属性占位符通过读取的配置信息替换（改变了DataSource对应的BeanDefintion的定义信息 ）</li>
+</ul>
+<p>BeanPostProcessor和BeanFactoryPostProcessor两者的区别 </p>
+<p> 他们是Spring提供的对bean的功能进行扩展的接口，<br>     作用于范围：</p>
+<pre><code> *     前者针对某些bean实例进行功能的扩展，针对某个具体的bean进行处理，是bean级别的处理。
+ *     后者是针对整个Bean的工厂进行处理，是BeanFactory级别的处理。
+ 使用方式：
+ *     前者（前者实例化的时候不会立即执行器对应的方法）在bean实例化的时候，从容器总获取对符合条件的处理器实例
+ *     应用其postProcessBeforeInitialization()和postProcessAfterInitialization()
+ *     后者是spring容器加载任何实现给接口的实例的时候，会在spring容器载入所有的bean的配置之后执行postProcessBeanFactory()方法
+</code></pre><p>   4.2、invokeBeanFactoryPostProcessors方法<br>/**</p>
+<ul>
+<li>4、执行对应的beanFactoryPostProcessors 后置处理器</li>
+<li>invokeBeanFactoryPostProcessors()方法委托给PostProcessorRegistrationDelegate 调用其</li>
+<li><p>invokeBeanFactoryPostProcessors()方法<br>*/<br>public static void invokeBeanFactoryPostProcessors(</p>
+<pre><code>ConfigurableListableBeanFactory beanFactory, List&lt;BeanFactoryPostProcessor&gt; beanFactoryPostProcessors) {
+</code></pre><p>// Invoke BeanDefinitionRegistryPostProcessors first, if any.<br>Set<string> processedBeans = new HashSet&lt;&gt;();</string></p>
+<p>if (beanFactory instanceof BeanDefinitionRegistry) {</p>
+<pre><code>BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
+//保存常规的BeanFactoryPostProcessors集合
+List&lt;BeanFactoryPostProcessor&gt; regularPostProcessors = new ArrayList&lt;&gt;();
+//保存是BeanDefinitionRegistryPostProcessor实例的集合
+List&lt;BeanDefinitionRegistryPostProcessor&gt; registryProcessors = new ArrayList&lt;&gt;();
+
+//遍历所有的BeanFactoryPostProcessor是BeanDefinitionRegistryPostProcessor
+//执行其postProcessBeanDefinitionRegistry()
+//   该方法主要是针对@Configuration注解修饰的bean进行相关的解析
+// 并添加该后置处理器到registryProcessors集合,非BeanDefinitionRegistryPostProcessor 添加到regularPostProcessors集合中
+for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
+    if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
+        BeanDefinitionRegistryPostProcessor registryProcessor =
+                (BeanDefinitionRegistryPostProcessor) postProcessor;
+        registryProcessor.postProcessBeanDefinitionRegistry(registry);
+        registryProcessors.add(registryProcessor);
+    }
+    else {
+        regularPostProcessors.add(postProcessor);
+    }
+}
+
+//获取到BeanDefinitionRegistryPostProcessor 实例且实现了PriorityOrdered接口的后置处理器集合
+// 排序调用其postProcessBeanDefinitionRegistry（）方法 并存放到registryProcessors
+List&lt;BeanDefinitionRegistryPostProcessor&gt; currentRegistryProcessors = new ArrayList&lt;&gt;();
+
+// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
+String[] postProcessorNames =
+        beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
+for (String ppName : postProcessorNames) {
+    if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+        currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
+        processedBeans.add(ppName);
+    }
+}
+sortPostProcessors(currentRegistryProcessors, beanFactory);
+registryProcessors.addAll(currentRegistryProcessors);
+invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
+currentRegistryProcessors.clear();
+
+//获取到BeanDefinitionRegistryPostProcessor 实例且实现了Order接口的后置处理器集合
+//排序调用其postProcessBeanDefinitionRegistry（）方法 并存放到registryProcessors
+postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
+for (String ppName : postProcessorNames) {
+    if (!processedBeans.contains(ppName) &amp;&amp; beanFactory.isTypeMatch(ppName, Ordered.class)) {
+        currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
+        processedBeans.add(ppName);
+    }
+}
+sortPostProcessors(currentRegistryProcessors, beanFactory);
+registryProcessors.addAll(currentRegistryProcessors);
+invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
+currentRegistryProcessors.clear();
+
+//获取其他没有排序的BeanDefinitionRegistryPostProcessor 实例
+//排序调用其postProcessBeanDefinitionRegistry（）方法 并存放到registryProcessors
+boolean reiterate = true;
+while (reiterate) {
+    reiterate = false;
+    postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
+    for (String ppName : postProcessorNames) {
+        if (!processedBeans.contains(ppName)) {
+            currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
+            processedBeans.add(ppName);
+            reiterate = true;
+        }
+    }
+    sortPostProcessors(currentRegistryProcessors, beanFactory);
+    registryProcessors.addAll(currentRegistryProcessors);
+    invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
+    currentRegistryProcessors.clear();
+}
+
+//执行registryProcessors或者regularPostProcessors集合其BeanPostProcessor的postProcessBeanFactory()方法
+invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
+invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
+</code></pre><p>}</p>
+<p>else {</p>
+<pre><code>//如果不是BeanFactory不是BeanDefinitionRegistry 则直接调用其BeanPostProcessor的postProcessBeanFactory()方法
+invokeBeanFactoryPostProcessors(beanFactoryPostProcessors, beanFactory);
+</code></pre><p>}</p>
+<p>//获取 BeanFactoryPostProcessor实例的集合列表 逻辑和上面获取BeanDefinitionRegistryPostProcessor实例逻辑一样<br>//也是实现PriorityOrdered接口，Order接口和其他非排序接口的 BeanFactoryPostProcessor<br>//调用集合中的其BeanPostProcessor的postProcessBeanFactory()方法<br>String[] postProcessorNames =</p>
+<pre><code>    beanFactory.getBeanNamesForType(BeanFactoryPostProcessor.class, true, false);
+</code></pre><p>List<beanfactorypostprocessor> priorityOrderedPostProcessors = new ArrayList&lt;&gt;();<br>List<string> orderedPostProcessorNames = new ArrayList&lt;&gt;();<br>List<string> nonOrderedPostProcessorNames = new ArrayList&lt;&gt;();<br>for (String ppName : postProcessorNames) {</string></string></beanfactorypostprocessor></p>
+<pre><code>if (processedBeans.contains(ppName)) {
+    // skip - already processed in first phase above
+}
+else if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+    priorityOrderedPostProcessors.add(beanFactory.getBean(ppName, BeanFactoryPostProcessor.class));
+}
+else if (beanFactory.isTypeMatch(ppName, Ordered.class)) {
+    orderedPostProcessorNames.add(ppName);
+}
+else {
+    nonOrderedPostProcessorNames.add(ppName);
+}
+</code></pre><p>}</p>
+<p>sortPostProcessors(priorityOrderedPostProcessors, beanFactory);<br>invokeBeanFactoryPostProcessors(priorityOrderedPostProcessors, beanFactory);</p>
+<p>List<beanfactorypostprocessor> orderedPostProcessors = new ArrayList&lt;&gt;();<br>for (String postProcessorName : orderedPostProcessorNames) {</beanfactorypostprocessor></p>
+<pre><code>orderedPostProcessors.add(beanFactory.getBean(postProcessorName, BeanFactoryPostProcessor.class));
+</code></pre><p>}<br>sortPostProcessors(orderedPostProcessors, beanFactory);<br>invokeBeanFactoryPostProcessors(orderedPostProcessors, beanFactory);</p>
+<p>List<beanfactorypostprocessor> nonOrderedPostProcessors = new ArrayList&lt;&gt;();<br>for (String postProcessorName : nonOrderedPostProcessorNames) {</beanfactorypostprocessor></p>
+<pre><code>nonOrderedPostProcessors.add(beanFactory.getBean(postProcessorName, BeanFactoryPostProcessor.class));
+</code></pre><p>}<br>invokeBeanFactoryPostProcessors(nonOrderedPostProcessors, beanFactory);</p>
+<p>beanFactory.clearMetadataCache();<br>}</p>
+</li>
+</ul>
+<p>上面的代码很对但是逻辑实现很简单，先获取spring内部的已经存在的BeanFactoryPostProcesser 这里需要针对其扩展子类BeanDefinitionRegistryPostProcessor进行处理 先执行其所有的BeanDefinitionRegistryPostProcessor实例的postProcessBeanDefinitionRegistry()方法,接着执行所有内部BeanFactoryPostProcesser （包含BeanDefinitionRegistryPostProcessor）的postProcessBeanFactory()方法。</p>
+<p>接着获取用户自定义的BeanFactoryPostProcesser，获取的BeanFactoryPostProcesser又分成两种类型一种BeanDefinitionRegistryPostProcessor(继承BeanFactoryPostProcessor)实例对象，另一种是普通的BeanFactoryPostProcessor实例对象，该两者主要是前者需要先调用其postProcessBeanDefinitionRegistry（） 后面会和通的BeanFactoryPostProcessor实例一样调用其postProcessBeanFactory()。</p>
+<p>两者都需要按顺序调用其实现PriorityOrdered，Order,其他BeanFactoryPostProcesser的方法。</p>
+<p>5、注册BeanPostProcessor</p>
+<p>/**</p>
+<ul>
+<li>5、注册所有的BeanPostProcessor   所有的beanPostProcessor</li>
+<li>会被保存在BeanFactory的beanPostProcessors的列表中 在spring中进行相关bean实例化的时候调用</li>
+<li>常见bean后置处理器有InstantiationAwareBeanPostProcessor和DestructionAwareBeanPostProcessor等</li>
+<li>后面我们会再了解</li>
+<li>@param beanFactory</li>
+<li><p>@param applicationContext<br>*/<br>public static void registerBeanPostProcessors(</p>
+<pre><code> ConfigurableListableBeanFactory beanFactory, AbstractApplicationContext applicationContext) {
+</code></pre><p> //从beanDefinition列表中获取所有BeanPostProcessor实例的所有后置处理器名列表<br> //主要获取到我们自定义的后置处理器<br> String[] postProcessorNames = beanFactory.getBeanNamesForType(BeanPostProcessor.class, true, false);</p>
+<p> //添加一个BeanPostProcessorChecker 后置处理器<br> int beanProcessorTargetCount = beanFactory.getBeanPostProcessorCount() + 1 + postProcessorNames.length;<br> beanFactory.addBeanPostProcessor(new BeanPostProcessorChecker(beanFactory, beanProcessorTargetCount));</p>
+<p> //spring中主要分为四种类型的bean后置处理器<br> //1、实现了PriorityOrdered接口的 有序和有优先级BeanPostProcessor<br> //2、MergedBeanDefinitionPostProcessor实例类型的BeanPostProcessor<br> //3、实现了Order接口的BeanPostProcessor<br> //4、其他无序的BeanPostProcessor<br> List<beanpostprocessor> priorityOrderedPostProcessors = new ArrayList&lt;&gt;();<br> List<beanpostprocessor> internalPostProcessors = new ArrayList&lt;&gt;();<br> List<string> orderedPostProcessorNames = new ArrayList&lt;&gt;();<br> List<string> nonOrderedPostProcessorNames = new ArrayList&lt;&gt;();<br> for (String ppName : postProcessorNames) {</string></string></beanpostprocessor></beanpostprocessor></p>
+<pre><code> if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+     BeanPostProcessor pp = beanFactory.getBean(ppName, BeanPostProcessor.class);
+     priorityOrderedPostProcessors.add(pp);
+     if (pp instanceof MergedBeanDefinitionPostProcessor) {
+         internalPostProcessors.add(pp);
+     }
+ }
+ else if (beanFactory.isTypeMatch(ppName, Ordered.class)) {
+     orderedPostProcessorNames.add(ppName);
+ }
+ else {
+     nonOrderedPostProcessorNames.add(ppName);
+ }
+</code></pre><p> }</p>
+<p> //下面分别对上面的四种BeanPostProcessor 进行注册<br> //注册实现了PriorityOrdered接口的 有序和有优先级BeanPostProcessor<br> sortPostProcessors(priorityOrderedPostProcessors, beanFactory);<br> registerBeanPostProcessors(beanFactory, priorityOrderedPostProcessors);</p>
+<p> //注册实现了Order接口的BeanPostProcessor<br> List<beanpostprocessor> orderedPostProcessors = new ArrayList&lt;&gt;();<br> for (String ppName : orderedPostProcessorNames) {</beanpostprocessor></p>
+<pre><code> BeanPostProcessor pp = beanFactory.getBean(ppName, BeanPostProcessor.class);
+ orderedPostProcessors.add(pp);
+ if (pp instanceof MergedBeanDefinitionPostProcessor) {
+     internalPostProcessors.add(pp);
+ }
+</code></pre><p> }<br> sortPostProcessors(orderedPostProcessors, beanFactory);<br> registerBeanPostProcessors(beanFactory, orderedPostProcessors);</p>
+<p> //注册其他无序的BeanPostProcessor<br> List<beanpostprocessor> nonOrderedPostProcessors = new ArrayList&lt;&gt;();<br> for (String ppName : nonOrderedPostProcessorNames) {</beanpostprocessor></p>
+<pre><code> BeanPostProcessor pp = beanFactory.getBean(ppName, BeanPostProcessor.class);
+ nonOrderedPostProcessors.add(pp);
+ if (pp instanceof MergedBeanDefinitionPostProcessor) {
+     internalPostProcessors.add(pp);
+ }
+</code></pre><p> }<br> registerBeanPostProcessors(beanFactory, nonOrderedPostProcessors);</p>
+<p> //注册MergedBeanDefinitionPostProcessor实例类型的BeanPostProcessor<br> //因为internalPostProcessors和priorityOrderedPostProcessors两个列表有重复元素<br> //但是此处注册不会重复注册 因为注册的逻辑<br> sortPostProcessors(internalPostProcessors, beanFactory);<br> registerBeanPostProcessors(beanFactory, internalPostProcessors);</p>
+<p> // Re-register post-processor for detecting inner beans as ApplicationListeners,<br> // moving it to the end of the processor chain (for picking up proxies etc).<br> beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(applicationContext));<br>}<br>7、注册事件监听广播类</p>
+</li>
+</ul>
+<p>/**</p>
+<ul>
+<li><p>6、初始化事件广播类 该类会将所有发布的事件通知给其管理的所有事件监听器 从而让spring能对关注的事件进行及时的处理<br>*/<br>protected void initApplicationEventMulticaster() {<br> ConfigurableListableBeanFactory beanFactory = getBeanFactory();<br> //如果容器中已经存在事件广播对象实例（applicationEventMulticaster）则直接获取<br> if (beanFactory.containsLocalBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME)) {</p>
+<pre><code> this.applicationEventMulticaster =
+         beanFactory.getBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class);
+ if (logger.isTraceEnabled()) {
+     logger.trace(&quot;Using ApplicationEventMulticaster [&quot; + this.applicationEventMulticaster + &quot;]&quot;);
+ }
+</code></pre><p> }<br> else {</p>
+<pre><code> //如果容器中没有事件广播对象实例（applicationEventMulticaster）则创建一个默认的SimpleApplicationEventMulticaster实例并注册
+ this.applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory);
+ beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, this.applicationEventMulticaster);
+ if (logger.isTraceEnabled()) {
+     logger.trace(&quot;No &#39;&quot; + APPLICATION_EVENT_MULTICASTER_BEAN_NAME + &quot;&#39; bean, using &quot; +
+             &quot;[&quot; + this.applicationEventMulticaster.getClass().getSimpleName() + &quot;]&quot;);
+ }
+</code></pre><p> }<br>}</p>
+<p> //下面我们关注一下默认的SimpleApplicationEventMulticaster实例<br> //事件广播实例主要操作是管理和维护所有的ApplicationListener实例和对对应事件进行广播<br> //我们主要关注其事件广播相关的方法multicastEvent()方法</p>
+<p> /**</p>
+<ul>
+<li>从该方法中我们清楚的了解到，一旦遇到事件发布 该对象将时间通知给其管理的所有ApplicationListener</li>
+<li>继续追踪invokeListener() 最终调用    listener.onApplicationEvent(event) 和我们的示范例子对应上了</li>
+<li>@param event</li>
+<li>@param eventType<br>*/<br>public void multicastEvent(final ApplicationEvent event, @Nullable ResolvableType eventType) {<br> ResolvableType type = (eventType != null ? eventType : resolveDefaultEventType(event));<br> Executor executor = getTaskExecutor();<br> for (ApplicationListener&lt;?&gt; listener : getApplicationListeners(event, type)) {<pre><code> if (executor != null) {
+ executor.execute(() -&gt; invokeListener(listener, event));
+</code></pre> }<br> else {<pre><code> invokeListener(listener, event);
+</code></pre> }<br>}<br>}</li>
+</ul>
+</li>
+</ul>
+<p>7、注册监听器实例</p>
+<p>/**</p>
+<ul>
+<li><p>7、注册事件监听实例<br>*/<br>protected void registerListeners() {<br> //对硬编码形式注册的监听器处理 交给广播实例对象管理（广播实例对象在其前已经实例化完成）<br> for (ApplicationListener&lt;?&gt; listener : getApplicationListeners()) {</p>
+<pre><code> getApplicationEventMulticaster().addApplicationListener(listener);
+</code></pre><p> }</p>
+<p> // 对于配置文件注册的监听器进行处理 先根据监听器名称实例化监听器对象 再交由广播实例对象管理<br> String[] listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);<br> for (String listenerBeanName : listenerBeanNames) {</p>
+<pre><code> getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);
+</code></pre><p> }</p>
+<p> //广播实例对象和所有的事件监听器已经准备就绪 发布应用在没有广播之前的早期一些事件<br> Set<applicationevent> earlyEventsToProcess = this.earlyApplicationEvents;<br> this.earlyApplicationEvents = null;<br> if (earlyEventsToProcess != null) {</applicationevent></p>
+<pre><code> for (ApplicationEvent earlyEvent : earlyEventsToProcess) {
+     getApplicationEventMulticaster().multicastEvent(earlyEvent);
+ }
+</code></pre><p> }<br>}</p>
+<p>8、主要进行一些单例对象的加载<br>/**</p>
+</li>
+<li>8、主要进行一些单例对象的加载</li>
+<li>主要分成两种类型特殊的beanDefinition  和普通的单例对象</li>
+<li>特殊的beanDefintion  ConversionService实例、LoadTimeWeaverAware实例</li>
+<li>其他普通的单例对象</li>
+<li><p>@param beanFactory<br>*/<br>protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {<br> // 初始化ConversionService实例<br> if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &amp;&amp;</p>
+<pre><code>     beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
+ beanFactory.setConversionService(
+         beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
+</code></pre><p> }</p>
+<p> if (!beanFactory.hasEmbeddedValueResolver()) {</p>
+<pre><code> beanFactory.addEmbeddedValueResolver(strVal -&gt; getEnvironment().resolvePlaceholders(strVal));
+</code></pre><p> }</p>
+<p> //实例化LoadTimeWeaverAware对象<br> String[] weaverAwareNames = beanFactory.getBeanNamesForType(LoadTimeWeaverAware.class, false, false);<br> for (String weaverAwareName : weaverAwareNames) {</p>
+<pre><code> getBean(weaverAwareName);
+</code></pre><p> }</p>
+<p> // Stop using the temporary ClassLoader for type matching.<br> beanFactory.setTempClassLoader(null);</p>
+<p> //冻结配置 此时注册在spring容器中的bean定义不会被修改<br> beanFactory.freezeConfiguration();</p>
+<p> //这里主要调用工厂的getBean()方法实例化单例对象<br> beanFactory.preInstantiateSingletons();<br>}</p>
+</li>
+</ul>
+<p>9、刷新完成后操作<br>/**</p>
+<ul>
+<li><p>9、 ApplicationContext实例化完成的刷新操作<br>*/<br>protected void finishRefresh() {<br> //清除context级别的资源文件的缓存<br> clearResourceCaches();</p>
+<p> //初始化LifecycleProcessor 管理所有实现Lifecycle接口实例的启动和销毁<br> initLifecycleProcessor();</p>
+<p> //调用上面初始化的LifecycleProcessor实例的onRefresh<br> //执行所有Lifecycle接口的sart()方法<br> getLifecycleProcessor().onRefresh();</p>
+<p> //发布容器刷新事件<br> publishEvent(new ContextRefreshedEvent(this));</p>
+<p> // Participate in LiveBeansView MBean, if active.<br> LiveBeansView.registerApplicationContext(this);<br>}</p>
+</li>
+</ul>
+<p>在Spring中提供了Lifecycle接口 该接口中包含start()和stop()方法。实现此接口后spring会保证在启动的时候调用其start()方法，并在销毁的时候调用其stop()方法上面就给了相关实现通过实例化tLifecycleProcessor该实例启动则调用其onRefresh()方法 则会调用所有实现Lifecycle接口的start()方法关注则调用其onClose()方法 则会调用所有实现Lifecycle接口的stop()方法。</p>
+</bean></bean>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Spring/" rel="tag"># Spring</a>
+          
+            <a href="/tags/Spring源码解析/" rel="tag"># Spring源码解析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/04/26/springsourceanalysis/007.Spring源码解析-静态工厂方法-Bean加载/" rel="next" title="静态工厂方法-Bean加载">
+                <i class="fa fa-chevron-left"></i> 静态工厂方法-Bean加载
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/10/21/springboot/001SpringBoot_启动过程/" rel="prev" title="SpringBoot_启动过程源码分析">
+                SpringBoot_启动过程源码分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">98</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ApplicationContext介绍"><span class="nav-text">ApplicationContext介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ApplicationContext类结构"><span class="nav-text">ApplicationContext类结构</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
