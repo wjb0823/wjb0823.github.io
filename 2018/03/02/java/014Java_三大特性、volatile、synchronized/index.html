@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="线程安全三大特性原子性基本的赋值写操作都是可以保证原子性的。 32位虚拟机里的long/double类型的变量的简单赋值写操作，不是原子的，因为long和double是64位的。 如果多个线程同时并发的执行long i = 30，就会导致有的线程在修改i的高32位，有的线程在修改i的低32位，多线程并发给long类型的变量进行赋值操作，在32位的虚拟机下，是有问题的。 volatile对原子性保障">
+<meta name="keywords" content="Java,JUC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java_三大特性、volatile、synchronized">
+<meta property="og:url" content="http://yoursite.com/2018/03/02/java/014Java_三大特性、volatile、synchronized/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="线程安全三大特性原子性基本的赋值写操作都是可以保证原子性的。 32位虚拟机里的long/double类型的变量的简单赋值写操作，不是原子的，因为long和double是64位的。 如果多个线程同时并发的执行long i = 30，就会导致有的线程在修改i的高32位，有的线程在修改i的低32位，多线程并发给long类型的变量进行赋值操作，在32位的虚拟机下，是有问题的。 volatile对原子性保障">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669083748782-b517d2bb-dc3a-4080-bc04-ce73a3a841cb.png">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669097636629-7294d0cd-84bf-4f87-b494-7cf120aa1bf5.png">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669099973743-d6a3e56d-c68f-4833-a16f-507825180523.png">
+<meta property="og:updated_time" content="2018-03-02T07:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java_三大特性、volatile、synchronized">
+<meta name="twitter:description" content="线程安全三大特性原子性基本的赋值写操作都是可以保证原子性的。 32位虚拟机里的long/double类型的变量的简单赋值写操作，不是原子的，因为long和double是64位的。 如果多个线程同时并发的执行long i = 30，就会导致有的线程在修改i的高32位，有的线程在修改i的低32位，多线程并发给long类型的变量进行赋值操作，在32位的虚拟机下，是有问题的。 volatile对原子性保障">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669083748782-b517d2bb-dc3a-4080-bc04-ce73a3a841cb.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2018/03/02/java/014Java_三大特性、volatile、synchronized/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Java_三大特性、volatile、synchronized | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/02/java/014Java_三大特性、volatile、synchronized/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java_三大特性、volatile、synchronized
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-03-02 15:15:27" itemprop="dateCreated datePublished" datetime="2018-03-02T15:15:27+08:00">2018-03-02</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/JUC/" itemprop="url" rel="index"><span itemprop="name">JUC</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="线程安全三大特性"><a href="#线程安全三大特性" class="headerlink" title="线程安全三大特性"></a>线程安全三大特性</h1><h2 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h2><p><strong>基本的赋值写操作都是可以保证原子性的。</strong></p>
+<p>32位虚拟机里的long/double类型的变量的简单赋值写操作，不是原子的，因为long和double是64位的。</p>
+<p>如果多个线程同时并发的执行long i = 30，就会导致有的线程在修改i的高32位，有的线程在修改i的低32位，多线程并发给long类型的变量进行赋值操作，在32位的虚拟机下，是有问题的。</p>
+<p>volatile对原子性保障的语义，在java里很有限的，可以保证在32位java虚拟机里面，对long/double变量的赋值写是原子的。</p>
+<p><strong>复杂的操作是无法保证原子性的。比如i++。</strong></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669083748782-b517d2bb-dc3a-4080-bc04-ce73a3a841cb.png" alt="img"></p>
+<hr>
+<h2 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h2><p>MESI协议、flush、refresh，配合起来，才可以解决可见性。</p>
+<h3 id="可见性涉及的底层硬件概念：寄存器、高速缓存、写缓冲器"><a href="#可见性涉及的底层硬件概念：寄存器、高速缓存、写缓冲器" class="headerlink" title="可见性涉及的底层硬件概念：寄存器、高速缓存、写缓冲器"></a>可见性涉及的底层硬件概念：寄存器、高速缓存、写缓冲器</h3><ul>
+<li><strong>寄存器</strong><br>每个处理器都有自己的寄存器，所以多个处理器各自运行一个线程的时候，可能导致某个变量给放到寄存器里去，接着就会导致各个线程没法看到其他处理器寄存器里的变量的值修改了。<br>可见性的第一个问题，就有可能在寄存器的级别，导致变量副本的更新，无法让其他处理器看到。 </li>
+<li><strong>写缓冲器</strong><br>一个处理器运行的线程对变量的写操作都是针对写缓冲器来的，并不是直接更新主内存，所以很可能导致一个线程更新了变量，但是仅仅是在写缓冲区里，没有更新到主内存里去。<br>这个时候，其他处理器的线程是没法读到他的写缓冲区的变量值的，所以此时就是会有可见性的问题，这是第二个可见性发生的场景。 </li>
+<li><p><strong>高速缓存</strong><br>一个处理器的线程更新了写缓冲区之后，将更新同步到了自己的高速缓存里（或者是主内存），然后还把这个更新通知给了其他的处理器，但是其他处理器可能就是把这个更新放到无效队列里去，没有更新他的高速缓存。<br>此时其他处理器的线程从高速缓存里读数据的时候，读到的还是过时的旧值。<br><strong>高速缓存数据结构</strong> </p>
+</li>
+<li><ul>
+<li>bucket </li>
+</ul>
+</li>
+<li><ul>
+<li><ul>
+<li>cache entry </li>
+</ul>
+</li>
+</ul>
+</li>
+<li><ul>
+<li><ul>
+<li><ul>
+<li>tag</li>
+<li>cache line</li>
+<li>flag</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>地址解码处理器</strong>在读写高速缓存的时候，会根据变量名执行一个内存地址解码的操作，解析出来3个东西：index、tag和offset。</p>
+<ul>
+<li>index用于定位到拉链散列表中的某个bucket；</li>
+<li>tag是用于定位cache entry；</li>
+<li>offset是用于定位一个变量在cache line中的位置。</li>
+</ul>
+<p>如果说可以成功定位到一个高速缓存中的数据，而且flag还标志着有效，则缓存命中；否则，就是缓存未命中。<br>如果是读数据未命中的话，会从主内存重新加载数据到高速缓存中，现在处理器一般都有三级高速缓存，L1、L2、L3，越靠前面的缓存读写速度越快。 </p>
+<hr>
+<h2 id="有序性"><a href="#有序性" class="headerlink" title="有序性"></a>有序性</h2><h3 id="三个层次"><a href="#三个层次" class="headerlink" title="三个层次"></a>三个层次</h3><h4 id="编译重排序"><a href="#编译重排序" class="headerlink" title="编译重排序"></a><strong>编译重排序</strong></h4><ul>
+<li><strong>静态编译器（javac）</strong><br>javac负责把.java文件中的源代码编译为.class文件中的字节码，这个一般是程序写好之后进行编译的。 </li>
+<li><strong>动态编译器（JIT）</strong><br>JIT负责把.class文件中的字节码编译为JVM所在操作系统支持的机器码，一般在程序运行过程中进行编译。 </li>
+</ul>
+<p>在这个编译的过程中，编译器是很有可能调整代码的执行顺序的，为了提高代码的执行效率，很可能会调整代码的执行顺序，JIT编译器对指令重排的还是挺多的。</p>
+<p><strong>JIT编译器对创建对象的指令重排：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyObject</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Resource resource;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyObject</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.resource = loadResource(); <span class="comment">// 从配置文件里加载数据构造Resource对象</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.resource.execute();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建对象的步骤： </p>
+<ol>
+<li>以MyObject类作为原型，给他的对象实例分配一块内存空间，objRef就是指向了分配好的内存空间地址的引用，指针<br>objRef = allocate(MyObject.class); </li>
+<li>就是针对分配好内存空间的一个对象实例，执行他的构造函数，对这个对象实例进行初始化的操作，执行我们自己写的构造函数里的一些代码，对各个实例变量赋值，初始化的逻辑<br>invokeConstructor(objRef); </li>
+<li>上两个步骤搞定之后，一个对象实例就搞定了，此时就是把objRef指针指向的内存地址，赋值给我们自己的引用类型的变量，myObj就可以作为一个类似指针的概念指向了MyObject对象实例的内存地址<br>myObj = objRef; </li>
+</ol>
+<p>有可能JIT动态编译为了加速程序的执行速度，因为步骤2是在初始化一个对象实例，这个步骤是有可能很耗时的，比如说你可能会在里面执行一些网络的通信，磁盘文件的读写，都有可能。<br>JIT动态编译，指令重排，为了加速程序的执行性能和效率，可能会重排为，步骤1 -&gt; 步骤3 -&gt; 步骤2。<br>线程1和线程2开始执行代码：<br>线程1:<br>MyObject myObj = new MyObject(); =&gt; 这个是我们自己写的一行代码<br>线程2:<br>myObj.execute();<br>线程1：刚刚执行完了步骤1和步骤3，步骤2还没执行，此时myObj已经不是null了，但是MyObject对象实例内部的resource是null。<br>线程2：直接调用myObj.execute()方法， 此时内部会调用resource.execute()方法，但是此时resource是null，直接导致空指针。</p>
+<p>double check单例模式里面，就是可能会出现这样的JIT指令重排，如果你不加volatile关键字，会导致一些问题的发生，volatile是避免说步骤1、步骤3、步骤2，必须全部执行完毕了，此时才能使用myObj对象实例。 </p>
+<h4 id="指令重排序-处理器"><a href="#指令重排序-处理器" class="headerlink" title="指令重排序(处理器)"></a>指令重排序(处理器)</h4><ul>
+<li>指令乱序</li>
+<li>猜测执行</li>
+</ul>
+<h4 id="内存重排序"><a href="#内存重排序" class="headerlink" title="内存重排序"></a>内存重排序</h4><p>有可能你这个处理器在实际执行指令的过程中，在高速缓存和写缓冲器、无效队列等等，硬件层面的组件，也可能会导致你的指令的执行看起来的顺序跟想象的不太一样。<br>高速缓存和写缓冲器的内存重排序造成的视觉假象<br>四种重排： </p>
+<ul>
+<li><ul>
+<li>LoadLoad重排序：一个处理器先执行一个L1读操作，再执行一个L2读操作，但是另外一个处理器看到的是先L2再L1</li>
+<li>LoadStore重排序：一个处理器先执行一个L1读操作，再执行一个W2写操作，但是另外一个处理器看到的是先W2再L1</li>
+<li>StoreStore重排序：一个处理器先执行一个W1写操作，再执行一个W2写操作，但是另外一个处理器看到的是先W2再W1</li>
+<li>StoreLoad重排序：一个处理器先执行一个W1写操作，再执行一个L2读操作，但是另外一个处理器看到的是先L2再W1</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">共享变量：</span><br><span class="line"></span><br><span class="line">Resource resource = <span class="keyword">null</span>;</span><br><span class="line">Boolean resourceLoaded = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">处理器<span class="number">0</span>：</span><br><span class="line"></span><br><span class="line">resource = loadResoureFromDisk();</span><br><span class="line">resourceLoaded = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">处理器<span class="number">1</span>：</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(!resourceLoaded) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span>(Exception) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">resource.execute();</span><br></pre></td></tr></table></figure>
+<p>类似上面的代码，很可能处理器0先写了resource，再写了resourceLoaded。结果呢，写缓冲器进行了内存重排序，先落地了resourceLoaded = true了，此时resource还是null。此时处理器1就会看到resourceLoaded = true，就会对resource对象执行execute()方法，此时就会有空指针异常的问题。 </p>
+<h3 id="不能重排序"><a href="#不能重排序" class="headerlink" title="不能重排序"></a>不能重排序</h3><ul>
+<li>数据依赖规则</li>
+<li><p>happens-before </p>
+</li>
+<li><ul>
+<li>程序次序规则：一个线程内，按照代码顺序，书写在前面的操作先行发生于书写在后面的操作</li>
+<li>锁定规则：一个unLock操作先行发生于后面对同一个锁额lock操作</li>
+<li>volatile变量规则：对一个变量的写操作先行发生于后面对这个变量的读操作</li>
+<li>传递规则：如果操作A先行发生于操作B，而操作B又先行发生于操作C，则可以得出操作A先行发生于操作C</li>
+<li>线程启动规则：Thread对象的start()方法先行发生于此线程的每个一个动作</li>
+<li>线程中断规则：对线程interrupt()方法的调用先行发生于被中断线程的代码检测到中断事件的发生</li>
+<li>线程终结规则：线程中所有的操作都先行发生于线程的终止检测，我们可以通过Thread.join()方法结束、Thread.isAlive()的返回值手段检测到线程已经终止执行</li>
+<li>对象终结规则：一个对象的初始化完成先行发生于他的finalize()方法的开始</li>
+</ul>
+</li>
+</ul>
+<h1 id="MESI"><a href="#MESI" class="headerlink" title="MESI"></a>MESI</h1><p>如果要实现可见性的话，其中一个方法就是通过MESI缓存一致性协议。</p>
+<p>根据具体底层硬件的不同，MESI协议的实现是有区别的。比如说MESI协议有一种实现，就是一个处理器将另外一个处理器的高速缓存中的更新后的数据拿到自己的高速缓存中来更新一下，这样大家的缓存不就实现同步了，然后各个处理器的线程看到的数据就一样了。</p>
+<ol>
+<li><strong>为了实现MESI协议，有两个配套的专业机制：</strong></li>
+</ol>
+<ul>
+<li><strong>flush：强制刷新数据到高速缓存（主内存）</strong>，不要仅仅停留在写缓冲器里面。</li>
+<li><strong>refresh</strong>：从<strong>总线嗅探</strong>发现某个变量被修改，必须<strong>强制从其他处理器的高速缓存（或者主内存）加载变量</strong>的最新值到自己的高速缓存里去。</li>
+</ul>
+<ol>
+<li><strong>MESI四种状态</strong></li>
+</ol>
+<ul>
+<li>invalid：<strong>无效的</strong>，标记为I，这个意思就是当前cache entry无效，里面的数据不能使用。</li>
+<li>shared：<strong>共享的</strong>，标记为S，这个意思是当前cache entry有效，而且里面的数据在各个处理器中都有各自的副本，但是这些副本的值跟主内存的值是一样的，各个处理器就是并发的在读而已。</li>
+<li>exclusive：<strong>独占的</strong>，标记为E，这个意思就是当前处理器对这个数据独占了，只有他可以有这个副本，其他的处理器都不能包含这个副本。</li>
+<li>modified：<strong>修改过的</strong>，标记为M，只能有一个处理器对共享数据更新，所以只有更新数据的处理器的cache entry，才是exclusive状态，表明当前线程更新了这个数据，这个副本的数据跟主内存是不一样的。</li>
+</ul>
+<ol>
+<li><strong>MESI原理</strong></li>
+</ol>
+<ul>
+<li>CPU0<strong>读取某个变量</strong>的数据时，首先会根据index、tag和offset从高速缓存的拉链散列表读取数据，如果发现状态为I，也就是无效的，此时就会发送<strong>read消息到总线</strong>。</li>
+</ul>
+<p>接着主内存会返回对应的数据给CPU0，CPU0就会把数据放到高速缓存里，同时cache entry的flag<strong>状态是S</strong>。</p>
+<ul>
+<li>在CPU0对一个<strong>数据进行更新</strong>的时候，如果<strong>数据状态是S</strong>，则此时就需要发送一个<strong>invalidate消息到总线</strong>，尝试让其他的处理器的高速缓存的cache entry全部变为I，以获得数据的独占锁。</li>
+<li>其他的CPU1会从<strong>总线嗅探到invalidate消息</strong>，此时就会把自己的cache entry设置为I，也就是<strong>过期掉自己本地的缓存</strong>，然后<strong>返回invalidate ack消息到总</strong>线，传递回CPU0。</li>
+<li><strong>CPU0必须收到所有处理器返回的ack消息，</strong>接着CPU0就会将cache entry先设置为E，独占这条数据，在独占期间，别的处理器就不能修改数据了，因为<strong>别的处理器此时发出invalidate消息</strong>，这个<strong>CPU0是不会返回invalidate ack消息的</strong>，除非他先修改完再说。</li>
+<li>接着CPU0就是<strong>修改这条数据</strong>，接着将<strong>数据设置为M</strong>，也有可能是把数据此时强制写回到主内存中，具体看底层硬件实现。</li>
+<li>然后<strong>其他处理器此时这条数据的状态都是I</strong>了，那如果要读的话，全部都<strong>需要重新发送read消息，从主内存（或者是其他处理器）来加载</strong>，这个具体怎么实现要看底层的硬件了，都有可能的。</li>
+</ul>
+<h1 id="内存屏障"><a href="#内存屏障" class="headerlink" title="内存屏障"></a>内存屏障</h1><h2 id="强制读取-刷新主内存的屏障"><a href="#强制读取-刷新主内存的屏障" class="headerlink" title="强制读取/刷新主内存的屏障"></a>强制读取/刷新主内存的屏障</h2><p><strong>Load屏障：执行读取数据的时候，强制每次都从主内存读取最新的值。</strong></p>
+<p><strong>结合MESI的底层原理：</strong></p>
+<p>如果加了Load屏障之后，在从高速缓存中读取数据的时候，如果发现无效队列里有一个invalidate消息，此时会立马强制根据那个invalidate消息把自己本地高速缓存的数据，设置为I（过期），然后就可以强制从其他处理器的高速缓存/主内存(看底层硬件实现)中加载最新的值了。这就是refresh操作。 </p>
+<p><strong>Store屏障：每次执行修改数据的时候，强制刷新回主内存。</strong></p>
+<p><strong>结合MESI的底层原理：</strong></p>
+<p>如果加了Store屏障之后，就会强制性要求你对一个写操作必须阻塞等待到其他的处理器返回invalidate ack之后，对数据加锁，然后修改数据到高速缓存/主内存(看底层硬件实现)中，必须在写数据之后，强制执行flush操作。</p>
+<h2 id="禁止指令重排序的屏障"><a href="#禁止指令重排序的屏障" class="headerlink" title="禁止指令重排序的屏障"></a>禁止指令重排序的屏障</h2><p><strong>LoadLoad屏障</strong></p>
+<p>序列：load1指令  <strong>LoadLoad屏障</strong>  load2指令</p>
+<p>作用：在load1指令和load2指令之间加上 LoadLoad屏障，<strong>强制先执行load1指令再执行load2指令</strong>；load1指令和load2指令不能进行重排序。</p>
+<p><strong>StoreStore屏障</strong></p>
+<p>序列：store1指令  <strong>StoreStore屏障</strong> store2指令</p>
+<p>作用：在store1指令和store2指令之间加上StoreStore屏障，<strong>强制先执行store1指令再执行store2指令</strong>；store1指令不能和store2指令进行重排序。</p>
+<p><strong>LoadStore屏障</strong></p>
+<p>序列：load1指令  <strong>LoadStore屏障</strong>  store2指令</p>
+<p>作用：在load1指令和store2指令之前加上LoadStore屏障，<strong>强制先执行load1指令再执行store2指令</strong>；load1指令和store2执行不能重排序。</p>
+<p><strong>StoreLoad屏障</strong></p>
+<p>序列：store1指令 <strong>StoreLoad屏障</strong>  load2指令</p>
+<p>作用：在store1指令和load2指令之间加上StoreLoad屏障，<strong>强制先执行store1指令再执行load2指令</strong>；store1指令和load2指令执行不能重排序（这个屏障功能比较强大，StoreLoad屏障前面的Store指令<strong>禁止</strong>和屏障后面的<strong>Store/Load</strong>指令进行重排）</p>
+<h1 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h1><h4 id="原子性-1"><a href="#原子性-1" class="headerlink" title="原子性"></a>原子性</h4><p><strong>volatile对原子性的保证</strong></p>
+<p>32位Java虚拟机中的long和double变量写操作不是原子的。</p>
+<p>32位的java虚拟机里面，对long/double变量的赋值写是不原子的，此时如果对变量加上了volatile，就可以保证在32位java虚拟机里面，对long/double变量的赋值写是原子的了。</p>
+<h4 id="可见性-1"><a href="#可见性-1" class="headerlink" title="可见性"></a>可见性</h4><p>volatile修饰的变量，在每个<strong>读操作</strong>（load操作）之前都加上<strong>Load屏障</strong>，强制从主内存读取最新的数据。每次在<strong>assign赋值后面</strong>，加上<strong>Store屏障</strong>，强制将数据刷新到主内存。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669097636629-7294d0cd-84bf-4f87-b494-7cf120aa1bf5.png" alt="img"></p>
+<ol>
+<li>首先看一下上面的图，有工作线程A、工作线程B；假如之前工作线程A、B都是用过这个共享变量<strong>i</strong>，工作内存中都有变量副本 <strong>i = 0。</strong></li>
+<li>这个时候工作<strong>线程A</strong>要执行 <strong>i++</strong> 操作，按照volatile关键字的特性，<strong>每次使用之前必须从主内存重新读取</strong>，<strong>所以工作线程A重新从主内存读取（执行read、load指令）得到 i = 0没有变化。</strong></li>
+<li>然后执行use指令将 <strong>i = 0</strong> 传递给工作线程，执行 <strong>i++</strong> 操作，得到 <strong>i = 1。</strong></li>
+<li>然后执行assign指令，将 <strong>i = 1</strong>的结果赋值给工作线程，按照volatile的特性；<strong>一旦共享变量的值被修改了，需要立即强制刷新回主内存。**</strong>所以在执行assign赋值更新后的之后，立马执行store、write指令将最新的值传递到主内存，并且赋值给主内存的变量**。</li>
+<li>此时工作线程B需要用到共享变量 <strong>i</strong> 了，即使工作内存里面有副本，但是每次还是会重新从主内存中重新读取最新的值，这个时候读取到 <strong>i = 1</strong>了</li>
+</ol>
+<h4 id="有序性-1"><a href="#有序性-1" class="headerlink" title="有序性"></a>有序性</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 步骤1</span></span><br><span class="line">dataSource = initDataSource();</span><br><span class="line"><span class="comment">// 步骤2</span></span><br><span class="line">httpClient = initHttpClient();</span><br><span class="line"><span class="comment">// 步骤3</span></span><br><span class="line">initOK = <span class="keyword">true</span>;</span><br><span class="line"><span class="comment">// 步骤4</span></span><br><span class="line"><span class="keyword">while</span>(!initOK) &#123;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 步骤5</span></span><br><span class="line">Object data = dataSource.getData();</span><br><span class="line"><span class="comment">// 步骤6</span></span><br><span class="line">httpClient.request(data);</span><br></pre></td></tr></table></figure>
+<p>加入内存屏障后：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 步骤1</span></span><br><span class="line">对应上面dataSource = initDataSource(); 对应指令 store datasource指令</span><br><span class="line"><span class="comment">// 步骤2</span></span><br><span class="line">对应上面httpClient = initHttpClient(); 对应指令 store http指令</span><br><span class="line"><span class="comment">// 步骤3</span></span><br><span class="line">StoreStore屏障 （注意：在store initOK前面加了一个StoreStore屏障</span><br><span class="line">initOK = <span class="keyword">true</span>; 对应指令 store initOk = <span class="keyword">true</span>指令</span><br><span class="line">StoreLoad 屏障 （注意：在store initOK后面加了一个StoreLoad屏障）</span><br></pre></td></tr></table></figure>
+<h1 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h1><p>synchronized锁两种东西</p>
+<ul>
+<li>一种是对<strong>某个实例对象</strong>来加锁。</li>
+<li>另外一种是对这个<strong>类</strong>进行加锁。</li>
+</ul>
+<p>对类加锁，也是在针对一个对象实例进行加锁，其实他的意思就是对那个类的Class对象进行加锁。</p>
+<h2 id="加锁原理"><a href="#加锁原理" class="headerlink" title="加锁原理"></a>加锁原理</h2><p><img src="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669099973743-d6a3e56d-c68f-4833-a16f-507825180523.png" alt="img"></p>
+<p>你如果用到了synchronized关键字，在底层编译后的jvm指令中，会有<strong>monitorenter和monitorexit</strong>两个指令。</p>
+<p>每个对象都有一个关联的monitor，比如一个对象实例就有一个monitor，一个类的Class对象也有一个monitor，如果要对这个对象加锁，那么必须获取这个对象关联的monitor的lock锁。</p>
+<p>他里面的原理和思路大概是这样的，monitor里面有一个计数器，从0开始的。如果一个线程要获取monitor的锁，就看看他的计数器是不是0，如果是0的话，那么说明没人获取锁，他就可以获取锁了，然后对计数器加1。</p>
+<p>这个monitor的锁是支持<strong>重入加锁</strong>的。</p>
+<p>对象头 (TODO)</p>
+<ul>
+<li><p>Mark Word </p>
+</li>
+<li><ul>
+<li>hashCode</li>
+<li>锁数据</li>
+<li>GC数据</li>
+</ul>
+</li>
+<li><ul>
+<li><ul>
+<li>Class Metadata Address</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="对三大特性保证"><a href="#对三大特性保证" class="headerlink" title="对三大特性保证"></a>对三大特性保证</h2><ol>
+<li>原子性：加锁和释放锁，ObjectMonitor</li>
+<li>可见性：Load屏障和Store屏障，加锁会refresh数据，释放锁flush数据</li>
+<li>有序性：上面的4个屏障，保证同步代码块内部的指令可以重排，但是同步代码块内部的指令和外面的指令是不能重排的</li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/JUC/" rel="tag"># JUC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/02/java/013Java_线程/" rel="next" title="Java_线程">
+                <i class="fa fa-chevron-left"></i> Java_线程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/02/java/015Java_CAS、AQS、ThreadLocal/" rel="prev" title="Java_CAS、AQS、ThreadLocal">
+                Java_CAS、AQS、ThreadLocal <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">102</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">23</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#线程安全三大特性"><span class="nav-text">线程安全三大特性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#原子性"><span class="nav-text">原子性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可见性"><span class="nav-text">可见性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#可见性涉及的底层硬件概念：寄存器、高速缓存、写缓冲器"><span class="nav-text">可见性涉及的底层硬件概念：寄存器、高速缓存、写缓冲器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#有序性"><span class="nav-text">有序性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#三个层次"><span class="nav-text">三个层次</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#编译重排序"><span class="nav-text">编译重排序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#指令重排序-处理器"><span class="nav-text">指令重排序(处理器)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#内存重排序"><span class="nav-text">内存重排序</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#不能重排序"><span class="nav-text">不能重排序</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MESI"><span class="nav-text">MESI</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内存屏障"><span class="nav-text">内存屏障</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#强制读取-刷新主内存的屏障"><span class="nav-text">强制读取/刷新主内存的屏障</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#禁止指令重排序的屏障"><span class="nav-text">禁止指令重排序的屏障</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#volatile"><span class="nav-text">volatile</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#原子性-1"><span class="nav-text">原子性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#可见性-1"><span class="nav-text">可见性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#有序性-1"><span class="nav-text">有序性</span></a></li></ol></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#synchronized"><span class="nav-text">synchronized</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#加锁原理"><span class="nav-text">加锁原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对三大特性保证"><span class="nav-text">对三大特性保证</span></a></li></ol></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

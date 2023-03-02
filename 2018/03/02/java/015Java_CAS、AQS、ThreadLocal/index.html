@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="CASAtomicInteger源码解析 类初始化的时候，初始化valueOffset(value这个字段在AtomicInteger这个类中的偏移量)。 通过valueOffset获取当前底层的值。 compareAndSwapInt(paramObject, valueOffset, 当前底层的值, 当前底层的值 + paramInt2) AtomicInteger里的value是volati">
+<meta name="keywords" content="Java,JUC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java_CAS、AQS、ThreadLocal">
+<meta property="og:url" content="http://yoursite.com/2018/03/02/java/015Java_CAS、AQS、ThreadLocal/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="CASAtomicInteger源码解析 类初始化的时候，初始化valueOffset(value这个字段在AtomicInteger这个类中的偏移量)。 通过valueOffset获取当前底层的值。 compareAndSwapInt(paramObject, valueOffset, 当前底层的值, 当前底层的值 + paramInt2) AtomicInteger里的value是volati">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-03-02T08:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java_CAS、AQS、ThreadLocal">
+<meta name="twitter:description" content="CASAtomicInteger源码解析 类初始化的时候，初始化valueOffset(value这个字段在AtomicInteger这个类中的偏移量)。 通过valueOffset获取当前底层的值。 compareAndSwapInt(paramObject, valueOffset, 当前底层的值, 当前底层的值 + paramInt2) AtomicInteger里的value是volati">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2018/03/02/java/015Java_CAS、AQS、ThreadLocal/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Java_CAS、AQS、ThreadLocal | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/02/java/015Java_CAS、AQS、ThreadLocal/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java_CAS、AQS、ThreadLocal
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-03-02 16:15:27" itemprop="dateCreated datePublished" datetime="2018-03-02T16:15:27+08:00">2018-03-02</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/JUC/" itemprop="url" rel="index"><span itemprop="name">JUC</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="CAS"><a href="#CAS" class="headerlink" title="CAS"></a>CAS</h1><h2 id="AtomicInteger源码解析"><a href="#AtomicInteger源码解析" class="headerlink" title="AtomicInteger源码解析"></a>AtomicInteger源码解析</h2><ol>
+<li>类初始化的时候，初始化valueOffset(value这个字段在AtomicInteger这个类中的偏移量)。</li>
+<li>通过valueOffset获取当前底层的值。</li>
+<li>compareAndSwapInt(paramObject, valueOffset, 当前底层的值, 当前底层的值 + paramInt2)</li>
+<li>AtomicInteger里的value是volatile修饰的。</li>
+</ol>
+<p>compare -&gt; set，这是一系列的步骤，在执行这个步骤的时候，是每个线程都是原子的，有一个线程在执行CAS一系列的比较和设置的过程中，其他的线程是不能来执行的。</p>
+<p>cpu指令来实现。</p>
+<p>cpu会通过一些轻量级的锁小块内存的机制来实现。</p>
+<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><ol>
+<li>ABA问题 </li>
+<li>无限循环(自旋)<br>JDK 1.8引入的LongAdder来解决，是一个重点，分段CAS思路。 </li>
+<li>多变量原子问题<br>一般的AtomicInteger，只能保证一个变量的原子性，但是如果多个变量呢？你可以用AtomicReference，这个是封装自定义对象的，多个变量可以放一个自定义对象里，然后他会检查这个对象的引用是不是一个。 </li>
+</ol>
+<h2 id="LongAddr分析"><a href="#LongAddr分析" class="headerlink" title="LongAddr分析"></a>LongAddr分析</h2><p>刚开始线程少，可能还是对base累加。</p>
+<p>当发现线程多了之后，对Cell操作，每个Cell里面有一个初始值为0的long型变量，在同等并发量的情况下，争夺单个变量的线程会减少，这是变相的减少了争夺共享资源的并发量。</p>
+<p>分段迁移，某一个线程如果对一个Cell更新的时候，发现说出现了很难更新他的值，出现了多次自旋的一个问题，如果它CAS失败了，自动迁移段，他会去尝试更新别的Cell的值，这样的话就可以让一个线程不会盲目的等待一个cell的值。</p>
+<p>最后当获取当前值时候是把Cell的值累加后再加上base的值返回的。</p>
+<h1 id="AQS"><a href="#AQS" class="headerlink" title="AQS"></a>AQS</h1><h2 id="ReentrantLock源码解析"><a href="#ReentrantLock源码解析" class="headerlink" title="ReentrantLock源码解析"></a>ReentrantLock源码解析</h2><ol>
+<li>初始化<br>默认的构造函数这里，创建了一个Sync，默认是NonfairSync(非公平锁)。<br>Sync是一个抽象的静态内部类。是AbstractQueuedSynchronizer(AQS)的子类。<br>AQS里关键的一些东西： </li>
+</ol>
+<ul>
+<li><ul>
+<li>Node（自定义数据结构，可以组成一个双向链表，也就是所谓的一个队列）。</li>
+<li>state（核心变量，加锁、释放锁都是基于state来完成的）。</li>
+<li>当前加锁线程指针。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>加锁成功<br>AQS底层加锁、释放锁，都是大量的基于CAS的操作来实现的，底层是基于 NonfairSync的lock操作来实现加锁的。<br>AQS里有一个核心的变量，state，代表了锁的状态；看一下state是否是0？如果是0的话，代表没人加过锁，此时我就可以加锁，把这个state设置为1。<br>加锁成功，他需要设置一下自己是当前加锁的线程。 </li>
+<li>可重入加锁<br>判断state是否&gt;0。<br>如果是证明有人加锁，再次判断，如果执行这个方法的线程 = 加锁的线程，代表的就是一个线程在可重入的加锁。state再次加1。 </li>
+<li>加锁失败<br>如果加锁失败的话，他会把自己封装成一个Node，会将当前的线程封装为Node入队。<br>通过LockSupport的park操作，就是将一个线程进行挂起，必须得有另外一个线程来对当前线程执行unpark操作，唤醒挂起的线程。 </li>
+<li>tryLock如何实现加锁等待一段时间过后放弃 </li>
+<li>释放锁<br>state减1。<br>如果state减到了0。通过LockSupport的unpark唤醒队头的Node。 </li>
+</ol>
+<p><strong>ReentrantLock非公平锁的策略</strong></p>
+<p>非公平，哪怕是有很多的线程在队列里排队，但是当某个线程释放锁的一瞬间，很可能会有其他的晚到的线程突然争抢到了锁。</p>
+<p><strong>ReentrantLock公平锁的策略</strong></p>
+<p>公平锁的核心，就是一行代码，每次加锁的时候，都要先判断一下，如果前面没有排队等待的线程，才能尝试加锁，否则是不能尝试加锁的。</p>
+<h2 id="ReentrantReadWriteLock源码解析"><a href="#ReentrantReadWriteLock源码解析" class="headerlink" title="ReentrantReadWriteLock源码解析"></a>ReentrantReadWriteLock源码解析</h2><ol>
+<li>初始化<br>默认也是非公平锁(NonfairSync)。 </li>
+<li>写锁<br>state二进制值的高16位代表了读锁，低16位代表了写锁。会通过位运算取得state的高低16位，分别代表读写锁的状态。<br>c=state,w=低16位。<br>c != 0，w == 0，c肯定不是0，但是低16位是0，说明有人加了读锁，没有人加写锁，此时你要加写锁，而且你还不是之前加锁的那个线程。<br>c != 0，w != 0，有人加过锁，之前加的是写锁，但是当前线程不是之前加锁的线程，此时也不让你加写锁，同一个时间，只能有一个线程加写锁，如果线程1比如加了写锁，线程2也要加写锁，是不行的。<br>c != 0，w != 0，之前有人加过写锁，而且加写锁的是你自己。如果加写锁的人是你自己，说明你就是在可重入的加写锁，将state += 1。 </li>
+<li>写锁失败<br>线程1可重入的加了两次写锁，假设此时线程2来加写锁会如何呢？<br>线程2如果来加写锁，会被互斥，此时就会被卡住，阻塞，在队列里等待唤醒。 </li>
+<li>释放写锁<br>state减1。<br>当state等于0，唤醒阻塞队列里的第一个线程。 </li>
+<li>加读锁<br>基于CAS实现多线程并发同时只有一个可以加读锁。<br>多线程加读锁时的重复循环自旋尝试完成加锁。 </li>
+<li>读锁释放 </li>
+</ol>
+<h1 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h1><p>JDK里面的Thread类，内部有一个ThreadLocal.ThreadLocalMap组件，代表了一个map，每个Thread线程对象自己内部就有一个核心的数据结构是map。</p>
+<p>当通过ThreadLocal的set方法设置数据的时候，操作的每个线程自己的ThreadLocalMap。</p>
+<p>ThreadLocalMap使用ThreadLocal的弱引用作为key，如果一个ThreadLocal没有外部强引用来引用它，那么系统 GC 的时候，这个ThreadLocal势必会被回收，这样一来，ThreadLocalMap中就会出现key为null的Entry，就没有办法访问这些key为null的Entry的value，如果当前线程再迟迟不结束的话，这些key为null的Entry的value就会一直存在一条强引用链：Thread Ref -&gt; Thread -&gt; ThreaLocalMap -&gt; Entry -&gt; value永远无法回收，造成内存泄漏。</p>
+<p>其实，ThreadLocalMap的设计中已经考虑到这种情况，也加上了一些防护措施：在ThreadLocal的get(),set(),remove()的时候都会清除线程ThreadLocalMap里所有key为null的value。</p>
+<p>但是这些被动的预防措施并不能保证不会内存泄漏：</p>
+<ul>
+<li>使用static的ThreadLocal，延长了ThreadLocal的生命周期，可能导致的内存泄漏（参考ThreadLocal 内存泄露的实例分析）。</li>
+<li>分配使用了ThreadLocal又不再调用get(),set(),remove()方法，那么就会导致内存泄漏。</li>
+</ul>
+<p>因此，ThreadLocal内存泄漏的根源是：由于ThreadLocalMap的生命周期跟Thread一样长，如果没有手动删除对应key就会导致内存泄漏，而不是因为弱引用。</p>
+<p> 下面我们分两种情况讨论：</p>
+<ul>
+<li><strong>key 使用强引用</strong>：引用的ThreadLocal的对象被回收了，但是ThreadLocalMap还持有ThreadLocal的强引用，如果没有手动删除，ThreadLocal不会被回收，导致Entry内存泄漏。</li>
+<li><strong>key 使用弱引用</strong>：引用的ThreadLocal的对象被回收了，由于ThreadLocalMap持有ThreadLocal的弱引用，即使没有手动删除，ThreadLocal也会被回收。value在下一次ThreadLocalMap调用set,get，remove的时候会被清除。</li>
+</ul>
+<p>比较两种情况，我们可以发现：由于ThreadLocalMap的生命周期跟Thread一样长，如果都没有手动删除对应key，都会导致内存泄漏，但是使用弱引用可以多一层保障：<strong>弱引用**</strong>ThreadLocal<strong><strong>不会内存泄漏，对应的</strong></strong>value<strong><strong>在下一次</strong></strong>ThreadLocalMap<strong><strong>调用</strong></strong>set<strong><strong>,</strong></strong>get<strong><strong>,</strong></strong>remove<strong>**的时候会被清除</strong>。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/JUC/" rel="tag"># JUC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/02/java/014Java_三大特性、volatile、synchronized/" rel="next" title="Java_三大特性、volatile、synchronized">
+                <i class="fa fa-chevron-left"></i> Java_三大特性、volatile、synchronized
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/21/mysql/001.MySQL_InnoDB内存结构/" rel="prev" title="MySQL_InnoDB内存结构">
+                MySQL_InnoDB内存结构 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">102</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">23</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CAS"><span class="nav-text">CAS</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AtomicInteger源码解析"><span class="nav-text">AtomicInteger源码解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺点"><span class="nav-text">缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LongAddr分析"><span class="nav-text">LongAddr分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AQS"><span class="nav-text">AQS</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ReentrantLock源码解析"><span class="nav-text">ReentrantLock源码解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReentrantReadWriteLock源码解析"><span class="nav-text">ReentrantReadWriteLock源码解析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ThreadLocal"><span class="nav-text">ThreadLocal</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

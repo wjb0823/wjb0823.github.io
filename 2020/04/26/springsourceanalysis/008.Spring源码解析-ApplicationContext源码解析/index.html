@@ -408,73 +408,13 @@
 
       
         <h1 id="ApplicationContext介绍"><a href="#ApplicationContext介绍" class="headerlink" title="ApplicationContext介绍"></a>ApplicationContext介绍</h1><p> 之前在刚开始接触Spring源码的容器类我们主要分析了XmlBeanFactory，我们在现实场景中最常用的其实是ApplicationContext的体系实现类，该接口和BeanFactory一样都是Spring用来管理bean实例的<br>容器对象，但是ApplicationContext提供的功能更丰富和实用。下面我们以ClassPathXmlApplicationContext为例，分析下源码</p>
-<h2 id="ApplicationContext类结构"><a href="#ApplicationContext类结构" class="headerlink" title="ApplicationContext类结构"></a>ApplicationContext类结构</h2><p><img src="/images/springsource/springsource001.png" alt></p>
-<p> @Test<br> public void start(){<br>     ApplicationContext context = new ClassPathXmlApplicationContext(<br>              new String[]{“spring/spring-dao.xml”,”spring/spring-service.xml”,”spring/spring-web.xml”});<br>     DataSource dataSource1 = context.getBean(“dataSource”, DataSource.class);<br>     System.out.println(dataSource1.toString());<br> }<br>2、UML类图</p>
-<p> 从ClassPathXmlApplicationContext类相关的UML类图中可以知道ApplicationContext在继承BeanFactory的基础上也有相关的扩展。所以ApplicationContext提供了比BeanFactory更多更强大的功能。</p>
-<p>下面我们依据new ClassPathXmlApplicationContext() 来分析该实例的一些功能点</p>
-<p>二、ClassPathXmlApplicationContext类<br>   1、构造方法<br>             相比于XmlBeanFactory ApplicationContext的ClassPathXmlApplicationContext，支持加载多个资源文件。</p>
-<p>/**</p>
-<ul>
-<li>ClassPathXmlApplicationContext的构造函数</li>
-<li>@param configLocations 配置资源数组</li>
-<li>@param refresh 是否刷新容器标识（该标识对应的刷新接口是该实例的核心方法）</li>
-<li>@param parent  父类的对象</li>
-<li>@throws BeansException<br>*/<br>public ClassPathXmlApplicationContext(String[] configLocations,<br> boolean refresh, ApplicationContext parent) throws BeansException {<br> //设置其父类实例<br> super(parent);<br> //添加并解析资源名称 （数组）  //针对特殊属性的的资源名比如${var} 会进行相关的变量解析。<br> this.setConfigLocations(configLocations);<br> if (refresh) {<pre><code> //刷新容器接口
- this.refresh();
-</code></pre> }<br>}<br>上述ClassPathXmlApplicationContext实例化的过程中，除了调用父类构造方法，设置支援属性信息之外，最核心的方法就是refresh()方法，下面我们来分析一下refresh()方法做了一些什么。</li>
-</ul>
-<p>2、refresh()方法<br>//下面我们来看一下ApplicationContext的核心方法resresh();<br>//该方法几乎包含了ApplicationContext的所有功能，所以该方法比较复杂<br>//目前先大致简要叙述各个方法的作用，后面我们一一分析<br>@Override<br>public void refresh() throws BeansException, IllegalStateException {<br>    synchronized (this.startupShutdownMonitor) {<br>        //刷新容器之前的准备操作<br>        //相关变量初始化，以及对系统属性验证<br>        prepareRefresh();</p>
-<pre><code>    // 创建新的BeanFactory 这个对象实例也是该类为啥拥有和beanFactory一样功能的原因
-    ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
-
-    //beanFactory实例对象的一些特殊规则设置，添加一些实例bean，bean后置处理器，忽略某些依赖注入、指定某些依赖注入等
-    prepareBeanFactory(beanFactory);
-
-    try {
-        //spring的钩子函数，为子类扩展提供的方法，子类可以继承该类并重写该方法
-        //看到其他子类实现大多是添加一些BeanPostProcessor实例
-        postProcessBeanFactory(beanFactory);
-
-        //调用BeanFactoryPostProcessor 的相关方法主要是
-        //BeanDefinitionRegistryPostProcessor实例对象的postProcessBeanDefinitionRegistry()方法
-        //或者BeanFactoryPostProcessor 的postProcessBeanFactory()方法
-        invokeBeanFactoryPostProcessors(beanFactory);
-
-        //注册BeanPostProcessor(该方法只是注册，真正的调用是在bean的实例化阶段进行的)
-        registerBeanPostProcessors(beanFactory);
-
-        //初始化国际资源 我们可以针对不同语言或者地区提供不同的资源信息
-        //只需要设置相关的语言地区 就可以获取对应语言或者地区的资源信息 此处不关注
-        initMessageSource();
-
-        //初始化事件广播实例对象 该对象主要管理spring所有的ApplicationListener实现类
-        //使用观察者模式 如果context 发布了一些相关的事件 则该广播对象会通知所有的事件监听器
-        //最终调用相关的事件监听器 处理对应的事件
-        initApplicationEventMulticaster();
-
-        //子类进行扩展的钩子方法
-        onRefresh();
-
-        //注册事件监听器 上面实例化了事件广播实例
-        registerListeners();
-
-        //单例对象的初始化
-        finishBeanFactoryInitialization(beanFactory);
-
-        //容器实例化后通知所有的Lifecycle接口的start()方法
-        finishRefresh();
-    }
-
-    catch (BeansException ex) {
-        logger.warn(&quot;Exception encountered during context initialization - cancelling refresh attempt&quot;, ex);
-        //实例化异常 销毁相关的bean
-        destroyBeans();
-        //重置刷新标识
-        cancelRefresh(ex);
-        throw ex;
-    }
-}
-</code></pre><p>}<br>   从上面的代码中可以看到refresh()几乎包含了该类实例化的所有核心方法比较复杂，该方法主要逻辑罗列如下：</p>
+<h1 id="ClassPathXmlApplicationContext类图"><a href="#ClassPathXmlApplicationContext类图" class="headerlink" title="ClassPathXmlApplicationContext类图"></a>ClassPathXmlApplicationContext类图</h1><p><img src="/images/springsource/springsource001.png" alt></p>
+<p>从ClassPathXmlApplicationContext类相关的UML类图中可以知道ApplicationContext在继承BeanFactory的基础上也有相关的扩展。所以ApplicationContext提供了比BeanFactory更多更强大的功能。</p>
+<h1 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span></span>&#123;</span><br><span class="line">     ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(</span><br><span class="line">              <span class="keyword">new</span> String[]&#123;<span class="string">"spring/spring-dao.xml"</span>,<span class="string">"spring/spring-service.xml"</span>,<span class="string">"spring/spring-web.xml"</span>&#125;);</span><br><span class="line">     DataSource dataSource1 = context.getBean(<span class="string">"dataSource"</span>, DataSource.class);</span><br><span class="line">     System.out.println(dataSource1.toString());</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<h1 id="ClassPathXmlApplicationContext源码分析"><a href="#ClassPathXmlApplicationContext源码分析" class="headerlink" title="ClassPathXmlApplicationContext源码分析"></a>ClassPathXmlApplicationContext源码分析</h1><h2 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h2><p> 相比于<code>XmlBeanFactory</code>, <code>ClassPathXmlApplicationContext</code>支持加载多个资源文件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">- ClassPathXmlApplicationContext的构造函数</span></span><br><span class="line"><span class="comment">- <span class="doctag">@param</span> configLocations 配置资源数组</span></span><br><span class="line"><span class="comment">- <span class="doctag">@param</span> refresh 是否刷新容器标识</span></span><br><span class="line"><span class="comment">- <span class="doctag">@param</span> parent  父类的对象</span></span><br><span class="line"><span class="comment">- <span class="doctag">@throws</span> BeansException</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">ClassPathXmlApplicationContext</span><span class="params">(String[] configLocations,<span class="keyword">boolean</span> refresh, ApplicationContext parent)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">  <span class="comment">//设置其父类实例</span></span><br><span class="line">  <span class="keyword">super</span>(parent);</span><br><span class="line">  <span class="comment">//添加并解析资源名称 （数组）  //针对特殊属性的的资源名比如$&#123;var&#125; 会进行相关的变量解析。</span></span><br><span class="line">  <span class="keyword">this</span>.setConfigLocations(configLocations);</span><br><span class="line">  <span class="keyword">if</span> (refresh) &#123;</span><br><span class="line">      <span class="comment">//刷新容器接口</span></span><br><span class="line">      <span class="keyword">this</span>.refresh();</span><br><span class="line">  &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  上述ClassPathXmlApplicationContext实例化的过程中，除了调用父类构造方法，设置支援属性信息之外，最核心的方法就是refresh()方法，下面我们来分析一下refresh()方法做了一些什么。</span><br></pre></td></tr></table></figure>
+<h2 id="核心方法：refresh"><a href="#核心方法：refresh" class="headerlink" title="核心方法：refresh()"></a>核心方法：refresh()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">    <span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">refresh</span><span class="params">()</span> <span class="keyword">throws</span> BeansException, IllegalStateException </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>.startupShutdownMonitor) &#123;</span><br><span class="line">        <span class="comment">//刷新容器之前的准备操作</span></span><br><span class="line">        <span class="comment">//相关变量初始化，以及对系统属性验证</span></span><br><span class="line">        prepareRefresh();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 创建新的BeanFactory 这个对象实例也是该类为啥拥有和beanFactory一样功能的原因</span></span><br><span class="line">        ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();</span><br><span class="line"> </span><br><span class="line">        </span><br><span class="line">        <span class="comment">//beanFactory实例对象的一些特殊规则设置，添加一些实例bean，bean后置处理器，忽略某些依赖注入、指定某些依赖注入等</span></span><br><span class="line">        prepareBeanFactory(beanFactory);</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//spring的钩子函数，为子类扩展提供的方法，子类可以继承该类并重写该方法</span></span><br><span class="line">            <span class="comment">//看到其他子类实现大多是添加一些BeanPostProcessor实例</span></span><br><span class="line">            postProcessBeanFactory(beanFactory);</span><br><span class="line"></span><br><span class="line">            <span class="comment">//调用BeanFactoryPostProcessor 的相关方法主要是</span></span><br><span class="line">            <span class="comment">//BeanDefinitionRegistryPostProcessor实例对象的postProcessBeanDefinitionRegistry()方法</span></span><br><span class="line">            <span class="comment">//或者BeanFactoryPostProcessor 的postProcessBeanFactory()方法</span></span><br><span class="line">            invokeBeanFactoryPostProcessors(beanFactory);</span><br><span class="line"></span><br><span class="line">            <span class="comment">//注册BeanPostProcessor(该方法只是注册，真正的调用是在bean的实例化阶段进行的)</span></span><br><span class="line">            registerBeanPostProcessors(beanFactory);</span><br><span class="line"></span><br><span class="line">            <span class="comment">//初始化国际资源 我们可以针对不同语言或者地区提供不同的资源信息</span></span><br><span class="line">            <span class="comment">//只需要设置相关的语言地区 就可以获取对应语言或者地区的资源信息 此处不关注</span></span><br><span class="line">            initMessageSource();</span><br><span class="line"></span><br><span class="line">            <span class="comment">//初始化事件广播实例对象 该对象主要管理spring所有的ApplicationListener实现类</span></span><br><span class="line">            <span class="comment">//使用观察者模式 如果context 发布了一些相关的事件 则该广播对象会通知所有的事件监听器</span></span><br><span class="line">            <span class="comment">//最终调用相关的事件监听器 处理对应的事件</span></span><br><span class="line">            initApplicationEventMulticaster();</span><br><span class="line"></span><br><span class="line">            <span class="comment">//子类进行扩展的钩子方法</span></span><br><span class="line">            onRefresh();</span><br><span class="line"></span><br><span class="line">            <span class="comment">//注册事件监听器 上面实例化了事件广播实例</span></span><br><span class="line">            registerListeners();</span><br><span class="line"></span><br><span class="line">            <span class="comment">//单例对象的初始化</span></span><br><span class="line">            finishBeanFactoryInitialization(beanFactory);</span><br><span class="line"></span><br><span class="line">            <span class="comment">//容器实例化后通知所有的Lifecycle接口的start()方法</span></span><br><span class="line">            finishRefresh();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">catch</span> (BeansException ex) &#123;</span><br><span class="line">            logger.warn(<span class="string">"Exception encountered during context initialization - cancelling refresh attempt"</span>, ex);</span><br><span class="line">            <span class="comment">//实例化异常 销毁相关的bean</span></span><br><span class="line">            destroyBeans();</span><br><span class="line">            <span class="comment">//重置刷新标识</span></span><br><span class="line">            cancelRefresh(ex);</span><br><span class="line">            <span class="keyword">throw</span> ex;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>}<br>   从上面的代码中可以看到refresh()几乎包含了该类实例化的所有核心方法比较复杂，该方法主要逻辑罗列如下：</p>
 <p>prepareRefresh()： 刷新容器之前的准备操作，相关变量初始化，以及对系统属性验证。<br>obtainFreshBeanFactory()：创建新的BeanFactory<br>prepareBeanFactory(beanFactory)： beanFactory实例对象的一些特殊规则设置<br>postProcessBeanFactory()方法：spring的钩子函数，为子类扩展提供的方法<br>invokeBeanFactoryPostProcessors()方法：调用BeanFactoryPostProcessor的相关方法。<br>registerBeanPostProcessors()方法：注册BeanPostProcessor<br>initMessageSource()方法：初始化国际资源<br>initApplicationEventMulticaster()方法：初始化事件广播实例对象 该对象主要管理spring所有的ApplicationListener实现类，使用观察者模式 如果context 发布了一些相关的事件 则该广播对象会通知所有的事件监听器<br>onRefresh()方法： 子类进行扩展的钩子方法。<br>finishBeanFactoryInitialization()方法：单例对象的初始化。<br>finishRefresh()方法：容器实例化后通知所有的Lifecycle接口的start()方法。<br>destroyBeans()、cancelRefresh()实例化异常的相关操作。<br>三、refresh()方法的详细分析<br>   1、prepareRefresh()<br>           容器实例化时候执行刷新之前的准备操作。</p>
 <pre><code>   1.1、源码分析
 </code></pre><p>//1、容器刷新之前的准备操作<br>protected void prepareRefresh() {<br>    //获取容器启动时间，和后面容器启动完成后的时间只差 作为容器启动时间的统计<br>    this.startupDate = System.currentTimeMillis();<br>    //设置容器状态为激活<br>    this.active.set(true);</p>
@@ -1028,7 +968,7 @@ else {
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">98</span>
+                    <span class="site-state-item-count">102</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1091,7 +1031,9 @@ else {
                     
                       
                     
-                    <span class="site-state-item-count">21</span>
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -1152,7 +1094,9 @@ else {
                     
                       
                     
-                    <span class="site-state-item-count">22</span>
+                      
+                    
+                    <span class="site-state-item-count">23</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
@@ -1190,7 +1134,7 @@ else {
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ApplicationContext介绍"><span class="nav-text">ApplicationContext介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ApplicationContext类结构"><span class="nav-text">ApplicationContext类结构</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ApplicationContext介绍"><span class="nav-text">ApplicationContext介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ClassPathXmlApplicationContext类图"><span class="nav-text">ClassPathXmlApplicationContext类图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#示例代码"><span class="nav-text">示例代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ClassPathXmlApplicationContext源码分析"><span class="nav-text">ClassPathXmlApplicationContext源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#构造方法"><span class="nav-text">构造方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#核心方法：refresh"><span class="nav-text">核心方法：refresh()</span></a></li></ol></li></ol></div>
             
 
           </div>

@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="线程的创建 继承Thread类，重写run()方法 实现Runnable接口，重写run()方法 实现Callable接口，重写call()方法并使用FutureTask获取call()方法的返回结果 线程池   Thread类创建线程主要步骤：  通过继承Thread创建线程的子类 重写Thread类的run( )方法 创建子类实例对象 调用子类实例对象start( )方法启动线程  12345">
+<meta name="keywords" content="Java,JUC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java_线程">
+<meta property="og:url" content="http://yoursite.com/2018/03/02/java/013Java_线程/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="线程的创建 继承Thread类，重写run()方法 实现Runnable接口，重写run()方法 实现Callable接口，重写call()方法并使用FutureTask获取call()方法的返回结果 线程池   Thread类创建线程主要步骤：  通过继承Thread创建线程的子类 重写Thread类的run( )方法 创建子类实例对象 调用子类实例对象start( )方法启动线程  12345">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-03-02T06:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java_线程">
+<meta name="twitter:description" content="线程的创建 继承Thread类，重写run()方法 实现Runnable接口，重写run()方法 实现Callable接口，重写call()方法并使用FutureTask获取call()方法的返回结果 线程池   Thread类创建线程主要步骤：  通过继承Thread创建线程的子类 重写Thread类的run( )方法 创建子类实例对象 调用子类实例对象start( )方法启动线程  12345">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2018/03/02/java/013Java_线程/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Java_线程 | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/02/java/013Java_线程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java_线程
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-03-02 14:15:27" itemprop="dateCreated datePublished" datetime="2018-03-02T14:15:27+08:00">2018-03-02</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/JUC/" itemprop="url" rel="index"><span itemprop="name">JUC</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="线程的创建"><a href="#线程的创建" class="headerlink" title="线程的创建"></a>线程的创建</h1><ol>
+<li>继承<code>Thread</code>类，重写<code>run()</code>方法</li>
+<li>实现<code>Runnable</code>接口，重写<code>run()</code>方法</li>
+<li>实现<code>Callable</code>接口，重写<code>call()</code>方法并使用FutureTask获取<code>call()</code>方法的返回结果</li>
+<li>线程池</li>
+</ol>
+<hr>
+<h2 id="Thread类创建线程"><a href="#Thread类创建线程" class="headerlink" title="Thread类创建线程"></a>Thread类创建线程</h2><p>主要步骤：</p>
+<ol>
+<li>通过继承Thread创建线程的子类</li>
+<li>重写Thread类的run( )方法</li>
+<li>创建子类实例对象</li>
+<li>调用子类实例对象start( )方法启动线程</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyThread</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;<span class="comment">//定义线程主体类</span></span><br><span class="line">    <span class="keyword">private</span> String title;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyThread</span><span class="params">(String title)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.title = title;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)&#123;</span><br><span class="line">            System.out.println(<span class="keyword">this</span>.title + <span class="string">"  i = "</span>+i);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        MyThread myThread1 = <span class="keyword">new</span> MyThread(<span class="string">"线程1"</span>);<span class="comment">//创建新线程</span></span><br><span class="line">        MyThread myThread2 = <span class="keyword">new</span> MyThread(<span class="string">"线程2"</span>);</span><br><span class="line">        MyThread myThread3 = <span class="keyword">new</span> MyThread(<span class="string">"线程3"</span>);</span><br><span class="line">        myThread1.start();<span class="comment">//启动线程</span></span><br><span class="line">        myThread2.start();</span><br><span class="line">        myThread3.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Runnable接口实现多线程"><a href="#Runnable接口实现多线程" class="headerlink" title="Runnable接口实现多线程"></a><strong>Runnable接口实现多线程</strong></h2><p>主要步骤：</p>
+<ol>
+<li>创建<code>Runnable</code>接口实现类并重写该接口的<code>run()</code>方法</li>
+<li>创建<code>Runnable</code>接口实现类对象</li>
+<li>利用<code>Thread</code>有参构造函数<code>public Thread(Runnable target)</code>和<code>Runnable</code>接口实现类对象创建线程实例</li>
+<li>调用线程实例的<code>start()</code>方法启动线程</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String title;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyThread</span><span class="params">(String title)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.title = title;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)&#123;</span><br><span class="line">            System.out.println(<span class="keyword">this</span>.title + <span class="string">"  i = "</span>+i);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        MyThread myThread1 = <span class="keyword">new</span> MyThread(<span class="string">"线程1"</span>);</span><br><span class="line">        MyThread myThread2 = <span class="keyword">new</span> MyThread(<span class="string">"线程2"</span>);</span><br><span class="line">        MyThread myThread3 = <span class="keyword">new</span> MyThread(<span class="string">"线程3"</span>);</span><br><span class="line">        <span class="keyword">new</span> Thread(myThread1).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(myThread2).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(myThread3).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Callable接口实现多线程"><a href="#Callable接口实现多线程" class="headerlink" title="Callable接口实现多线程"></a>Callable接口实现多线程</h2><p>主要步骤：</p>
+<ol>
+<li>创建<code>Callable</code>接口实现类并重写该接口的<code>call( )</code>方法</li>
+<li>创建<code>Callable</code>接口实现类对象</li>
+<li>使用<code>Runnable</code>子类<code>FutureTask</code>的有参构造函数<code>public FutureTask(Callable&lt; V &gt; callable)</code>和<code>Callable</code>接口实现类对象创建<code>FutureTask</code>实例</li>
+<li>利用<code>Thread</code>有参构造函数<code>public Thread(Runnable target)</code>和<code>FutureTask</code>实例创建线程实例</li>
+<li>调用线程实例的<code>start()</code>方法启动线程</li>
+<li>利用<code>FutureTask</code>的<code>get()</code>方法获取子线程执行结果</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyThread</span> <span class="keyword">implements</span> <span class="title">Callable</span>&lt;<span class="title">String</span>&gt;</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> tickets = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">this</span>.tickets &gt;= <span class="number">0</span>)&#123;</span><br><span class="line">            System.out.println(<span class="string">"剩余票数为："</span>+<span class="keyword">this</span>.tickets--);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"票卖完了"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException,ExecutionException </span>&#123;</span><br><span class="line">        FutureTask&lt;String&gt; task = <span class="keyword">new</span> FutureTask&lt;&gt;(<span class="keyword">new</span> MyThread());</span><br><span class="line">        <span class="keyword">new</span> Thread(task).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(task).start();</span><br><span class="line">        System.out.println(task.get());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h2><p>TODO</p>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><h1 id="线程的分类"><a href="#线程的分类" class="headerlink" title="线程的分类"></a>线程的分类</h1><ul>
+<li>守护线程</li>
+<li>非守护线程</li>
+</ul>
+<h1 id="父线程"><a href="#父线程" class="headerlink" title="父线程"></a>父线程</h1><p>在哪个线程里创建这个线程，那么他的父线程就是谁。</p>
+<h1 id="线程组"><a href="#线程组" class="headerlink" title="线程组"></a>线程组</h1><p>可以把一堆线程加入一个线程组里，好处大概就是，你可以将这一堆线程作为一个整体，统一的管理和设置。</p>
+<p>默认情况下，你要是创建一个线程没指定线程组，那么就会属于父线程的线程组了，main线程的线程组就是main ThreadGroup。</p>
+<p>线程组其实也有父线程组的概念，我们创建线程组的时候，如果没有手动指定他的父线程组，那么默认的父线程组就是main线程的线程组。</p>
+<h1 id="线程优先级"><a href="#线程优先级" class="headerlink" title="线程优先级"></a>线程优先级</h1><p>这个优先级一般是在1~10之间。</p>
+<p>ThreadGroup也可以指定优先级，线程优先级不能大于ThreadGroup的优先级。</p>
+<p>一般就是用默认的优先级就ok了，默认他会用父线程的优先级，就是5。</p>
+<h1 id="线程源码"><a href="#线程源码" class="headerlink" title="线程源码"></a>线程源码</h1><h3 id="初始化方法"><a href="#初始化方法" class="headerlink" title="初始化方法"></a>初始化方法</h3><ol>
+<li>创建你的线程，就是你的父线程。</li>
+<li>如果你没有指定ThreadGroup，你的ThreadGroup就是父线程的ThreadGroup。</li>
+<li>你的daemon状态默认是父线程的daemon状态。</li>
+<li>你的优先级默认是父线程的优先级。</li>
+<li>如果你没有指定线程的名称，那么默认就是Thread-0格式的名称。</li>
+<li>你的线程id是全局递增的，从1开始。</li>
+</ol>
+<h3 id="启动方法"><a href="#启动方法" class="headerlink" title="启动方法"></a>启动方法</h3><ol>
+<li>一旦启动了线程之后，就不能再重新启动了，因为启动之后，threadStatus就是非0的状态了，此时就不能重新调用了。</li>
+<li>你启动线程之后，这个线程就会加入之前处理好的那个线程组中。</li>
+<li>启动一个线程实际上走的是native方法，start0()，会实际的启动一个线程。</li>
+<li>一个线程启动之后就会执行run()方法。</li>
+</ol>
+<h1 id="操作方法"><a href="#操作方法" class="headerlink" title="操作方法"></a>操作方法</h1><ol>
+<li><strong>sleep</strong></li>
+</ol>
+<p>可以让线程暂停一段时间</p>
+<ol>
+<li><strong>yield</strong></li>
+</ol>
+<p>担心说某个线程一直长时间霸占着CPU，导致其他的线程很少得到机会来执行，所以设计了一个yield方法，你调用之后，可以尝试说当前线程先别执行了，CPU，兄弟，你可以去执行其他线程了</p>
+<ol>
+<li><strong>join</strong></li>
+</ol>
+<p>main线程里面，如果开启了一个其他线程，这个时候只要你一旦开启了其他线程之后，那么main线程就会跟其他线程开始并发的运行，一会执行main线程的代码，一会儿会执行其他线程的代码。</p>
+<p>main线程里面开启了一个线程，main线程如果对那个线程调用了join的方法，那么就会导致main线程会阻塞住，他会等待其他线程的代码逻辑执行结束，那个线程执行完毕，然后main线程才会继续往下走。</p>
+<ol>
+<li><strong>interrupt</strong></li>
+</ol>
+<p>interrupt这个东西的意思是什么呢？先给大家演示了第一种情况，如果你是while循环，可以判断如果没有被中断，那么就正常工作，如果别人中断了这个线程，那么while循环的条件判断里，就会发现说，isInterrupted，被中断了。被中断了以后，你的while循环发现了，就会退出循环，这个线程就终止了。</p>
+<p>interrupt打断一个线程，其实是在修改那个线程里的一个interrupt的标志位，打断他以后，interrupt标志位就会变成true，所以在线程内部，可以根据这个标志位，isInterrupted这个标志位来判断，是否要继续运行。并不是说，直接interrupt一下某个线程，直接就不让他运行了。</p>
+<p>在一个分布式系统里面，一般会有一些核心的工作线程，现在如果这个系统要关闭，一般会设计一个shutdown方法，在这个方法里面，会设置各个工作线程是否需要运行的标志位为false，对各个工作线程都执行interrupt。</p>
+<p>因为各个工作线程可能都在不断的while循环运行，但是每次执行完一次之后，都会进入休眠的状态，sleep 30秒</p>
+<p>如果系统要尽快停止，那么就应该用interrupt打断各个工作线程的休眠，让他们判断是否运行的标志位为false，就立刻退出</p>
+<p>只要所有的工作线程都结束了以后，jvm进程就会自动退出了</p>
+<ol>
+<li><strong>wait和notify</strong></li>
+</ol>
+<p>wait与sleep的区别：前者释放锁，后者不释放锁。</p>
+<p><strong>wait：</strong></p>
+<p><strong>原理：</strong>必须在synchronized代码块中使用，调用wait() 首先会获取锁，获得成功后，会让线程进入等待状态进入等待队列并且释放锁；</p>
+<p>wait()，必须是有人notify唤醒他。</p>
+<p>wait(timeout)，阻塞一段时间，然后自己唤醒，继续争抢锁。</p>
+<p>wait与notify，必须在synchronized代码块中使用，因为必须是拥有monitor lock的线程才可以执行wait与notify操作</p>
+<p>必须得对同一个对象实例进行加锁、wait、notify，这样的话，他们其实操作的才是通一个对象实例里的monitor相关的计数器、wait set。</p>
+<p><strong>notify:</strong></p>
+<p>notify()与notifyall()：前者就唤醒block状态的一个线程，后者唤醒block状态的所有线程</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/JUC/" rel="tag"># JUC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/21/rocketmq/016.RocketMQ_消息限流/" rel="next" title="RocketMQ_消息限流">
+                <i class="fa fa-chevron-left"></i> RocketMQ_消息限流
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/02/java/014Java_三大特性、volatile、synchronized/" rel="prev" title="Java_三大特性、volatile、synchronized">
+                Java_三大特性、volatile、synchronized <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">102</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">23</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#线程的创建"><span class="nav-text">线程的创建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Thread类创建线程"><span class="nav-text">Thread类创建线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Runnable接口实现多线程"><span class="nav-text">Runnable接口实现多线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Callable接口实现多线程"><span class="nav-text">Callable接口实现多线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池"><span class="nav-text">线程池</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用场景"><span class="nav-text">使用场景</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程的分类"><span class="nav-text">线程的分类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#父线程"><span class="nav-text">父线程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程组"><span class="nav-text">线程组</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程优先级"><span class="nav-text">线程优先级</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程源码"><span class="nav-text">线程源码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化方法"><span class="nav-text">初始化方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动方法"><span class="nav-text">启动方法</span></a></li></ol></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#操作方法"><span class="nav-text">操作方法</span></a></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
