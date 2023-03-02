@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前面我们已经分析了一个最简单Bean定义的解析与加载，现在我们来看下基于构造器注入的Bean定义的解析与加载。 本文你主要分析Bean定义的解析。 1. 测试代码调整修改之前的配置： 123456&amp;lt;!-- 构造器注入配置方式一 --&amp;gt;&amp;lt;bean id=&quot;constructorInjectComputer&quot; class=&quot;com.wangjb.Computer&quot;&amp;gt;    &amp;l">
+<meta name="keywords" content="Spring,Spring源码解析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="构造器注入-Bean配置元信息解析">
+<meta property="og:url" content="http://yoursite.com/2020/04/26/springsourceanalysis/004.Spring源码解析-构造器注入-Bean配置元信息解析/index.html">
+<meta property="og:site_name" content="生活值得">
+<meta property="og:description" content="前面我们已经分析了一个最简单Bean定义的解析与加载，现在我们来看下基于构造器注入的Bean定义的解析与加载。 本文你主要分析Bean定义的解析。 1. 测试代码调整修改之前的配置： 123456&amp;lt;!-- 构造器注入配置方式一 --&amp;gt;&amp;lt;bean id=&quot;constructorInjectComputer&quot; class=&quot;com.wangjb.Computer&quot;&amp;gt;    &amp;l">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-26T11:22:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="构造器注入-Bean配置元信息解析">
+<meta name="twitter:description" content="前面我们已经分析了一个最简单Bean定义的解析与加载，现在我们来看下基于构造器注入的Bean定义的解析与加载。 本文你主要分析Bean定义的解析。 1. 测试代码调整修改之前的配置： 123456&amp;lt;!-- 构造器注入配置方式一 --&amp;gt;&amp;lt;bean id=&quot;constructorInjectComputer&quot; class=&quot;com.wangjb.Computer&quot;&amp;gt;    &amp;l">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/04/26/springsourceanalysis/004.Spring源码解析-构造器注入-Bean配置元信息解析/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>构造器注入-Bean配置元信息解析 | 生活值得</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">生活值得</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/26/springsourceanalysis/004.Spring源码解析-构造器注入-Bean配置元信息解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">构造器注入-Bean配置元信息解析
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-04-26 19:22:27" itemprop="dateCreated datePublished" datetime="2020-04-26T19:22:27+08:00">2020-04-26</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring/Spring源码解析/" itemprop="url" rel="index"><span itemprop="name">Spring源码解析</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前面我们已经分析了一个最简单Bean定义的解析与加载，现在我们来看下基于构造器注入的Bean定义的解析与加载。</p>
+<p>本文你主要分析Bean定义的解析。</p>
+<h3 id="1-测试代码调整"><a href="#1-测试代码调整" class="headerlink" title="1. 测试代码调整"></a>1. 测试代码调整</h3><p>修改之前的配置：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 构造器注入配置方式一 --&gt;</span><br><span class="line">&lt;bean id=<span class="string">"constructorInjectComputer"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"com.wangjb.Computer"</span>&gt;</span><br><span class="line">    &lt;constructor-arg index="0" value="1"&gt;&lt;/constructor-arg&gt;</span><br><span class="line">    &lt;constructor-arg index="1" value="Dell"&gt;&lt;/constructor-arg&gt;</span><br><span class="line">    &lt;constructor-arg index="2" value="100.0"&gt;&lt;/constructor-arg&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+<p>Computer类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Computer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String cpu;</span><br><span class="line">    <span class="keyword">private</span> String ram;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">double</span> price;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 默认构造函数</span></span><br><span class="line"><span class="comment">     * 用于测试默认Bean的实例化</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Computer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 构造函数：注入id、name、price</span></span><br><span class="line"><span class="comment">     * 用于测试构造器注入的实例化</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> name</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> price</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Computer</span><span class="params">(<span class="keyword">int</span> id, String name, <span class="keyword">double</span> price)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.price = price;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 构造函数：注入id、name、cpu、ram、price</span></span><br><span class="line"><span class="comment">     * 用于测试构造器注入的实例化</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> id</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> name</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> cpu</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> ram</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> price</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Computer</span><span class="params">(<span class="keyword">int</span> id, String name, String cpu, String ram, <span class="keyword">double</span> price)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.cpu = cpu;</span><br><span class="line">        <span class="keyword">this</span>.ram = ram;</span><br><span class="line">        <span class="keyword">this</span>.price = price;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 省略setter、getter方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Computer类里面定义了多个重载的构造函数，方便我们后续根据不同参数，分析Spring定位构造函数的实现。</p>
+<p>测试代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 构造器注入测试</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">constructorInjectTest</span> <span class="params">()</span> </span>&#123;</span><br><span class="line">    Resource resource = <span class="keyword">new</span> ClassPathResource(<span class="string">"applicationContext.xml"</span>);</span><br><span class="line"></span><br><span class="line">    XmlBeanFactory beanFactory = <span class="keyword">new</span> XmlBeanFactory(resource);</span><br><span class="line"></span><br><span class="line">    Computer computer = (Computer) beanFactory.getBean(<span class="string">"constructorInjectComputer"</span>);</span><br><span class="line"></span><br><span class="line">    Assert.assertNotNull(computer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-Bean-Definitions解析"><a href="#2-Bean-Definitions解析" class="headerlink" title="2. Bean Definitions解析"></a>2. Bean Definitions解析</h3><p>之前我们已经找到了Bean Definitions解析的代码，位于BeanDefinitionParserDelegate的parseBeanDefinitionElement方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> AbstractBeanDefinition <span class="title">parseBeanDefinitionElement</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    Element ele, String beanName, @Nullable BeanDefinition containingBean)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.parseState.push(<span class="keyword">new</span> BeanEntry(beanName));</span><br><span class="line"></span><br><span class="line">    String className = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">// 1. 解析class属性</span></span><br><span class="line">    <span class="keyword">if</span> (ele.hasAttribute(CLASS_ATTRIBUTE)) &#123;</span><br><span class="line">        className = ele.getAttribute(CLASS_ATTRIBUTE).trim();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 2. 解析parent属性</span></span><br><span class="line">    String parent = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">if</span> (ele.hasAttribute(PARENT_ATTRIBUTE)) &#123;</span><br><span class="line">        parent = ele.getAttribute(PARENT_ATTRIBUTE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 3. 创建用于承载属性的AbstractBeanDefinition类型的GenericBeanDefinition</span></span><br><span class="line">        AbstractBeanDefinition bd = createBeanDefinition(className, parent);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. 解析默认bean的各种属性</span></span><br><span class="line">        parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);</span><br><span class="line">        bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 5. 解析元数据</span></span><br><span class="line">        parseMetaElements(ele, bd);</span><br><span class="line">        <span class="comment">// 6. 解析lookup-method属性</span></span><br><span class="line">        parseLookupOverrideSubElements(ele, bd.getMethodOverrides());</span><br><span class="line">        <span class="comment">// 7. 解析replaced-method属性</span></span><br><span class="line">        parseReplacedMethodSubElements(ele, bd.getMethodOverrides());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 8. 解析构造函数参数</span></span><br><span class="line">        parseConstructorArgElements(ele, bd);</span><br><span class="line">        <span class="comment">// 9. 解析property子元素</span></span><br><span class="line">        parsePropertyElements(ele, bd);</span><br><span class="line">        <span class="comment">// 10. 解析qualifier子元素</span></span><br><span class="line">        parseQualifierElements(ele, bd);</span><br><span class="line"></span><br><span class="line">        bd.setResource(<span class="keyword">this</span>.readerContext.getResource());</span><br><span class="line">        bd.setSource(extractSource(ele));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> bd;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (ClassNotFoundException ex) &#123;</span><br><span class="line">        error(<span class="string">"Bean class ["</span> + className + <span class="string">"] not found"</span>, ele, ex);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (NoClassDefFoundError err) &#123;</span><br><span class="line">        error(<span class="string">"Class that bean class ["</span> + className + <span class="string">"] depends on not found"</span>, ele, err);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">        error(<span class="string">"Unexpected failure during bean definition parsing"</span>, ele, ex);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.parseState.pop();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>主要步骤如下：</p>
+<ol>
+<li>解析class属性;</li>
+<li>解析parent属性;</li>
+<li>创建用于承载属性的AbstractBeanDefinition类型的GenericBeanDefinition;</li>
+<li>解析默认bean的各种属性;</li>
+<li>解析元数据;</li>
+<li>解析lookup-method属性;</li>
+<li>解析replaced-method属性;</li>
+<li>解析构造函数参数;</li>
+<li>解析property子元素;</li>
+<li>解析qualifier子元素;</li>
+</ol>
+<p>前面我们已经分析了第<3>步，知道了GenericBeanDefinition是怎么创建的，同时知道了className属性是怎么设置到GenericBeanDefinition的。</3></p>
+<p>下面我们来看看<8>，解析构造函数参数，查看</8></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 遍历解析所有&lt;constructor-arg&gt;子元素</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">parseConstructorArgElements</span><span class="params">(Element beanEle, BeanDefinition bd)</span> </span>&#123;</span><br><span class="line">	NodeList nl = beanEle.getChildNodes();</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nl.getLength(); i++) &#123;</span><br><span class="line">		Node node = nl.item(i);</span><br><span class="line">		<span class="keyword">if</span> (isCandidateElement(node) &amp;&amp; nodeNameEquals(node, CONSTRUCTOR_ARG_ELEMENT)) &#123;</span><br><span class="line">			parseConstructorArgElement((Element) node, bd);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>逐一解析<constructor-arg>子元素：</constructor-arg></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 逐一解析&lt;constructor-arg&gt;子元素</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">parseConstructorArgElement</span><span class="params">(Element ele, BeanDefinition bd)</span> </span>&#123;</span><br><span class="line">		String indexAttr = ele.getAttribute(INDEX_ATTRIBUTE);</span><br><span class="line">		String typeAttr = ele.getAttribute(TYPE_ATTRIBUTE);</span><br><span class="line">		String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);</span><br><span class="line">    	<span class="comment">// 1.如果有index属性</span></span><br><span class="line">		<span class="keyword">if</span> (StringUtils.hasLength(indexAttr)) &#123;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="keyword">int</span> index = Integer.parseInt(indexAttr);</span><br><span class="line">				<span class="keyword">if</span> (index &lt; <span class="number">0</span>) &#123;</span><br><span class="line">					error(<span class="string">"'index' cannot be lower than 0"</span>, ele);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">else</span> &#123;</span><br><span class="line">					<span class="keyword">try</span> &#123;</span><br><span class="line">						<span class="keyword">this</span>.parseState.push(<span class="keyword">new</span> ConstructorArgumentEntry(index));</span><br><span class="line">						Object value = parsePropertyValue(ele, bd, <span class="keyword">null</span>);</span><br><span class="line">						ConstructorArgumentValues.ValueHolder valueHolder = <span class="keyword">new</span> ConstructorArgumentValues.ValueHolder(value);</span><br><span class="line">						<span class="keyword">if</span> (StringUtils.hasLength(typeAttr)) &#123;</span><br><span class="line">							valueHolder.setType(typeAttr);</span><br><span class="line">						&#125;</span><br><span class="line">						<span class="keyword">if</span> (StringUtils.hasLength(nameAttr)) &#123;</span><br><span class="line">							valueHolder.setName(nameAttr);</span><br><span class="line">						&#125;</span><br><span class="line">						valueHolder.setSource(extractSource(ele));</span><br><span class="line">						<span class="keyword">if</span> (bd.getConstructorArgumentValues().hasIndexedArgumentValue(index)) &#123;</span><br><span class="line">							error(<span class="string">"Ambiguous constructor-arg entries for index "</span> + index, ele);</span><br><span class="line">						&#125;</span><br><span class="line">						<span class="keyword">else</span> &#123;</span><br><span class="line">							bd.getConstructorArgumentValues().addIndexedArgumentValue(index, valueHolder);</span><br><span class="line">						&#125;</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">finally</span> &#123;</span><br><span class="line">						<span class="keyword">this</span>.parseState.pop();</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">catch</span> (NumberFormatException ex) &#123;</span><br><span class="line">				error(<span class="string">"Attribute 'index' of tag 'constructor-arg' must be an integer"</span>, ele);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">    	<span class="comment">// 2.没有index属性</span></span><br><span class="line">		<span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="keyword">this</span>.parseState.push(<span class="keyword">new</span> ConstructorArgumentEntry());</span><br><span class="line">				Object value = parsePropertyValue(ele, bd, <span class="keyword">null</span>);</span><br><span class="line">				ConstructorArgumentValues.ValueHolder valueHolder = <span class="keyword">new</span> ConstructorArgumentValues.ValueHolder(value);</span><br><span class="line">				<span class="keyword">if</span> (StringUtils.hasLength(typeAttr)) &#123;</span><br><span class="line">					valueHolder.setType(typeAttr);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">if</span> (StringUtils.hasLength(nameAttr)) &#123;</span><br><span class="line">					valueHolder.setName(nameAttr);</span><br><span class="line">				&#125;</span><br><span class="line">				valueHolder.setSource(extractSource(ele));</span><br><span class="line">				bd.getConstructorArgumentValues().addGenericArgumentValue(valueHolder);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">finally</span> &#123;</span><br><span class="line">				<span class="keyword">this</span>.parseState.pop();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出解析过程按配置中是否指定了index属性，分成了两种处理：</p>
+<ol>
+<li><p>如果指定了index属性：</p>
+<ol>
+<li>解析<constructor-arg>子元素</constructor-arg></li>
+<li>使用ConstructorArgumentValues.ValueHolder类型来封装解析出来的元素</li>
+<li>将type、name一并封装到ConstructorArgumentValues.ValueHolder</li>
+<li>将解析出来的属性添加当前BeanDefinition的constructorArgumentValues的indexedArgumentValues中</li>
+</ol>
+</li>
+<li><p>如果没有指定index属性：</p>
+<ol>
+<li>解析<constructor-arg>子元素</constructor-arg></li>
+<li>使用ConstructorArgumentValues.ValueHolder类型来封装解析出来的元素</li>
+<li>将type、name一并封装到ConstructorArgumentValues.ValueHolder</li>
+<li>将解析出来的属性添加当前BeanDefinition的constructorArgumentValues的genericArgumentValues中</li>
+</ol>
+</li>
+</ol>
+<p>涉及的组件：</p>
+<ul>
+<li><p>ConstructorArgumentValues</p>
+<ul>
+<li>ConstructorArgumentValues.ValueHolder</li>
+</ul>
+</li>
+<li><p>AbstractBeanDefinition</p>
+<ul>
+<li>AbstractBeanDefinition中组合了ConstructorArgumentValues</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Spring/" rel="tag"># Spring</a>
+          
+            <a href="/tags/Spring源码解析/" rel="tag"># Spring源码解析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/04/26/springsourceanalysis/002.Spring源码解析-BeanDefinition注册/" rel="next" title="BeanDefinition注册">
+                <i class="fa fa-chevron-left"></i> BeanDefinition注册
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/26/springsourceanalysis/007.Spring源码解析-静态工厂方法-Bean加载/" rel="prev" title="静态工厂方法-Bean加载">
+                静态工厂方法-Bean加载 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">97</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-测试代码调整"><span class="nav-text">1. 测试代码调整</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Bean-Definitions解析"><span class="nav-text">2. Bean Definitions解析</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

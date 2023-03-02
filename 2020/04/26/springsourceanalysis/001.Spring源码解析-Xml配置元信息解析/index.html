@@ -97,15 +97,15 @@
   <meta name="description" content="本文主要介绍Spring Bean生命周期之元信息配置阶段、元信息解析阶段，以及重点分析元信息解析阶段源码。 1. Spring Bean 元信息配置阶段BeanDefinition 配置   面向资源  XML 配置  Properties 资源配置    面向注解  面向 API  2. Spring Bean 元信息解析阶段 面向资源 BeanDefinition 解析   BeanDefi">
 <meta name="keywords" content="Spring,Spring源码解析">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spring生命周期-Xml配置元信息解析">
-<meta property="og:url" content="http://yoursite.com/2020/04/26/springsourceanalysis/001.Spring生命周期-Xml配置元信息解析/index.html">
+<meta property="og:title" content="Xml配置元信息解析">
+<meta property="og:url" content="http://yoursite.com/2020/04/26/springsourceanalysis/001.Spring源码解析-Xml配置元信息解析/index.html">
 <meta property="og:site_name" content="生活值得">
 <meta property="og:description" content="本文主要介绍Spring Bean生命周期之元信息配置阶段、元信息解析阶段，以及重点分析元信息解析阶段源码。 1. Spring Bean 元信息配置阶段BeanDefinition 配置   面向资源  XML 配置  Properties 资源配置    面向注解  面向 API  2. Spring Bean 元信息解析阶段 面向资源 BeanDefinition 解析   BeanDefi">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="e:/学习笔记/Spring源码/小马哥Spring/极客时间/BeanDefinitionReader类图.png">
 <meta property="og:updated_time" content="2020-04-26T11:22:27.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Spring生命周期-Xml配置元信息解析">
+<meta name="twitter:title" content="Xml配置元信息解析">
 <meta name="twitter:description" content="本文主要介绍Spring Bean生命周期之元信息配置阶段、元信息解析阶段，以及重点分析元信息解析阶段源码。 1. Spring Bean 元信息配置阶段BeanDefinition 配置   面向资源  XML 配置  Properties 资源配置    面向注解  面向 API  2. Spring Bean 元信息解析阶段 面向资源 BeanDefinition 解析   BeanDefi">
 <meta name="twitter:image" content="e:/学习笔记/Spring源码/小马哥Spring/极客时间/BeanDefinitionReader类图.png">
 
@@ -115,7 +115,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2020/04/26/springsourceanalysis/001.Spring生命周期-Xml配置元信息解析/">
+  <link rel="canonical" href="http://yoursite.com/2020/04/26/springsourceanalysis/001.Spring源码解析-Xml配置元信息解析/">
 
 
 
@@ -125,7 +125,7 @@
   };
 </script>
 
-  <title>Spring生命周期-Xml配置元信息解析 | 生活值得</title>
+  <title>Xml配置元信息解析 | 生活值得</title>
   
 
 
@@ -304,7 +304,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/26/springsourceanalysis/001.Spring生命周期-Xml配置元信息解析/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/26/springsourceanalysis/001.Spring源码解析-Xml配置元信息解析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -321,7 +321,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Spring生命周期-Xml配置元信息解析
+          <h1 class="post-title" itemprop="name headline">Xml配置元信息解析
 
               
             
@@ -593,7 +593,6 @@ $$
 <center>BeanDefinitionParserDelegate#parseBeanDefinitionElement(Element ele, @Nullable BeanDefinition containingBean)</center>
 
 
-
 <h3 id="4-总结"><a href="#4-总结" class="headerlink" title="4.总结"></a>4.总结</h3><p>总结一下解析Xml资源，创建BeanDefinition的主流程和涉及的组件：</p>
 <ol>
 <li><p>通过XmlBeanDefinitionReader组件进行BeanDefinition解析和注册；</p>
@@ -657,8 +656,8 @@ $$
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2020/04/26/springsourceanalysis/002.Spring生命周期-BeanDefinition注册/" rel="next" title="Spring生命周期-BeanDefinition注册">
-                <i class="fa fa-chevron-left"></i> Spring生命周期-BeanDefinition注册
+              <a href="/2020/04/26/springsourceanalysis/007.Spring源码解析-静态工厂方法-Bean加载/" rel="next" title="静态工厂方法-Bean加载">
+                <i class="fa fa-chevron-left"></i> 静态工厂方法-Bean加载
               </a>
             
           </div>
@@ -667,8 +666,8 @@ $$
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2020/10/21/springboot/001SpringBoot_启动过程/" rel="prev" title="SpringBoot_启动过程源码分析">
-                SpringBoot_启动过程源码分析 <i class="fa fa-chevron-right"></i>
+              <a href="/2020/04/26/springsourceanalysis/005.Spring源码解析-构造器注入-Bean加载/" rel="prev" title="构造器注入-Bean加载">
+                构造器注入-Bean加载 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -738,7 +737,7 @@ $$
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">91</span>
+                    <span class="site-state-item-count">97</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
