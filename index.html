@@ -474,181 +474,6 @@ Socket这不是一个协议，而是一个通信模型。其实它最初是BSD�
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/28/分布式/016.分布式锁_Redission 读写锁源码解析/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="最光阴">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="生活值得">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2020/12/28/分布式/016.分布式锁_Redission 读写锁源码解析/" class="post-title-link" itemprop="url">分布式锁_读写锁源码解析</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-
-          
-          
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2020-12-28 14:15:27" itemprop="dateCreated datePublished" datetime="2020-12-28T14:15:27+08:00">2020-12-28</time>
-            </span>
-          
-
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a></span>
-
-                
-                
-                  ，
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/分布式锁/" itemprop="url" rel="index"><span itemprop="name">分布式锁</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          <br>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>
-              读锁RedissonReadLock是RedissonLock的子类。
-lua脚本"local mode = redis.call('hget', KEYS[1], 'mode'); " +"if (mode == false) then " +  "redis.call('hset', KEYS[
-              ...
-            </p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2020/12/28/分布式/016.分布式锁_Redission 读写锁源码解析/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/28/分布式/015.分布式锁_Redission RedLock锁实现/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -766,6 +591,181 @@ public class RedissonRedLock extends RedissonMu
           
             <div class="post-button text-center">
               <a class="btn" href="/2020/12/28/分布式/015.分布式锁_Redission RedLock锁实现/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/28/分布式/016.分布式锁_Redission 读写锁源码解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2020/12/28/分布式/016.分布式锁_Redission 读写锁源码解析/" class="post-title-link" itemprop="url">分布式锁_读写锁源码解析</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-12-28 14:15:27" itemprop="dateCreated datePublished" datetime="2020-12-28T14:15:27+08:00">2020-12-28</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/分布式锁/" itemprop="url" rel="index"><span itemprop="name">分布式锁</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>
+              读锁RedissonReadLock是RedissonLock的子类。
+lua脚本"local mode = redis.call('hget', KEYS[1], 'mode'); " +"if (mode == false) then " +  "redis.call('hset', KEYS[
+              ...
+            </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2020/12/28/分布式/016.分布式锁_Redission 读写锁源码解析/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1350,6 +1350,183 @@ getLock()方法的时候，获取到的Lock对象是RedissonLock对象。里面�
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/01/分布式/011.分布式锁_Redis和Zookeeper分布式锁/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="生活值得">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2020/12/01/分布式/011.分布式锁_Redis和Zookeeper分布式锁/" class="post-title-link" itemprop="url">分布式锁_Redis和Zookeeper分布式锁</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-12-01 14:15:27" itemprop="dateCreated datePublished" datetime="2020-12-01T14:15:27+08:00">2020-12-01</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/分布式锁/" itemprop="url" rel="index"><span itemprop="name">分布式锁</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>
+              分布式锁其实就是，控制分布式系统不同进程共同访问共享资源的一种锁的实现。
+Redis Set命令介绍set key value [expiration EX seconds|PX milliseconds] [NX|XX]
+
+EX seconds：将键的过期时间设置为 seconds 秒。SET k
+              ...
+            </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2020/12/01/分布式/011.分布式锁_Redis和Zookeeper分布式锁/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/01/分布式/001.分布式唯一ID生成方案/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1536,7 +1713,7 @@ getLock()方法的时候，获取到的Lock对象是RedissonLock对象。里面�
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/01/分布式/011.分布式锁_Redis和Zookeeper分布式锁/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/21/springboot/001SpringBoot_启动过程/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -1556,7 +1733,7 @@ getLock()方法的时候，获取到的Lock对象是RedissonLock对象。里面�
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2020/12/01/分布式/011.分布式锁_Redis和Zookeeper分布式锁/" class="post-title-link" itemprop="url">分布式锁_Redis和Zookeeper分布式锁</a>
+                <a href="/2020/10/21/springboot/001SpringBoot_启动过程/" class="post-title-link" itemprop="url">SpringBoot_启动过程源码分析</a>
               
             
           </h1>
@@ -1581,7 +1758,7 @@ getLock()方法的时候，获取到的Lock对象是RedissonLock对象。里面�
                 
               
 
-              <time title="创建时间：2020-12-01 14:15:27" itemprop="dateCreated datePublished" datetime="2020-12-01T14:15:27+08:00">2020-12-01</time>
+              <time title="创建时间：2020-10-21 22:15:27" itemprop="dateCreated datePublished" datetime="2020-10-21T22:15:27+08:00">2020-10-21</time>
             </span>
           
 
@@ -1596,14 +1773,14 @@ getLock()方法的时候，获取到的Lock对象是RedissonLock对象。里面�
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a></span>
 
                 
                 
                   ，
                 
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/分布式锁/" itemprop="url" rel="index"><span itemprop="name">分布式锁</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring/SpringBoot/" itemprop="url" rel="index"><span itemprop="name">SpringBoot</span></a></span>
 
                 
                 
@@ -1644,16 +1821,15 @@ getLock()方法的时候，获取到的Lock对象是RedissonLock对象。里面�
         
           
             <p>
-              分布式锁其实就是，控制分布式系统不同进程共同访问共享资源的一种锁的实现。
-Redis Set命令介绍set key value [expiration EX seconds|PX milliseconds] [NX|XX]
-
-EX seconds：将键的过期时间设置为 seconds 秒。SET k
+              初始化SpringApplication入口：
+public static void main(String[] args) &#123;    SpringApplication.run(DemoApplication.class, args);&#125;
+初始化SpringApplicatio
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2020/12/01/分布式/011.分布式锁_Redis和Zookeeper分布式锁/#more" rel="contents">
+              <a class="btn" href="/2020/10/21/springboot/001SpringBoot_启动过程/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -3312,195 +3488,6 @@ git reset HEAD demo.txtgit check -- demo.txt
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/02/springmvc/003SpringMVC数据绑定/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="最光阴">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="生活值得">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2018/12/02/springmvc/003SpringMVC数据绑定/" class="post-title-link" itemprop="url">SpringMVC数据绑定</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-
-          
-          
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-12-02 14:15:27" itemprop="dateCreated datePublished" datetime="2018-12-02T14:15:27+08:00">2018-12-02</time>
-            </span>
-          
-
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-12-27 22:15:27" itemprop="dateModified" datetime="2018-12-27T22:15:27+08:00">2018-12-27</time>
-              </span>
-            
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a></span>
-
-                
-                
-                  ，
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring/Spring-MVC/" itemprop="url" rel="index"><span itemprop="name">Spring MVC</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          <br>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>
-              数据绑定概述数据绑定就是把用户输入的数据绑定到我们的领域模型上，有了数据绑定，类型总是为String的Http参数，可以绑定到不同类型的对象属性。
-基本类型和包装类型数据绑定基本类型//todo     http://localhost:8080/baseType.do?age=10//todo 5
-              ...
-            </p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2018/12/02/springmvc/003SpringMVC数据绑定/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/02/springmvc/001SpringMVC介绍/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3690,7 +3677,7 @@ git reset HEAD demo.txtgit check -- demo.txt
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/02/springmvc/002SpringMVC基于注解控制器/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/02/springmvc/003SpringMVC数据绑定/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -3710,7 +3697,7 @@ git reset HEAD demo.txtgit check -- demo.txt
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2018/12/02/springmvc/002SpringMVC基于注解控制器/" class="post-title-link" itemprop="url">SpringMVC基于注解的控制器</a>
+                <a href="/2018/12/02/springmvc/003SpringMVC数据绑定/" class="post-title-link" itemprop="url">SpringMVC数据绑定</a>
               
             
           </h1>
@@ -3812,18 +3799,14 @@ git reset HEAD demo.txtgit check -- demo.txt
         
           
             <p>
-              Spring MVC注解控制器的好处
-一个控制器类可以处理多个动作；
-请求映射可以不用写在配置中。
-
-@Controller和@RequestMapping是Spring MVC API中最重要的两个注解类型。
-@Controller注解声明一个控制器类。@RequestMapping注解定义请求映
+              数据绑定概述数据绑定就是把用户输入的数据绑定到我们的领域模型上，有了数据绑定，类型总是为String的Http参数，可以绑定到不同类型的对象属性。
+基本类型和包装类型数据绑定基本类型//todo     http://localhost:8080/baseType.do?age=10//todo 5
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2018/12/02/springmvc/002SpringMVC基于注解控制器/#more" rel="contents">
+              <a class="btn" href="/2018/12/02/springmvc/003SpringMVC数据绑定/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -3914,7 +3897,7 @@ git reset HEAD demo.txtgit check -- demo.txt
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">90</span>
+                    <span class="site-state-item-count">91</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -3975,7 +3958,9 @@ git reset HEAD demo.txtgit check -- demo.txt
                     
                       
                     
-                    <span class="site-state-item-count">20</span>
+                      
+                    
+                    <span class="site-state-item-count">21</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -4034,7 +4019,9 @@ git reset HEAD demo.txtgit check -- demo.txt
                     
                       
                     
-                    <span class="site-state-item-count">21</span>
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
