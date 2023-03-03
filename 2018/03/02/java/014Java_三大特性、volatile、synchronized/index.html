@@ -102,14 +102,14 @@
 <meta property="og:site_name" content="想至千里，先积跬步">
 <meta property="og:description" content="线程安全三大特性原子性基本的赋值写操作都是可以保证原子性的。 32位虚拟机里的long/double类型的变量的简单赋值写操作，不是原子的，因为long和double是64位的。 如果多个线程同时并发的执行long i = 30，就会导致有的线程在修改i的高32位，有的线程在修改i的低32位，多线程并发给long类型的变量进行赋值操作，在32位的虚拟机下，是有问题的。 volatile对原子性保障">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/images/java/juc/juc001.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/02/java/014Java_三大特性、volatile、synchronized/%22/images/java/juc/juc001.png%22">
 <meta property="og:image" content="http://yoursite.com/images/java/juc/juc002.png">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669099973743-d6a3e56d-c68f-4833-a16f-507825180523.png">
 <meta property="og:updated_time" content="2018-03-02T07:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java_三大特性、volatile、synchronized">
 <meta name="twitter:description" content="线程安全三大特性原子性基本的赋值写操作都是可以保证原子性的。 32位虚拟机里的long/double类型的变量的简单赋值写操作，不是原子的，因为long和double是64位的。 如果多个线程同时并发的执行long i = 30，就会导致有的线程在修改i的高32位，有的线程在修改i的低32位，多线程并发给long类型的变量进行赋值操作，在32位的虚拟机下，是有问题的。 volatile对原子性保障">
-<meta name="twitter:image" content="http://yoursite.com/images/java/juc/juc001.png">
+<meta name="twitter:image" content="http://yoursite.com/2018/03/02/java/014Java_三大特性、volatile、synchronized/%22/images/java/juc/juc001.png%22">
 
 
 
@@ -414,7 +414,7 @@
 <p>如果多个线程同时并发的执行long i = 30，就会导致有的线程在修改i的高32位，有的线程在修改i的低32位，多线程并发给long类型的变量进行赋值操作，在32位的虚拟机下，是有问题的。</p>
 <p>volatile对原子性保障的语义，在java里很有限的，可以保证在32位java虚拟机里面，对long/double变量的赋值写是原子的。</p>
 <p><strong>复杂的操作是无法保证原子性的。比如i++。</strong></p>
-<p><img src="/images/java/juc/juc001.png" alt="img"></p>
+<p><img src="&quot;/images/java/juc/juc001.png&quot;" alt="img"></p>
 <hr>
 <h2 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h2><p>MESI协议、flush、refresh，配合起来，才可以解决可见性。</p>
 <h3 id="可见性涉及的底层硬件概念：寄存器、高速缓存、写缓冲器"><a href="#可见性涉及的底层硬件概念：寄存器、高速缓存、写缓冲器" class="headerlink" title="可见性涉及的底层硬件概念：寄存器、高速缓存、写缓冲器"></a>可见性涉及的底层硬件概念：寄存器、高速缓存、写缓冲器</h3><ul>
