@@ -618,6 +618,7 @@
 <li><p>如果大于，则JVM会冒险进行一次Minor GC（为什么说是冒险呢? 因为有可能Minor GC后新生代所有的对象都还存活，并且survivor区无法容纳下这些对象，那么这些对象就会被晋升到老年代，导致老年代空间被填满）</p>
 </li>
 </ul>
+<p>  JDK7及以后这个参数就失效了。<br>  <strong>只要老年代的连续空间大于新生代对象的总大小或者历次晋升到老年代的对象的平均大小就进行MinorGC，否则FullGC。</strong></p>
 </blockquote>
 <h2 id="TLAB"><a href="#TLAB" class="headerlink" title="TLAB"></a>TLAB</h2><p><strong>为什么有TLAB（Thread Local Allocation Buffer）？</strong></p>
 <p>堆区是线程共享区域，任何线程都可以访问到堆区中的共享数据。</p>
