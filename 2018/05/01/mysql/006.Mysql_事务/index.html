@@ -94,18 +94,18 @@
 
 
 
-  <meta name="description" content="查看mapping 1GET /index/_mapping/type 只能创建index时手动建立mapping，或者新增field mapping，但是不能update field mapping 1234567891011121314151617181920212223242526PUT /website&amp;#123;  &amp;quot;mappings&amp;quot;: &amp;#123;    &amp;quo">
-<meta name="keywords" content="Elasticsearch">
+  <meta name="description" content="1 事务概述事务处理可以用来维护数据库的完整性，保证成批的 SQL 语句要么全部执行，要么全部不执行。事务用来管理DDL、DML、DCL操作，比如 insert,update,delete 语句，默认是自动提交的。一般来说，事务是必须满足4个条件（ACID）：Atomicity（原子性）Consistency（一致性）Isolation（隔离性）Durability（持久性） 对于ACID的解释如">
+<meta name="keywords" content="Mysql">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Elasticsearch_Restful API">
-<meta property="og:url" content="http://yoursite.com/2019/06/21/elasticsearch/003.Elasticsearch_mapping/index.html">
+<meta property="og:title" content="MySQL_事务">
+<meta property="og:url" content="http://yoursite.com/2018/05/01/mysql/006.MySQL_事务/index.html">
 <meta property="og:site_name" content="想至千里，先积跬步">
-<meta property="og:description" content="查看mapping 1GET /index/_mapping/type 只能创建index时手动建立mapping，或者新增field mapping，但是不能update field mapping 1234567891011121314151617181920212223242526PUT /website&amp;#123;  &amp;quot;mappings&amp;quot;: &amp;#123;    &amp;quo">
+<meta property="og:description" content="1 事务概述事务处理可以用来维护数据库的完整性，保证成批的 SQL 语句要么全部执行，要么全部不执行。事务用来管理DDL、DML、DCL操作，比如 insert,update,delete 语句，默认是自动提交的。一般来说，事务是必须满足4个条件（ACID）：Atomicity（原子性）Consistency（一致性）Isolation（隔离性）Durability（持久性） 对于ACID的解释如">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2023-03-08T05:36:18.997Z">
+<meta property="og:updated_time" content="2018-05-01T14:15:27.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Elasticsearch_Restful API">
-<meta name="twitter:description" content="查看mapping 1GET /index/_mapping/type 只能创建index时手动建立mapping，或者新增field mapping，但是不能update field mapping 1234567891011121314151617181920212223242526PUT /website&amp;#123;  &amp;quot;mappings&amp;quot;: &amp;#123;    &amp;quo">
+<meta name="twitter:title" content="MySQL_事务">
+<meta name="twitter:description" content="1 事务概述事务处理可以用来维护数据库的完整性，保证成批的 SQL 语句要么全部执行，要么全部不执行。事务用来管理DDL、DML、DCL操作，比如 insert,update,delete 语句，默认是自动提交的。一般来说，事务是必须满足4个条件（ACID）：Atomicity（原子性）Consistency（一致性）Isolation（隔离性）Durability（持久性） 对于ACID的解释如">
 
 
 
@@ -113,7 +113,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2019/06/21/elasticsearch/003.Elasticsearch_mapping/">
+  <link rel="canonical" href="http://yoursite.com/2018/05/01/mysql/006.MySQL_事务/">
 
 
 
@@ -123,7 +123,7 @@
   };
 </script>
 
-  <title>Elasticsearch_Restful API | 想至千里，先积跬步</title>
+  <title>MySQL_事务 | 想至千里，先积跬步</title>
   
 
 
@@ -302,7 +302,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/21/elasticsearch/003.Elasticsearch_mapping/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/01/mysql/006.MySQL_事务/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -319,7 +319,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Elasticsearch_Restful API
+          <h1 class="post-title" itemprop="name headline">MySQL_事务
 
               
             
@@ -345,24 +345,10 @@
                 
               
 
-              <time title="创建时间：2019-06-21 14:17:27" itemprop="dateCreated datePublished" datetime="2019-06-21T14:17:27+08:00">2019-06-21</time>
+              <time title="创建时间：2018-05-01 22:15:27" itemprop="dateCreated datePublished" datetime="2018-05-01T22:15:27+08:00">2018-05-01</time>
             </span>
           
 
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2023-03-08 13:36:18" itemprop="dateModified" datetime="2023-03-08T13:36:18+08:00">2023-03-08</time>
-              </span>
-            
           
 
           
@@ -374,7 +360,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Elasticsearch/" itemprop="url" rel="index"><span itemprop="name">Elasticsearch</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a></span>
 
                 
                 
@@ -412,12 +398,40 @@
       
 
       
-        <p><strong>查看mapping</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /index/_mapping/type</span><br></pre></td></tr></table></figure>
-<p><strong>只能创建index时手动建立mapping，或者新增field mapping，但是不能update field mapping</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">PUT /website</span><br><span class="line">&#123;</span><br><span class="line">  &quot;mappings&quot;: &#123;</span><br><span class="line">    &quot;article&quot;: &#123;</span><br><span class="line">      &quot;properties&quot;: &#123;</span><br><span class="line">        &quot;author_id&quot;: &#123;</span><br><span class="line">          &quot;type&quot;: &quot;long&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;title&quot;: &#123;</span><br><span class="line">          &quot;type&quot;: &quot;text&quot;,</span><br><span class="line">          &quot;analyzer&quot;: &quot;english&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;content&quot;: &#123;</span><br><span class="line">          &quot;type&quot;: &quot;text&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;post_date&quot;: &#123;</span><br><span class="line">          &quot;type&quot;: &quot;date&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;publisher_id&quot;: &#123;</span><br><span class="line">          &quot;type&quot;: &quot;text&quot;,</span><br><span class="line">          &quot;index&quot;: &quot;not_analyzed&quot;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>新增mapping</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PUT /website/_mapping/article</span><br><span class="line">&#123;</span><br><span class="line">  &quot;properties&quot; : &#123;</span><br><span class="line">    &quot;new_field&quot; : &#123;</span><br><span class="line">      &quot;type&quot; :    &quot;string&quot;,</span><br><span class="line">      &quot;index&quot;:    &quot;not_analyzed&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <h1 id="1-事务概述"><a href="#1-事务概述" class="headerlink" title="1 事务概述"></a>1 事务概述</h1><p>事务处理可以用来维护数据库的完整性，保证成批的 SQL 语句要么全部执行，要么全部不执行。<br>事务用来管理DDL、DML、DCL操作，比如 insert,update,delete 语句，默认是自动提交的。<br>一般来说，事务是必须满足4个条件（ACID）：<br>Atomicity（原子性）<br>Consistency（一致性）<br>Isolation（隔离性）<br>Durability（持久性）</p>
+<p>对于ACID的解释如下：</p>
+<ul>
+<li><strong>原子性：</strong>构成事务的的所有操作必须是一个逻辑单元，要么全部执行，要么全部不执行。</li>
+<li><strong>一致性：</strong>数据库在事务执行前后状态都必须是稳定的或者是一致的。</li>
+<li><strong>隔离性：</strong>事务之间不会相互影响。</li>
+<li><strong>持久性：</strong>事务执行成功后必须全部写入磁盘。</li>
+</ul>
+<h1 id="2-MySQL事务支持"><a href="#2-MySQL事务支持" class="headerlink" title="2 MySQL事务支持"></a>2 MySQL事务支持</h1><p>在 MySQL 中只有使用了 <strong>Innodb</strong> 数据库引擎的数据库或表才支持事务。<br>常见的操作有一下三个：</p>
+<ul>
+<li>BEGIN或START TRANSACTION；显式地开启一个事务；</li>
+<li>COMMIT；也可以使用COMMIT WORK，不过二者是等价的。COMMIT会提交事务，并使已对数据库进行的所有修改称为永久性的；</li>
+<li>ROLLBACK；也可以使用ROLLBACK WORK，不过二者是等价的。回滚会结束用户的事务，并撤销正在进行的所有未提交的修改；</li>
+</ul>
+<p>在 MySQL 命令行的默认设置下，事务都是自动提交的，即执行 SQL 语句后就会马上执行 COMMIT 操作。因此要显式地开启一个事务务须使用命令 BEGIN 或 START TRANSACTION，或者执行命令 SET AUTOCOMMIT=0，用来禁止使用当前会话的自动提交。</p>
+<h1 id="3-事务并发问题"><a href="#3-事务并发问题" class="headerlink" title="3 事务并发问题"></a>3 事务并发问题</h1><p>在事务的并发操作中可能会出现一些问题：</p>
+<ul>
+<li>丢失更新：一个事务更新之后，另一个事务也更新了，但是第二个事务回滚了，则第一个事务也被回滚了。</li>
+<li>脏读：一个事务读取到另一个事务未提交的数据。</li>
+<li>不可重复读：一个事务因读取到另一个事务已提交的数据。导致对同一条记录读取两次以上的结果不一致。update操作</li>
+<li>幻读：一个事务因读取到另一个事务已提交的数据。导致对同一张表读取两次以上的结果不一致。insert、delete操作</li>
+</ul>
+<h2 id="3-1-事务隔离级别"><a href="#3-1-事务隔离级别" class="headerlink" title="3.1 事务隔离级别"></a>3.1 事务隔离级别</h2><p>为了避免上面出现的几种情况，在标准SQL规范中，定义了4个事务隔离级别，不同的隔离级别对事务的处理不同。</p>
+<p>四种隔离级别：<br>现在来看看MySQL数据库为我们提供的四种隔离级别（由低到高）：</p>
+<ul>
+<li>Read uncommitted (读未提交)：最低级别，任何情况都无法保证。</li>
+<li>Read committed (读已提交)：可避免脏读的发生。</li>
+<li>Repeatable read (可重复读)：可避免脏读、不可重复读的发生。</li>
+<li>Serializable (串行化)：可避免脏读、不可重复读、幻读的发生。<br>默认隔离级别<br>MySQL数据库的默认隔离级别是Repeatable read。<h2 id="4-如何查看和设置隔离级别："><a href="#4-如何查看和设置隔离级别：" class="headerlink" title="4 如何查看和设置隔离级别："></a>4 如何查看和设置隔离级别：</h2>在MySQL数据库中查看当前事务的隔离级别：<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> @@tx_isolation;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>在MySQL数据库中设置事务的隔离 级别：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span>  [glogal | <span class="keyword">session</span>]  <span class="keyword">transaction</span> <span class="keyword">isolation</span> <span class="keyword">level</span> 隔离级别名称;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> tx_isolation=’隔离级别名称;’</span><br></pre></td></tr></table></figure></p>
+<p>注意事项：<br>隔离级别越高，越能保证数据的完整性和一致性，但是对并发性能的影响也越大。<br>对于多数应用程序，可以优先考虑把数据库系统的隔离级别设为Read Committed。它能够避免脏读取，而且具有较好的并发性能。尽管它会导致不可重复读、幻读这些并发问题，在可能出现这类问题的个别场合，可以由应用程序采用悲观锁或乐观锁来控制。</p>
+
       
     </div>
 
@@ -443,7 +457,7 @@
         
         <div class="post-tags">
           
-            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+            <a href="/tags/Mysql/" rel="tag"># Mysql</a>
           
         </div>
       
@@ -456,8 +470,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/06/21/elasticsearch/002.Elasticsearch_Restful API/" rel="next" title="Elasticsearch_Restful API">
-                <i class="fa fa-chevron-left"></i> Elasticsearch_Restful API
+              <a href="/2018/05/01/mysql/008.MySQL_事务原理/" rel="next" title="MySQL_事务原理">
+                <i class="fa fa-chevron-left"></i> MySQL_事务原理
               </a>
             
           </div>
@@ -466,8 +480,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/06/21/elasticsearch/004.Elasticsearch_内核原理浅析/" rel="prev" title="Elasticsearch_原理 API">
-                Elasticsearch_原理 API <i class="fa fa-chevron-right"></i>
+              <a href="/2018/08/23/mysql/011.MySQL_索引原理/" rel="prev" title="MySQL_索引原理">
+                MySQL_索引原理 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -512,8 +526,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <div class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -687,6 +710,23 @@
         </div>
       </div>
 
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-事务概述"><span class="nav-text">1 事务概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-MySQL事务支持"><span class="nav-text">2 MySQL事务支持</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-事务并发问题"><span class="nav-text">3 事务并发问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-事务隔离级别"><span class="nav-text">3.1 事务隔离级别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-如何查看和设置隔离级别："><span class="nav-text">4 如何查看和设置隔离级别：</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
       
 
       
