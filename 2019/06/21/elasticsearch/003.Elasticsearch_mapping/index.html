@@ -94,18 +94,18 @@
 
 
 
-  <meta name="description" content="查看mapping 1GET /index/_mapping/type 只能创建index时手动建立mapping，或者新增field mapping，但是不能update field mapping 1234567891011121314151617181920212223242526PUT /website&amp;#123;  &amp;quot;mappings&amp;quot;: &amp;#123;    &amp;quo">
+  <meta name="description" content="概念ES中的mapping有点类似与数据库中表结构定义schema，在MySQL中，表结构里包含了字段名称、字段类型还有索引信息等。在Mapping里也包含了一些属性，比如字段名称、类型、字段使用的分词器、是否评分、是否创建索引等属性，并且在ES中一个字段可以有多个类型。  字段名称。 字段的数据类型，比如字符串、数字、布尔。 字段倒排索引的相关配置，比如设置某个字段为不被索引、记录 positi">
 <meta name="keywords" content="Elasticsearch">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Elasticsearch_mapping">
 <meta property="og:url" content="http://yoursite.com/2019/06/21/elasticsearch/003.Elasticsearch_mapping/index.html">
 <meta property="og:site_name" content="想至千里，先积跬步">
-<meta property="og:description" content="查看mapping 1GET /index/_mapping/type 只能创建index时手动建立mapping，或者新增field mapping，但是不能update field mapping 1234567891011121314151617181920212223242526PUT /website&amp;#123;  &amp;quot;mappings&amp;quot;: &amp;#123;    &amp;quo">
+<meta property="og:description" content="概念ES中的mapping有点类似与数据库中表结构定义schema，在MySQL中，表结构里包含了字段名称、字段类型还有索引信息等。在Mapping里也包含了一些属性，比如字段名称、类型、字段使用的分词器、是否评分、是否创建索引等属性，并且在ES中一个字段可以有多个类型。  字段名称。 字段的数据类型，比如字符串、数字、布尔。 字段倒排索引的相关配置，比如设置某个字段为不被索引、记录 positi">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2023-03-08T06:17:10.124Z">
+<meta property="og:updated_time" content="2023-03-08T07:08:21.152Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Elasticsearch_mapping">
-<meta name="twitter:description" content="查看mapping 1GET /index/_mapping/type 只能创建index时手动建立mapping，或者新增field mapping，但是不能update field mapping 1234567891011121314151617181920212223242526PUT /website&amp;#123;  &amp;quot;mappings&amp;quot;: &amp;#123;    &amp;quo">
+<meta name="twitter:description" content="概念ES中的mapping有点类似与数据库中表结构定义schema，在MySQL中，表结构里包含了字段名称、字段类型还有索引信息等。在Mapping里也包含了一些属性，比如字段名称、类型、字段使用的分词器、是否评分、是否创建索引等属性，并且在ES中一个字段可以有多个类型。  字段名称。 字段的数据类型，比如字符串、数字、布尔。 字段倒排索引的相关配置，比如设置某个字段为不被索引、记录 positi">
 
 
 
@@ -360,7 +360,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2023-03-08 14:17:10" itemprop="dateModified" datetime="2023-03-08T14:17:10+08:00">2023-03-08</time>
+                <time title="修改时间：2023-03-08 15:08:21" itemprop="dateModified" datetime="2023-03-08T15:08:21+08:00">2023-03-08</time>
               </span>
             
           
@@ -412,12 +412,174 @@
       
 
       
-        <p><strong>查看mapping</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /index/_mapping/type</span><br></pre></td></tr></table></figure>
+        <h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>ES中的mapping有点类似与数据库中表结构定义schema，在MySQL中，表结构里包含了字段名称、字段类型还有索引信息等。在Mapping里也包含了一些属性，比如字段名称、类型、字段使用的分词器、是否评分、是否创建索引等属性，并且在ES中一个字段可以有多个类型。</p>
+<ul>
+<li>字段名称。</li>
+<li>字段的数据类型，比如字符串、数字、布尔。</li>
+<li>字段倒排索引的相关配置，比如设置某个字段为不被索引、记录 position 等</li>
+</ul>
+<p>在 ES 早期版本，一个索引下是可以有多个 Type ，从 7.0 开始，一个索引只有一个 Type，也可以说一个 Type 有一个 Mapping 定义。</p>
+<h1 id="mapping-api"><a href="#mapping-api" class="headerlink" title="mapping api"></a>mapping api</h1><p><strong>查看mapping</strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /index/_mapping/type</span><br></pre></td></tr></table></figure>
 <p><strong>只能创建index时手动建立mapping，或者新增field mapping，但是不能update field mapping</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">PUT /website</span><br><span class="line">&#123;</span><br><span class="line">  &quot;mappings&quot;: &#123;</span><br><span class="line">    &quot;article&quot;: &#123;</span><br><span class="line">      &quot;properties&quot;: &#123;</span><br><span class="line">        &quot;author_id&quot;: &#123;</span><br><span class="line">          &quot;type&quot;: &quot;long&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;title&quot;: &#123;</span><br><span class="line">          &quot;type&quot;: &quot;text&quot;,</span><br><span class="line">          &quot;analyzer&quot;: &quot;english&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;content&quot;: &#123;</span><br><span class="line">          &quot;type&quot;: &quot;text&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;post_date&quot;: &#123;</span><br><span class="line">          &quot;type&quot;: &quot;date&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;publisher_id&quot;: &#123;</span><br><span class="line">          &quot;type&quot;: &quot;text&quot;,</span><br><span class="line">          &quot;index&quot;: &quot;not_analyzed&quot;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">PUT /website</span><br><span class="line">&#123;</span><br><span class="line">  "mappings": &#123;</span><br><span class="line">    "article": &#123;</span><br><span class="line">      "properties": &#123;</span><br><span class="line">        "author_id": &#123;</span><br><span class="line">          "type": "long"</span><br><span class="line">        &#125;,</span><br><span class="line">        "title": &#123;</span><br><span class="line">          "type": "text",</span><br><span class="line">          "analyzer": "english"</span><br><span class="line">        &#125;,</span><br><span class="line">        "content": &#123;</span><br><span class="line">          "type": "text"</span><br><span class="line">        &#125;,</span><br><span class="line">        "post_date": &#123;</span><br><span class="line">          "type": "date"</span><br><span class="line">        &#125;,</span><br><span class="line">        "publisher_id": &#123;</span><br><span class="line">          "type": "text",</span><br><span class="line">          "index": "not_analyzed"</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><strong>新增mapping</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PUT /website/_mapping/article</span><br><span class="line">&#123;</span><br><span class="line">  &quot;properties&quot; : &#123;</span><br><span class="line">    &quot;new_field&quot; : &#123;</span><br><span class="line">      &quot;type&quot; :    &quot;string&quot;,</span><br><span class="line">      &quot;index&quot;:    &quot;not_analyzed&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PUT /website/_mapping/article</span><br><span class="line">&#123;</span><br><span class="line">  "properties" : &#123;</span><br><span class="line">    "new_field" : &#123;</span><br><span class="line">      "type" :    "string",</span><br><span class="line">      "index":    "not_analyzed"</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="ES数据类型介绍"><a href="#ES数据类型介绍" class="headerlink" title="ES数据类型介绍"></a>ES数据类型介绍</h1><h2 id="常见类型"><a href="#常见类型" class="headerlink" title="常见类型"></a>常见类型</h2><ol>
+<li><p>数字类型</p>
+<p> long integer short byte double float half_float scaled_float unsigned_long</p>
+</li>
+<li><p>Keywords</p>
+<p> keyword：适用于索引结构化的字段，可以用于过滤、排序、聚合。keyword类型的字段只能通过精确值（exact value）搜索到。应用场景：Id应该用keyword。</p>
+<p> constant_keyword：始终包含相同值的关键字字段。</p>
+<p> wildcard：可针对类似grep的通配符查询优化日志行和类似的关键字值。</p>
+<p>关键字字段通常用于排序、汇总和Term查询，例如term。</p>
+</li>
+<li><p>Dates（时间类型）：包括date和 date_nanos</p>
+</li>
+<li><p>alias：为现有字段定义别名。</p>
+</li>
+<li><p>binary（二进制）：binary</p>
+</li>
+<li><p>range（区间类型）：integer_range、float_range、long_range、double_range、date_range</p>
+</li>
+<li><p>text：当一个字段是要被全文搜索的，比如Email内容、产品描述，这些字段应该使用text类型。</p>
+<p>设置text类型以后，字段内容会被分析，在生成倒排索引以前，字符串会被分析器分成一个一个词项。</p>
+<p>text类型的字段不用于排序，很少用于聚合。</p>
+<blockquote>
+<p>解释一下为啥不会为text创建正排索引：大量堆空间，尤其是 在加载高基数text字段时。字段数据一旦加载到堆中，就在该段的生命周期内保持在那里。同样，加载字段数据是一个昂贵的过程，可能导致用户遇到延迟问 题。这就是默认情况下禁用字段数据的原因。</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="对象关系类型"><a href="#对象关系类型" class="headerlink" title="对象关系类型"></a>对象关系类型</h2><ol>
+<li><p>object：用于单个JSON对象</p>
+</li>
+<li><p>nested：用于JSON对象数组</p>
+</li>
+<li><p>flattened：允许将整个JSON对象索引为单个字段。</p>
+<h2 id="结构化类型"><a href="#结构化类型" class="headerlink" title="结构化类型"></a>结构化类型</h2></li>
+<li><p>geo-point：纬度/经度积分</p>
+</li>
+<li><p>geo-shape：用于多边形等复杂形状</p>
+</li>
+<li><p>point：笛卡尔坐标点</p>
+</li>
+<li><p>shape：笛卡尔任意几何图形</p>
+<h2 id="特殊类型"><a href="#特殊类型" class="headerlink" title="特殊类型"></a>特殊类型</h2></li>
+<li><p>IP地址：ip 用于IPv4和IPv6地址</p>
+</li>
+<li><p>completion：提供自动完成建议</p>
+</li>
+<li><p>tocken_count：计算字符串中令牌的数量</p>
+</li>
+<li><p>murmur3：在索引时计算值的哈希并将其存储在索引中</p>
+</li>
+<li><p>annotated-text：索引包含特殊标记的文本（通常用于标识命名实体）</p>
+</li>
+<li><p>percolator：接受来自query-dsl的查询</p>
+</li>
+<li><p>join：为同一索引内的文档定义父/子关系</p>
+</li>
+<li><p>rank features：记录数字功能以提高查询时的点击率。</p>
+</li>
+<li><p>dense vector：记录浮点值的密集向量。</p>
+</li>
+<li><p>sparse vector：记录浮点值的稀疏向量。</p>
+</li>
+<li><p>search-as-you-type：针对查询优化的文本字段，以实现按需输入的完成</p>
+</li>
+<li><p>histogram：histogram 用于百分位数聚合的预聚合数值。</p>
+</li>
+<li><p>constant keyword：keyword当所有文档都具有相同值时的情况的 专业化。</p>
+<h2 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h2></li>
+</ol>
+<p>在Elasticsearch中，数组不需要专用的字段数据类型。默认情况下，任何字段都可以包含零个或多个值，但是，数组中的所有值都必须具有 相同的数据类型。</p>
+<h1 id="映射关系"><a href="#映射关系" class="headerlink" title="映射关系"></a>映射关系</h1><h2 id="动态映射-Dynamic-field-mapping"><a href="#动态映射-Dynamic-field-mapping" class="headerlink" title="动态映射(Dynamic field mapping)"></a>动态映射(Dynamic field mapping)</h2><ul>
+<li>整数 =&gt; long</li>
+<li>浮点数 =&gt; float</li>
+<li>true || false =&gt; boolean</li>
+<li>日期 =&gt; date</li>
+<li>数组 =&gt; 取决于数组中的第一个有效值</li>
+<li>对象 =&gt; object</li>
+<li>字符串 =&gt; 如果不是数字和日期类型，那会被映射为text和keyword两个类型</li>
+</ul>
+<p>除了上述字段类型之外，其他类型都必须手动映射，因为其他类型ES无法自动识别。</p>
+<h2 id="手动映射"><a href="#手动映射" class="headerlink" title="手动映射"></a>手动映射</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">PUT /product</span><br><span class="line">&#123;</span><br><span class="line">	"mappings": &#123;</span><br><span class="line">    "properties": &#123;</span><br><span class="line">    	"field": &#123;</span><br><span class="line">      	"mapping_parameter": "parameter_value"</span><br><span class="line">	   	&#125;</span><br><span class="line">   	&#125;</span><br><span class="line"> 	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="映射参数"><a href="#映射参数" class="headerlink" title="映射参数"></a>映射参数</h3><ol>
+<li><p>index：是否对当前字段创建倒排索引，默认true，如果不创建索引，该字段不会通过索引被搜索到，但是仍然会在source元数据中展示</p>
+</li>
+<li><p>analyzer：指定分词器器。</p>
+</li>
+<li><p>boost：对当前字段相关度的评分权重，默认1</p>
+</li>
+<li><p>coerce：是否允许强制类型转换 true “1”=&gt; 1 false “1”=&lt; 1</p>
+</li>
+<li><p>copy_to：该参数允许将多个字段的值复制到组字段中，然后可以将其作为单个字段进行查询</p>
+</li>
+<li><p><strong>doc_values：为了提升排序和聚合效率，默认true，如果确定不需要对字段进行排序或聚合，也不需要通过脚本访问字段值，则可以禁用doc值以节省磁盘 空间（不支持text和annotated_text）</strong></p>
+</li>
+<li><p>dynamic：控制是否可以动态添加新字段</p>
+<ol>
+<li>true 新检测到的字段将添加到映射中。（默认）</li>
+<li>false 新检测到的字段将被忽略。这些字段将不会被索引，因此将无法搜索，但仍会出现在_source返回的匹配项中。这些字段不会添加到映射中，必须显式 添加新字段。</li>
+<li>strict 如果检测到新字段，则会引发异常并拒绝文档。必须将新字段显式添加到映射中</li>
+</ol>
+</li>
+<li><p>eager_global_ordinals：用于聚合的字段上，优化聚合性能。</p>
+<p> Frozen indices（冻结索引）：有些索引使用率很高，会被保存在内存中，有些使用率特别低，宁愿在使用的时候重新创建，在使用完毕后丢弃数据， Frozen indices的数据命中频率小，不适用于高搜索负载，数据不会被保存在内存中，堆空间占用比普通索引少得多，Frozen indices是只读的，请求可能 是秒级或者分钟级。<strong>eager_global_ordinals不适用于Frozen indices</strong></p>
+</li>
+<li><p>enable：是否创建倒排索引，可以对字段操作，也可以对索引操作，如果不创建索引，让然可以检索并在_source元数据中展示，谨慎使用，该状态无法 修改。</p>
+</li>
+</ol>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT my_index</span><br><span class="line">&#123;</span><br><span class="line">  "mappings": &#123;</span><br><span class="line">    "enabled": false</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li><p>fielddata：查询时内存数据结构，在首次用当前字段聚合、排序或者在脚本中使用时，需要字段为fielddata数据结构，并且创建倒排索引保存到堆中</p>
+</li>
+<li><p>fields：给field创建多字段，用于不同目的（全文检索或者聚合分析排序）</p>
+</li>
+<li><p>format：格式化</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">"date": &#123;</span><br><span class="line">    "type":  "date",</span><br><span class="line">    "format": "yyyy-MM-dd"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>ignore_above：超过长度将被忽略</p>
+</li>
+<li><p>ignore_malformed：忽略类型错误</p>
+</li>
+<li><p>index_options：控制将哪些信息添加到反向索引中以进行搜索和突出显示。仅用于text字段</p>
+</li>
+<li><p>Index_phrases：提升exact_value查询速度，但是要消耗更多磁盘空间</p>
+</li>
+<li><p>Index_prefixes：前缀搜索</p>
+</li>
+</ol>
+<ul>
+<li><p>min_chars：前缀最小长度，&gt;0，默认2（包含）</p>
+</li>
+<li><p>max_chars：前缀最大长度，&lt;20，默认5（包含）</p>
+</li>
+</ul>
+<ol>
+<li><p>meta：附加元数据</p>
+</li>
+<li><p>normalizer：</p>
+</li>
+<li><p>norms：是否禁用评分（在filter和聚合字段上应该禁用）。</p>
+</li>
+<li><p>null_value：为null值设置默认值</p>
+</li>
+<li><p>position_increment_gap：</p>
+</li>
+<li><p>proterties：除了mapping还可用于object的属性设置</p>
+</li>
+<li><p>search_analyzer：设置单独的查询时分析器：</p>
+</li>
+<li><p>similarity：为字段设置相关度算法，支持BM25、claassic（TF-IDF）、boolean</p>
+</li>
+<li><p>store：设置字段是否仅查询</p>
+</li>
+<li><p>term_vector：运维参数</p>
+</li>
+</ol>
+
       
     </div>
 
@@ -512,8 +674,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <div class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -687,6 +858,23 @@
         </div>
       </div>
 
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概念"><span class="nav-text">概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mapping-api"><span class="nav-text">mapping api</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ES数据类型介绍"><span class="nav-text">ES数据类型介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#常见类型"><span class="nav-text">常见类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对象关系类型"><span class="nav-text">对象关系类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结构化类型"><span class="nav-text">结构化类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#特殊类型"><span class="nav-text">特殊类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数组"><span class="nav-text">数组</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#映射关系"><span class="nav-text">映射关系</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#动态映射-Dynamic-field-mapping"><span class="nav-text">动态映射(Dynamic field mapping)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#手动映射"><span class="nav-text">手动映射</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#映射参数"><span class="nav-text">映射参数</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
       
 
       
