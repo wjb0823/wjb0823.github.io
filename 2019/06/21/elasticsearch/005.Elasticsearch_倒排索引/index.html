@@ -478,16 +478,16 @@
 <p><img src="/images/es/es011.png" alt></p>
 <h2 id="Posting-List-实现"><a href="#Posting-List-实现" class="headerlink" title="Posting List 实现"></a>Posting List 实现</h2><p>Posting List 包含文档 id、词频、位置和偏移量等信息，这些数据之间本身是相对独立的，因此 Lucene 将Posting List 被拆成三个文件存储：</p>
 <ul>
-<li><strong>doc后缀文件</strong>：记录 Posting 的 docId 信息和TF。</li>
+<li><strong>doc后缀文件</strong>：记录 Posting 的 docId 和词频。</li>
 <li><strong>pay后缀文件</strong>：记录 Payload 信息和偏移量信息。</li>
 <li><strong>pos后缀文件</strong>：记录位置信息。</li>
 </ul>
 <p>基本所有的查询都会用 .doc 文件获取文档 id，且一般的查询仅需要用到 .doc 文件就足够了，只有对于近似查询等位置相关的查询则需要用位置相关数据。</p>
 <p>三个文件整体实现差不太多，这里以.doc 文件为例分析其实现。</p>
 <h3 id="doc文件实现"><a href="#doc文件实现" class="headerlink" title=".doc文件实现"></a>.doc文件实现</h3><p>.doc 文件存储的是每个 Term 对应的<strong>文档 Id 和词频</strong>。每个 Term 都包含一对 <strong>TermFreqs</strong> 和 <strong>SkipData</strong>结构。</p>
-<p>其中 TermFreqs 存放 <strong>docId 和词频信息</strong>，SkipData 为<strong>跳表</strong>信息，用于实现 TermFreqs 内部的快速跳转。</p>
+<p>其中 TermFreqs 存放 <strong>docId 和词频</strong>，SkipData 为<strong>跳表</strong>信息，用于实现 TermFreqs 内部的快速跳转。</p>
 <p><img src="/images/es/es010.png" alt></p>
-<h4 id="TermFreqs"><a href="#TermFreqs" class="headerlink" title="TermFreqs"></a>TermFreqs</h4><p>TermFreqs 存储文档号和对应的词频，它们两是一一对应的两个 int 值。Lucene 为了尽可能的压缩数据，采用的是混合存储 ，由 <strong>PackedBlock 和 VIntBlocks</strong> 两种结构组成。</p>
+<h4 id="TermFreqs"><a href="#TermFreqs" class="headerlink" title="TermFreqs"></a>TermFreqs</h4><p>TermFreqs 存储文档 Id 和词频，它们两是一一对应的两个 int 值。Lucene 为了尽可能的压缩数据，采用的是混合存储 ，由 <strong>PackedBlock 和 VIntBlocks</strong> 两种结构组成。</p>
 <h5 id="PackedBlock"><a href="#PackedBlock" class="headerlink" title="PackedBlock"></a><strong>PackedBlock</strong></h5><p>其采用 PackedInts 结构将一个 int[] 压缩打包成一个紧凑的 Block。它的压缩方式是取数组中最大值所占用的 bit 长度作为一个预算的长度，然后将数组每个元素按这个长度进行截取，以达到压缩的目的。</p>
 <p>例如：一个包含 128 个元素的 int 数组中最大值的是 2，那么预算长度为 2 个 bit, PackedInts 的长度仅是 2 * 128 / 8 = 32 个字节，然后就可以通过 4 个 long 值存储。</p>
 <p><img src="/images/es/es009.png" alt></p>
