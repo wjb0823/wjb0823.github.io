@@ -451,7 +451,7 @@
 <h2 id="倒排索引的结构"><a href="#倒排索引的结构" class="headerlink" title="倒排索引的结构"></a>倒排索引的结构</h2><ul>
 <li>Term index</li>
 <li>Term Dictionary</li>
-<li>Postings List：记录表由所有的 Term 对应的数据（Postings） 组成，它不仅仅为文档 id 信息，可能包含以下信息：<ul>
+<li>Posting List：记录表由所有的 Term 对应的信息组成，它不仅仅为文档 id 信息，可能包含以下信息：<ul>
 <li><strong>文档 id（DocId, Document Id），</strong>包含单词的所有文档唯一 id<strong>，用于去正排索引中查询原始数据。</strong></li>
 <li><strong>词频（TF，Term Frequency），</strong>记录 Term  在每篇文档中出现的次数<strong>，用于后续相关性算分。</strong></li>
 <li><strong>位置（Position），</strong>记录 Term 在每篇文档中的分词位置（多个）<strong>，用于做词语搜索（Phrase Query）。</strong></li>
