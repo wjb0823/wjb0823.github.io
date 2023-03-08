@@ -429,31 +429,10 @@
 </ul>
 <p>其处理步骤如下：</p>
 <ol>
-<li>正排索引给每个文档进行编号，作为其唯一的标识。</li>
-</ol>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th><strong>文档 id</strong></th>
-<th><strong>content</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>doc1</td>
-<td>I really liked my small dogs, and I think my mom also liked them.</td>
-</tr>
-<tr>
-<td>doc2</td>
-<td>He never liked any dogs, so I hope that my mom will not expect me to liked him.</td>
-</tr>
-</tbody>
-</table>
-</div>
-<ol>
-<li><p><strong>分词</strong></p>
-<p>首先要对字段的内容进行<strong>分词</strong>，分词就是将一段连续的文本按照语义拆分为多个单词，然后按照单词来作为索引，对应的文档 id 建立一个链表，就能构成上述的倒排索引结构。</p>
+<li><p>正排索引给每个文档进行编号，作为其唯一的标识。</p>
+<p>| <strong>文档 id</strong> | <strong>content</strong>                                                  |<br>| —————- | —————————————————————————————— |<br>| doc1        | I really liked my small dogs, and I think my mom also liked them. |<br>| doc2        | He never liked any dogs, so I hope that my mom will not expect me to liked him. |</p>
+</li>
+<li><p><strong>分词</strong><br>首先要对字段的内容进行<strong>分词</strong>，分词就是将一段连续的文本按照语义拆分为多个单词，然后按照单词来作为索引，对应的文档 id 建立一个链表，就能构成上述的倒排索引结构。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">分词，初步的倒排索引的建立</span><br><span class="line"></span><br><span class="line">word		doc1	  doc2</span><br><span class="line"></span><br><span class="line">I			*			*</span><br><span class="line">really		*</span><br><span class="line">liked		*			*</span><br><span class="line">my			*			*</span><br><span class="line">small		*	</span><br><span class="line">dogs		*</span><br><span class="line">and			*</span><br><span class="line">think		*</span><br><span class="line">mom			*			*</span><br><span class="line">also		*</span><br><span class="line">them		*	</span><br><span class="line">He					    *</span><br><span class="line">never					*</span><br><span class="line">any					    *</span><br><span class="line">so					    *</span><br><span class="line">hope					*</span><br><span class="line">that					*</span><br><span class="line">will					*</span><br><span class="line">not					    *</span><br><span class="line">expect					*</span><br><span class="line">me					    *</span><br><span class="line">to					    *</span><br><span class="line">him					    *</span><br></pre></td></tr></table></figure>
 </li>
 <li><p><strong>normalization</strong></p>
@@ -464,11 +443,11 @@
 <p>时态的转换，单复数的转换，同义词的转换，大小写的转换</p>
 <p>mom ―&gt; mother<br>liked ―&gt; like<br>small ―&gt; little<br>dogs ―&gt; dog</p>
 <p>重新建立倒排索引，加入normalization，再次用mother liked little dog搜索，就可以搜索到了</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">word		doc1			doc2</span><br><span class="line"></span><br><span class="line">I			*			*</span><br><span class="line">really		*</span><br><span class="line">like		*			*			liked --&gt; like</span><br><span class="line">my			*			*</span><br><span class="line">little		*						small --&gt; little</span><br><span class="line">dog			*			*			dogs --&gt; dog						</span><br><span class="line">and			*</span><br><span class="line">think		*</span><br><span class="line">mom			*			*</span><br><span class="line">also		*</span><br><span class="line">them		*	</span><br><span class="line">He					*</span><br><span class="line">never					*</span><br><span class="line">any					*</span><br><span class="line">so					*</span><br><span class="line">hope					*</span><br><span class="line">that					*</span><br><span class="line">will					*</span><br><span class="line">not					*</span><br><span class="line">expect					*</span><br><span class="line">me					*</span><br><span class="line">to					*</span><br><span class="line">him					*</span><br><span class="line"></span><br><span class="line">mother like little dog，分词，normalization</span><br><span class="line"></span><br><span class="line">mother	--&gt; mom</span><br><span class="line">like	--&gt; like</span><br><span class="line">little	--&gt; little</span><br><span class="line">dog	--&gt; dog</span><br></pre></td></tr></table></figure>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">word		doc1			doc2</span><br><span class="line"></span><br><span class="line">I			*			*</span><br><span class="line">really		*</span><br><span class="line">like		*			*			liked --&gt; like</span><br><span class="line">my			*			*</span><br><span class="line">little		*						small --&gt; little</span><br><span class="line">dog			*			*			dogs --&gt; dog						</span><br><span class="line">and			*</span><br><span class="line">think		*</span><br><span class="line">mom			*			*</span><br><span class="line">also		*</span><br><span class="line">them		*	</span><br><span class="line">He					*</span><br><span class="line">never					*</span><br><span class="line">any					*</span><br><span class="line">so					*</span><br><span class="line">hope					*</span><br><span class="line">that					*</span><br><span class="line">will					*</span><br><span class="line">not					*</span><br><span class="line">expect					*</span><br><span class="line">me					*</span><br><span class="line">to					*</span><br><span class="line">him					*</span><br><span class="line"></span><br><span class="line">mother like little dog，分词，normalization</span><br><span class="line"></span><br><span class="line">mother	--&gt; mom</span><br><span class="line">like	--&gt; like</span><br><span class="line">little	--&gt; little</span><br><span class="line">dog	--&gt; dog</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
-<p>doc1和doc2都会搜索出来</p>
-<p>doc1：I really liked my small dogs, and I think my mom also liked them.<br>doc2：He never liked any dogs, so I hope that my mom will not expect me to liked him.</p>
+<p>   doc1和doc2都会搜索出来</p>
+<p>   doc1：I really liked my small dogs, and I think my mom also liked them.<br>   doc2：He never liked any dogs, so I hope that my mom will not expect me to liked him.</p>
 <h2 id="倒排索引的结构"><a href="#倒排索引的结构" class="headerlink" title="倒排索引的结构"></a>倒排索引的结构</h2><ul>
 <li>Term index</li>
 <li>Term Dictionary</li>
@@ -485,7 +464,7 @@
 <p>如果对term进行排序的话：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Ada,Carla,Elin,Kate,Patty,Sara,Selena</span><br></pre></td></tr></table></figure>
 <p>就可以通过二分查找更快找到指定term，这个有序的term列表就是term dictionary。查找的时间复杂度为logN，logN次的磁盘读写仍然是非常昂贵的（一次random access大概需要10ms）。所以需要尽量少的读写磁盘，有必要把一些数据缓存到内存里，但是整个term dictionary又非常大，无法完整地放到内存里。于是就有了term index。<br>term idnex有点像书的章节：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">A开头的term *********XX页</span><br><span class="line">B开头的term *********XX页</span><br><span class="line">C开头的term *********XX页</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">A开头的term XX页</span><br><span class="line">B开头的term XX页</span><br><span class="line">C开头的term XX页</span><br></pre></td></tr></table></figure>
 <p>但是term的开头不只是26个英文字母，而且数据分布上也不是均匀的，term index的数据结构实际上是tier树，也就是我们常说的字典树。：</p>
 <p><img src="/images/es/es002.png" alt></p>
 <p>这棵树不会包含所有的term，它包含的是term的一些前缀。通过term index可以快速地定位到term dictionary中的某个offset，然后从这个位置再往后顺序查找。<strong>再加上一些压缩技术（lucene finite state transducer），使得使用内存缓存整个term index变成可能。 </strong> 整体效果：</p>
