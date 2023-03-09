@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Consumer端队列负载均衡分配机制topic是有一堆的queue，而且分布在不同的broker上； consumer group是有多个consumer，我们要把多个queue分配给多个consumer，每个consumer都会分配到一部分的queue，是这个分配关系。 如何知道一个consumer group里到底有多少个consumer -&amp;gt; 负责分配的角色，他就可以根据一定的算法，">
+<meta name="keywords" content="RocketMQ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RocketMQ_Consumer">
+<meta property="og:url" content="http://yoursite.com/2021/04/03/rocketmq/005.RocketMQ_Consumer/index.html">
+<meta property="og:site_name" content="想至千里，先积跬步">
+<meta property="og:description" content="Consumer端队列负载均衡分配机制topic是有一堆的queue，而且分布在不同的broker上； consumer group是有多个consumer，我们要把多个queue分配给多个consumer，每个consumer都会分配到一部分的queue，是这个分配关系。 如何知道一个consumer group里到底有多少个consumer -&amp;gt; 负责分配的角色，他就可以根据一定的算法，">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1670338553737-d414ce05-7160-4172-8127-5d72adbdfb5c.png">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669300712957-d3d453cd-bd31-45c6-8b63-d32f07152d7d.png">
+<meta property="og:updated_time" content="2021-04-03T14:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RocketMQ_Consumer">
+<meta name="twitter:description" content="Consumer端队列负载均衡分配机制topic是有一堆的queue，而且分布在不同的broker上； consumer group是有多个consumer，我们要把多个queue分配给多个consumer，每个consumer都会分配到一部分的queue，是这个分配关系。 如何知道一个consumer group里到底有多少个consumer -&amp;gt; 负责分配的角色，他就可以根据一定的算法，">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1670338553737-d414ce05-7160-4172-8127-5d72adbdfb5c.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2021/04/03/rocketmq/005.RocketMQ_Consumer/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>RocketMQ_Consumer | 想至千里，先积跬步</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">想至千里，先积跬步</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/04/03/rocketmq/005.RocketMQ_Consumer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="想至千里，先积跬步">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RocketMQ_Consumer
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2021-04-03 22:15:27" itemprop="dateCreated datePublished" datetime="2021-04-03T22:15:27+08:00">2021-04-03</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/RocketMQ/" itemprop="url" rel="index"><span itemprop="name">RocketMQ</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Consumer端队列负载均衡分配机制"><a href="#Consumer端队列负载均衡分配机制" class="headerlink" title="Consumer端队列负载均衡分配机制"></a>Consumer端队列负载均衡分配机制</h1><p>topic是有一堆的queue，而且分布在不同的broker上；</p>
+<p>consumer group是有多个consumer，我们要把多个queue分配给多个consumer，每个consumer都会分配到一部分的queue，是这个分配关系。</p>
+<p>如何知道一个consumer group里到底有多少个consumer -&gt; 负责分配的角色，他就可以根据一定的算法，把queue分配个我们的consumer</p>
+<p>Consumer向所有的broker进行注册，每个broker都知道一个consumer group的所有consumer有哪些。</p>
+<p>问题1：谁来负责这个queue-&gt;consumer分配，topic里的queue信息从哪里获取</p>
+<p>每个consumer，都会去获取到topic有多少个queue，consumer group里有多少个consumer，每个人都会按照相同的算法去做一次分配。</p>
+<p>RebalanceService，拉取topic queue信息，拉取consumer group，根据算法分配queue，确认自己要拉取哪些queue</p>
+<p>平均分配算法、轮询分配算法、一致性hash、配置化、机房分配</p>
+<p>平均分配算法：</p>
+<p>q1，q2，q3，q4，q5，q6，q7，q8，两个broker组，8个queue</p>
+<p>2个consumer，完成了queue-&gt;consumer的分配之后，当前的consumer也就知道自己应该负责的queue是哪些了</p>
+<h1 id="Consumer消息拉取的挂起机制分析"><a href="#Consumer消息拉取的挂起机制分析" class="headerlink" title="Consumer消息拉取的挂起机制分析"></a>Consumer消息拉取的挂起机制分析</h1><p>不管是push还是pull模式都是拉取。</p>
+<p>如果说，你要是没有开启consumer拉取消息的long polling，长轮询机制，默认就是short polling机制，短轮询机制，当consume去拉取消息，没有拉到的时候，默认情况下他会挂起1s，再返回。shortPollingMillis，参数可以去进行控制。</p>
+<p>如果开启了long polling长轮询机制，长时间挂起去进行消息拉取，如果你是开启了长轮询，如果push模式，你会挂起+每隔5s检查，一直到15s都没有拉到消息，此时才会超时返回，长轮询，pull模式，挂起超时时间20s，他们不同模式的参数控制的时间不太一样。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/22464775/1670338553737-d414ce05-7160-4172-8127-5d72adbdfb5c.png" alt="img"></p>
+<h1 id="消息拉取流程"><a href="#消息拉取流程" class="headerlink" title="消息拉取流程"></a>消息拉取流程</h1><p>rocketmq，写concumser代码的时候，一般都是写一个consumer listener回调监听函数，让consumer在拉取消费到消息之后，把消息回调来调用我们自己写的回调监听函数，在函数里进行消息的处理就可以了。</p>
+<p>不同的consumer group对一个queue，消费的进度是不一样的，有的consumer group对这个queue可能已经消费了500个消息了，有的consumer group可能才消费了100个消息。</p>
+<p>我们consumer group读取的消息，消息都是有一个自己的逻辑offset，逻辑offset，大致认为，逻辑上的便宜量，指的就是queue里的第几条消息，我们的一个consumer group里的一个consumer是负责读取某个queue的消息的，此时他知道说要读取的是这个queue里逻辑的上的一个offset，第几个消息，比如说，我此时要读取的是第150个消息</p>
+<p>很简单了，此时我应该先是根据消息的逻辑上的offset，根据他是queue里的第几个消息，先去定位到他是属于ConsumeQueue的哪一个磁盘文件，就可以150 * 20个字节，（1 - 1）</p>
+<p><strong>具体流程：</strong></p>
+<ol>
+<li>PullMessageService循环拉取消息，写入到ProcessQueue</li>
+<li>消费线程从ProcessQueue中读取消息，回调我们自己写的回调监听函数</li>
+<li>返回执行结果：SUCCESS/RECONSUME_LATER</li>
+</ol>
+<h2 id="Consumer的处理队列映射与并发消费"><a href="#Consumer的处理队列映射与并发消费" class="headerlink" title="Consumer的处理队列映射与并发消费"></a>Consumer的处理队列映射与并发消费</h2><p><img src="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669300712957-d3d453cd-bd31-45c6-8b63-d32f07152d7d.png" alt="img"></p>
+<h1 id="Consumer消息重复消费原理剖析"><a href="#Consumer消息重复消费原理剖析" class="headerlink" title="Consumer消息重复消费原理剖析"></a>Consumer消息重复消费原理剖析</h1><p>因为进度管理是异步+内存的进度管理，consume挂了容易出现重复消费。</p>
+<p>mq，consumer消息重复消费，是一个可能很经常的一个事情，mq consumer，都要实现一套严格的分布式锁和幂等性保障的机制和体系。</p>
+<h1 id="Consumer处理失败时的延迟消费机制"><a href="#Consumer处理失败时的延迟消费机制" class="headerlink" title="Consumer处理失败时的延迟消费机制"></a>Consumer处理失败时的延迟消费机制</h1><p>看上图消息失败处理机制。</p>
+<h1 id="Consumer-Group变动时的重负载机制"><a href="#Consumer-Group变动时的重负载机制" class="headerlink" title="Consumer Group变动时的重负载机制"></a>Consumer Group变动时的重负载机制</h1>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/RocketMQ/" rel="tag"># RocketMQ</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/04/03/rocketmq/006.RocketMQ_主从架构/" rel="next" title="RocketMQ_主从架构">
+                <i class="fa fa-chevron-left"></i> RocketMQ_主从架构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/04/03/rocketmq/003.RocketMQ_Producer/" rel="prev" title="RocketMQ_Producer">
+                RocketMQ_Producer <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">114</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">23</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Consumer端队列负载均衡分配机制"><span class="nav-text">Consumer端队列负载均衡分配机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Consumer消息拉取的挂起机制分析"><span class="nav-text">Consumer消息拉取的挂起机制分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#消息拉取流程"><span class="nav-text">消息拉取流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Consumer的处理队列映射与并发消费"><span class="nav-text">Consumer的处理队列映射与并发消费</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Consumer消息重复消费原理剖析"><span class="nav-text">Consumer消息重复消费原理剖析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Consumer处理失败时的延迟消费机制"><span class="nav-text">Consumer处理失败时的延迟消费机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Consumer-Group变动时的重负载机制"><span class="nav-text">Consumer Group变动时的重负载机制</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

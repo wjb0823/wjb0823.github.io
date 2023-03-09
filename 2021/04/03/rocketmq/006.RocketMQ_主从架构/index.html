@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="RocketMQ自身的pull模式 基于从节点pull模式的主从同步  消息丢失消息丢失的解决：同步刷盘+同步复制 读写分离主从漂移+惰性读写分离机制 默认情况下，rocketmq是不倾向于主动让你直接长期进行读写分离的，倾向于写和读，都是在主节点来进行的，从节点主要是用于进行数据复制和同步，实现热备份，万一主节点挂了，此时作为一个备选，才会去从从节点那里读取数据。 如果说主节点过于繁忙，积压了大">
+<meta name="keywords" content="RocketMQ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RocketMQ_主从架构">
+<meta property="og:url" content="http://yoursite.com/2021/04/03/rocketmq/006.RocketMQ_主从架构/index.html">
+<meta property="og:site_name" content="想至千里，先积跬步">
+<meta property="og:description" content="RocketMQ自身的pull模式 基于从节点pull模式的主从同步  消息丢失消息丢失的解决：同步刷盘+同步复制 读写分离主从漂移+惰性读写分离机制 默认情况下，rocketmq是不倾向于主动让你直接长期进行读写分离的，倾向于写和读，都是在主节点来进行的，从节点主要是用于进行数据复制和同步，实现热备份，万一主节点挂了，此时作为一个备选，才会去从从节点那里读取数据。 如果说主节点过于繁忙，积压了大">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669298166179-18950cd6-5623-41d0-877d-913370305fa3.png">
+<meta property="og:updated_time" content="2021-04-03T14:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RocketMQ_主从架构">
+<meta name="twitter:description" content="RocketMQ自身的pull模式 基于从节点pull模式的主从同步  消息丢失消息丢失的解决：同步刷盘+同步复制 读写分离主从漂移+惰性读写分离机制 默认情况下，rocketmq是不倾向于主动让你直接长期进行读写分离的，倾向于写和读，都是在主节点来进行的，从节点主要是用于进行数据复制和同步，实现热备份，万一主节点挂了，此时作为一个备选，才会去从从节点那里读取数据。 如果说主节点过于繁忙，积压了大">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669298166179-18950cd6-5623-41d0-877d-913370305fa3.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2021/04/03/rocketmq/006.RocketMQ_主从架构/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>RocketMQ_主从架构 | 想至千里，先积跬步</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">想至千里，先积跬步</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/04/03/rocketmq/006.RocketMQ_主从架构/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="想至千里，先积跬步">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RocketMQ_主从架构
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2021-04-03 22:15:27" itemprop="dateCreated datePublished" datetime="2021-04-03T22:15:27+08:00">2021-04-03</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/RocketMQ/" itemprop="url" rel="index"><span itemprop="name">RocketMQ</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="RocketMQ自身的pull模式"><a href="#RocketMQ自身的pull模式" class="headerlink" title="RocketMQ自身的pull模式"></a>RocketMQ自身的pull模式</h1><ol>
+<li>基于从节点pull模式的主从同步</li>
+</ol>
+<h1 id="消息丢失"><a href="#消息丢失" class="headerlink" title="消息丢失"></a>消息丢失</h1><p>消息丢失的解决：<strong>同步刷盘+同步复制</strong></p>
+<h1 id="读写分离"><a href="#读写分离" class="headerlink" title="读写分离"></a>读写分离</h1><p><strong>主从漂移+惰性读写分离机制</strong></p>
+<p>默认情况下，rocketmq是不倾向于主动让你直接长期进行读写分离的，倾向于写和读，都是在主节点来进行的，从节点主要是用于进行数据复制和同步，实现热备份，万一主节点挂了，此时作为一个备选，才会去从从节点那里读取数据。</p>
+<p>如果说主节点过于繁忙，积压了大量的消息，处理不过来了，写和读，积压的消息数量，超过了他本地内存的40%，自己定了一个比例-&gt; 主节点太繁忙了-&gt; 在你发起一次拉取消息请求之后，他会通知你下一次拉取消息的broker id是谁</p>
+<p>从节点发现自己本地的消息积压量小于自己的物理内存30%，说明拉取很顺利很快速。</p>
+<p>主节点每隔10秒跟从节点同步元数据。</p>
+<p>为什么要这样设计：你的每个consumer对一个queue的消费进度。</p>
+<h1 id="主从同步的高可用"><a href="#主从同步的高可用" class="headerlink" title="主从同步的高可用"></a>主从同步的高可用</h1><p><strong>服务</strong>这块，就只能提供有限的读，写是不行了，导致没新的数据进来，已有的数据消费完了也就完了，读有限读，没太大的意义；</p>
+<p><strong>数据</strong>高可用，数据可能有些最新数据都没来得及同步，数据也不是完整的。</p>
+<p>broker 4.5.0之前，数据与服务都没有实现高可用。</p>
+<p>rocketmq在4.5.0之后，做一个最新的架构改造，主从同步+主从切换（高可用机制，数据和服务，都是高可用）。</p>
+<h2 id="基于Raft协议的高可用主从同步架构"><a href="#基于Raft协议的高可用主从同步架构" class="headerlink" title="基于Raft协议的高可用主从同步架构"></a>基于Raft协议的高可用主从同步架构</h2><h3 id="RocketMQ基于Raft协议-状态机的leader选举过程"><a href="#RocketMQ基于Raft协议-状态机的leader选举过程" class="headerlink" title="RocketMQ基于Raft协议+状态机的leader选举过程"></a>RocketMQ基于Raft协议+状态机的leader选举过程</h3><ol>
+<li>一开始都投票给自己，选举失败。</li>
+<li><p>再开始选举，每个follower都会给自己设置一个150ms~300ms之间的一个随机时间。根据随机时间倒计时。</p>
+</li>
+<li><p>肯定有一个follower倒计时时间是最少的，它是最先完成倒计时的。</p>
+</li>
+</ol>
+<p>第一个完成倒计时，苏醒过来的那个follower，此时它会把自己的身份转变为candidate，它会投票给它自己了，它开始把自己变成一个leader候选人，</p>
+<ol>
+<li>它会发送请求给其它的节点，进行拉票的动作，他把拉票的请求发送给另外2个还是follower状态的节点，它们还在进行倒计时呢。</li>
+<li>follower节点，此时收到一个拉票的请求之后，如果他之前没有给别人投过票，此时收到了一个拉票的请求，就会把这个票投给你，如果他要是之前投票给别人了，此时他就拒绝你的拉票。</li>
+</ol>
+<p>此时的两个follower，他们肯定没有投过票，因为他们之前一直在倒计时，这两个follower会把票都投给我们的第一个苏醒过来的candidate，candidate完成了拉票之后，因为那两个follower都把票投给了他，他此时发现自己的得票数，已经超过了半数了，n/2+1，过半数的数量，quorum，大多数。</p>
+<p><strong>Leader状态的心跳维持：</strong></p>
+<p>在Leader任期内，会不断发心跳给另外两个节点。从节点收到心跳后，就会重置自己的倒计时计时器，重新开始进行计时，leader维持自己的地位的手段。</p>
+<p>当Leader挂了后，另外的节点没有收到A的心跳，就会都转化成Candidate状态，重新发起选举。</p>
+<h1 id="Broker基于DLedger的数据写入流程"><a href="#Broker基于DLedger的数据写入流程" class="headerlink" title="Broker基于DLedger的数据写入流程"></a>Broker基于DLedger的数据写入流程</h1><p>两阶段提交。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2022/png/22464775/1669298166179-18950cd6-5623-41d0-877d-913370305fa3.png" alt="img"></p>
+<h1 id="Broker引入DLedger后的存储兼容设计"><a href="#Broker引入DLedger后的存储兼容设计" class="headerlink" title="Broker引入DLedger后的存储兼容设计"></a>Broker引入DLedger后的存储兼容设计</h1><p>消息数据被调整为了dledger的日志格式，针对这个日志格式，此时应该如何来进行兼容。</p>
+<p>dledger写入的日志格式的数据，写入commitlog里面去，header和body两个部分，header这里是包含了很多的header头字段（每个头字段4个字节，或者几个字节），长度不固定的body体</p>
+<p>原始的commitlog存储的一条一条的数据，会把原始的commitlog里的数据，一个数据条目，给他放到dledger里面的body里面去，header一堆头字段+body（commitlog原始数据），不就可以了吗，把dledger数据存储结构和原始的commitlog做了一个兼容和整合，两块数据就集成到一块儿去了</p>
+<p>commitlog里是每一条数据都有header+body，此时你如果偏移量从header开始去计算就不对了，在ConsumeQueue里重构为，在queue里放入的每个数据的offset偏移量是commitlog里一条数据body起始的物理偏移量</p>
+<h1 id="BrokerController主从元数据同步"><a href="#BrokerController主从元数据同步" class="headerlink" title="BrokerController主从元数据同步"></a>BrokerController主从元数据同步</h1><p>元数据，写入和读取，都是基于broker leader来进行的</p>
+<p>topic路由信息，topic在当前我们这个broker组里，放了几个queue，集群里会有很多的topic，都会在我们的broker里放他对应的queue，类似这样的topic路由数据，消费进度数据</p>
+<p>各个consumer对我们的queue消费的进度数据，此时都是存储在主节点上</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/RocketMQ/" rel="tag"># RocketMQ</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/04/03/rocketmq/007.RocketMQ_消息丢失/" rel="next" title="RocketMQ_消息丢失">
+                <i class="fa fa-chevron-left"></i> RocketMQ_消息丢失
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/04/03/rocketmq/005.RocketMQ_Consumer/" rel="prev" title="RocketMQ_Consumer">
+                RocketMQ_Consumer <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">114</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">23</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#RocketMQ自身的pull模式"><span class="nav-text">RocketMQ自身的pull模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#消息丢失"><span class="nav-text">消息丢失</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#读写分离"><span class="nav-text">读写分离</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#主从同步的高可用"><span class="nav-text">主从同步的高可用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基于Raft协议的高可用主从同步架构"><span class="nav-text">基于Raft协议的高可用主从同步架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RocketMQ基于Raft协议-状态机的leader选举过程"><span class="nav-text">RocketMQ基于Raft协议+状态机的leader选举过程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Broker基于DLedger的数据写入流程"><span class="nav-text">Broker基于DLedger的数据写入流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Broker引入DLedger后的存储兼容设计"><span class="nav-text">Broker引入DLedger后的存储兼容设计</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BrokerController主从元数据同步"><span class="nav-text">BrokerController主从元数据同步</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
