@@ -416,13 +416,15 @@
 <li>buffer被清空。</li>
 <li><p>重复1~3，当translog长度达到一定程度的时候，commit操作发生。</p>
 </li>
-<li><ol>
-<li>buffer中的所有数据写入一个新的segment，并写入os cache，打开供使用。</li>
-<li>buffer被清空。</li>
-<li>一个commit ponit被写入磁盘，标明了所有的index segment。</li>
-<li>filesystem cache中的所有index segment file缓存数据，被fsync强行刷到磁盘上。</li>
-<li>现有的translog被清空，创建一个新的translog。</li>
-</ol>
+<li><p>buffer中的所有数据写入一个新的segment，并写入os cache，打开供使用。然后清空buffer。</p>
+<ul>
+<li><p>一个commit ponit被写入磁盘，标明了所有的index segment。</p>
+</li>
+<li><p>filesystem cache中的所有index segment file缓存数据，被fsync强行刷到磁盘上。</p>
+</li>
+<li><p>现有的translog被清空，创建一个新的translog。</p>
+</li>
+</ul>
 </li>
 </ol>
 <p><strong>refresh操作：</strong>数据写入os cache，并被打开供搜索的过程，叫做<strong>refresh</strong>，默认是每隔1秒refresh一次。也就是说，每隔一秒就会将buffer中的数据写入一个新的index segment file，先写入os cache中。所以，es是<strong>近实时</strong>的，数据写入到可以被搜索，默认是1秒。</p>
