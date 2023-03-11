@@ -434,7 +434,7 @@
 </tbody>
 </table>
 </div>
-<h2 id="对象的创建"><a href="#对象的创建" class="headerlink" title="对象的创建"></a>对象的创建</h2><p><strong>对象创建的流程：</strong></p>
+<h1 id="对象的创建"><a href="#对象的创建" class="headerlink" title="对象的创建"></a>对象的创建</h1><p><strong>对象创建的流程：</strong></p>
 <p><img src="/images/jvm/jvm045.png">    </p>
 <p>虚拟机遇到一条<strong>new</strong>指令时，先检查常量池是否已经加载相应的类，如果没有，必须先执行相应的<strong>类加载</strong>。类加载通过后，接下来<strong>分配内存</strong>。若Java堆中内存是绝对规整的，使用“<strong>指针碰撞</strong>“方式分配内存；如果不是规整的，就从<strong>空闲列表</strong>中分配，叫做”空闲列表“方式。划分内存时还需要考虑一个问题-并发，也有两种方式: <strong>CAS同步处理</strong>，或者<strong>本地线程分配缓冲</strong>(Thread Local Allocation Buﬀer, <strong>TLAB</strong>)。然后<strong>内存空间初始化</strong>操作，接着是做一些必要的<strong>对象设置</strong>(元信息、哈希码…)，最后执行<init>方法。</init></p>
 <p>Java 中对象的创建就是在堆上分配内存空间的过程，此处说的对象创建仅限于 new 关键字创建的普通 Java 对象，不包括数组和Class对象。</p>
@@ -776,7 +776,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#对象创建方式"><span class="nav-text">对象创建方式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#对象的创建"><span class="nav-text">对象的创建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#检测类是否被加载"><span class="nav-text">检测类是否被加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为对象分配内存"><span class="nav-text">为对象分配内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为分配的内存空间初始化零值"><span class="nav-text">为分配的内存空间初始化零值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对对象进行其他设置"><span class="nav-text">对对象进行其他设置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#执行-init-方法"><span class="nav-text">执行 init 方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#对象的内存布局"><span class="nav-text">对象的内存布局</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#对象结构"><span class="nav-text">对象结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#对象的访问定位"><span class="nav-text">对象的访问定位</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#对象创建方式"><span class="nav-text">对象创建方式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#对象的创建"><span class="nav-text">对象的创建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#检测类是否被加载"><span class="nav-text">检测类是否被加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为对象分配内存"><span class="nav-text">为对象分配内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为分配的内存空间初始化零值"><span class="nav-text">为分配的内存空间初始化零值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对对象进行其他设置"><span class="nav-text">对对象进行其他设置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#执行-init-方法"><span class="nav-text">执行 init 方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#对象的内存布局"><span class="nav-text">对象的内存布局</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#对象结构"><span class="nav-text">对象结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#对象的访问定位"><span class="nav-text">对象的访问定位</span></a></li></ol></div>
             
 
           </div>
