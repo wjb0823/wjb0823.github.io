@@ -2624,14 +2624,13 @@ InnoDB 内存结构1. Buffer PoolBu
         
           
             <p>
-              [toc]
-线程池介绍
+              线程池介绍
 fixed：固定数量的线程。
 cached：线程数量不固定，无论来多少任务都是不停的创建线程来执行，如果线程空闲了一定的时间，就会释放掉这个线程。
 single：线程池里就只有一个线程。
 scheduled：提交进去的线程，会在指定的时间过后才去执行。
 
-ThreadPool
+ThreadPoolExecut
               ...
             </p>
           <!--noindex-->
