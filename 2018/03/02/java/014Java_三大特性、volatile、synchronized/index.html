@@ -102,14 +102,14 @@
 <meta property="og:site_name" content="想至千里，先积跬步">
 <meta property="og:description" content="线程安全三大特性原子性基本的赋值写操作都是可以保证原子性的。 32位虚拟机里的long/double类型的变量的简单赋值写操作，不是原子的，因为long和double是64位的。 如果多个线程同时并发的执行long i = 30，就会导致有的线程在修改i的高32位，有的线程在修改i的低32位，多线程并发给long类型的变量进行赋值操作，在32位的虚拟机下，是有问题的。 volatile对原子性保障">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/images/java/juc/juc001.png">
-<meta property="og:image" content="http://yoursite.com/images/java/juc/juc002.png">
-<meta property="og:image" content="http://yoursite.com/images/java/juc/juc003.png">
+<meta property="og:image" content="http://yoursite.com/images/juc/juc001.png">
+<meta property="og:image" content="http://yoursite.com/images/juc/juc002.png">
+<meta property="og:image" content="http://yoursite.com/images/juc/juc003.png">
 <meta property="og:updated_time" content="2018-03-02T07:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java_三大特性、volatile、synchronized">
 <meta name="twitter:description" content="线程安全三大特性原子性基本的赋值写操作都是可以保证原子性的。 32位虚拟机里的long/double类型的变量的简单赋值写操作，不是原子的，因为long和double是64位的。 如果多个线程同时并发的执行long i = 30，就会导致有的线程在修改i的高32位，有的线程在修改i的低32位，多线程并发给long类型的变量进行赋值操作，在32位的虚拟机下，是有问题的。 volatile对原子性保障">
-<meta name="twitter:image" content="http://yoursite.com/images/java/juc/juc001.png">
+<meta name="twitter:image" content="http://yoursite.com/images/juc/juc001.png">
 
 
 
@@ -414,7 +414,7 @@
 <p>如果多个线程同时并发的执行long i = 30，就会导致有的线程在修改i的高32位，有的线程在修改i的低32位，多线程并发给long类型的变量进行赋值操作，在32位的虚拟机下，是有问题的。</p>
 <p>volatile对原子性保障的语义，在java里很有限的，可以保证在32位java虚拟机里面，对long/double变量的赋值写是原子的。</p>
 <p><strong>复杂的操作是无法保证原子性的。比如i++。</strong></p>
-<p><img src="/images/java/juc/juc001.png" alt="img"></p>
+<p><img src="/images/juc/juc001.png" style="width:600px">   </p>
 <hr>
 <h2 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h2><p>MESI协议、flush、refresh，配合起来，才可以解决可见性。</p>
 <h3 id="可见性涉及的底层硬件概念：寄存器、高速缓存、写缓冲器"><a href="#可见性涉及的底层硬件概念：寄存器、高速缓存、写缓冲器" class="headerlink" title="可见性涉及的底层硬件概念：寄存器、高速缓存、写缓冲器"></a>可见性涉及的底层硬件概念：寄存器、高速缓存、写缓冲器</h3><ul>
@@ -555,7 +555,7 @@
 <p>32位Java虚拟机中的long和double变量写操作不是原子的。</p>
 <p>32位的java虚拟机里面，对long/double变量的赋值写是不原子的，此时如果对变量加上了volatile，就可以保证在32位java虚拟机里面，对long/double变量的赋值写是原子的了。</p>
 <h4 id="可见性-1"><a href="#可见性-1" class="headerlink" title="可见性"></a>可见性</h4><p>volatile修饰的变量，在每个<strong>读操作</strong>（load操作）之前都加上<strong>Load屏障</strong>，强制从主内存读取最新的数据。每次在<strong>assign赋值后面</strong>，加上<strong>Store屏障</strong>，强制将数据刷新到主内存。</p>
-<p><img src="/images/java/juc/juc002.png" alt="img"></p>
+<p><img src="/images/juc/juc002.png" style="width:600px">   </p>
 <ol>
 <li>首先看一下上面的图，有工作线程A、工作线程B；假如之前工作线程A、B都是用过这个共享变量<strong>i</strong>，工作内存中都有变量副本 <strong>i = 0。</strong></li>
 <li>这个时候工作<strong>线程A</strong>要执行 <strong>i++</strong> 操作，按照volatile关键字的特性，<strong>每次使用之前必须从主内存重新读取</strong>，<strong>所以工作线程A重新从主内存读取（执行read、load指令）得到 i = 0没有变化。</strong></li>
@@ -572,7 +572,7 @@
 <li>另外一种是对这个<strong>类</strong>进行加锁。</li>
 </ul>
 <p>对类加锁，也是在针对一个对象实例进行加锁，其实他的意思就是对那个类的Class对象进行加锁。</p>
-<h2 id="加锁原理"><a href="#加锁原理" class="headerlink" title="加锁原理"></a>加锁原理</h2><p><img src="/images/java/juc/juc003.png" alt="img"></p>
+<h2 id="加锁原理"><a href="#加锁原理" class="headerlink" title="加锁原理"></a>加锁原理</h2><p><img src="/images/juc/juc003.png" style="width:600px">   </p>
 <p>你如果用到了synchronized关键字，在底层编译后的jvm指令中，会有<strong>monitorenter和monitorexit</strong>两个指令。</p>
 <p>每个对象都有一个关联的monitor，比如一个对象实例就有一个monitor，一个类的Class对象也有一个monitor，如果要对这个对象加锁，那么必须获取这个对象关联的monitor的lock锁。</p>
 <p>他里面的原理和思路大概是这样的，monitor里面有一个计数器，从0开始的。如果一个线程要获取monitor的锁，就看看他的计数器是不是0，如果是0的话，那么说明没人获取锁，他就可以获取锁了，然后对计数器加1。</p>
