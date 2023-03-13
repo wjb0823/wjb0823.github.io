@@ -94,18 +94,18 @@
 
 
 
-  <meta name="description" content="线程池介绍 fixed：固定数量的线程。 cached：线程数量不固定，无论来多少任务都是不停的创建线程来执行，如果线程空闲了一定的时间，就会释放掉这个线程。 single：线程池里就只有一个线程。 scheduled：提交进去的线程，会在指定的时间过后才去执行。  ThreadPoolExecutor线程池管理器，内部持有一个线程池，相当于创建了一个线程池。 ThreadPoolExecutor">
+  <meta name="description" content="ThreadPoolExecutor线程池管理器，内部持有一个线程池，相当于创建了一个线程池。 ThreadPoolExecutor，核心的数据结构，就是维护了一堆线程的线程池，如果要操作这个核心数据结构，就必须要在ThreadPoolExecutor的层面加一个独占锁，此时只能是一个线程尝试来操作核心数据结构。 核心变量 ctl   1private final AtomicInteger ct">
 <meta name="keywords" content="Java,JUC">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java_线程池">
 <meta property="og:url" content="http://yoursite.com/2018/03/02/java/016Java_线程池/index.html">
 <meta property="og:site_name" content="想至千里，先积跬步">
-<meta property="og:description" content="线程池介绍 fixed：固定数量的线程。 cached：线程数量不固定，无论来多少任务都是不停的创建线程来执行，如果线程空闲了一定的时间，就会释放掉这个线程。 single：线程池里就只有一个线程。 scheduled：提交进去的线程，会在指定的时间过后才去执行。  ThreadPoolExecutor线程池管理器，内部持有一个线程池，相当于创建了一个线程池。 ThreadPoolExecutor">
+<meta property="og:description" content="ThreadPoolExecutor线程池管理器，内部持有一个线程池，相当于创建了一个线程池。 ThreadPoolExecutor，核心的数据结构，就是维护了一堆线程的线程池，如果要操作这个核心数据结构，就必须要在ThreadPoolExecutor的层面加一个独占锁，此时只能是一个线程尝试来操作核心数据结构。 核心变量 ctl   1private final AtomicInteger ct">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2018-03-02T09:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java_线程池">
-<meta name="twitter:description" content="线程池介绍 fixed：固定数量的线程。 cached：线程数量不固定，无论来多少任务都是不停的创建线程来执行，如果线程空闲了一定的时间，就会释放掉这个线程。 single：线程池里就只有一个线程。 scheduled：提交进去的线程，会在指定的时间过后才去执行。  ThreadPoolExecutor线程池管理器，内部持有一个线程池，相当于创建了一个线程池。 ThreadPoolExecutor">
+<meta name="twitter:description" content="ThreadPoolExecutor线程池管理器，内部持有一个线程池，相当于创建了一个线程池。 ThreadPoolExecutor，核心的数据结构，就是维护了一堆线程的线程池，如果要操作这个核心数据结构，就必须要在ThreadPoolExecutor的层面加一个独占锁，此时只能是一个线程尝试来操作核心数据结构。 核心变量 ctl   1private final AtomicInteger ct">
 
 
 
@@ -405,13 +405,7 @@
       
 
       
-        <h1 id="线程池介绍"><a href="#线程池介绍" class="headerlink" title="线程池介绍"></a>线程池介绍</h1><ul>
-<li>fixed：固定数量的线程。</li>
-<li>cached：线程数量不固定，无论来多少任务都是不停的创建线程来执行，如果线程空闲了一定的时间，就会释放掉这个线程。</li>
-<li>single：线程池里就只有一个线程。</li>
-<li>scheduled：提交进去的线程，会在指定的时间过后才去执行。</li>
-</ul>
-<h1 id="ThreadPoolExecutor"><a href="#ThreadPoolExecutor" class="headerlink" title="ThreadPoolExecutor"></a>ThreadPoolExecutor</h1><p>线程池管理器，内部持有一个线程池，相当于创建了一个线程池。</p>
+        <h1 id="ThreadPoolExecutor"><a href="#ThreadPoolExecutor" class="headerlink" title="ThreadPoolExecutor"></a>ThreadPoolExecutor</h1><p>线程池管理器，内部持有一个线程池，相当于创建了一个线程池。</p>
 <p>ThreadPoolExecutor，核心的数据结构，就是维护了一堆线程的线程池，如果要操作这个核心数据结构，就必须要在ThreadPoolExecutor的层面加一个独占锁，此时只能是一个线程尝试来操作核心数据结构。</p>
 <h2 id="核心变量"><a href="#核心变量" class="headerlink" title="核心变量"></a>核心变量</h2><ol>
 <li><strong>ctl</strong> </li>
@@ -441,7 +435,13 @@
 <ol>
 <li>第三种情况<br>如果线程池的线程数量 &gt;= corePoolSize，而且尝试入队等待也失败，可能队列满了，此时就会再次尝试创建新的线程，根据maximumPoolSize来了，尝试在创建额外的线程出来。<br>如果创建额外线程都失败了，此时就会走reject策略，拒绝你提交任务。<br>超过corePoolSize数量的线程，在keepAliveTime的时间范围内都空闲之后，比如说60s，额外创建的线程就会被回收掉。 </li>
 </ol>
-<h1 id="Fixed源码解析"><a href="#Fixed源码解析" class="headerlink" title="Fixed源码解析"></a>Fixed源码解析</h1><h2 id="addWorker源码分析"><a href="#addWorker源码分析" class="headerlink" title="addWorker源码分析"></a>addWorker源码分析</h2><p>如果当前线程数量 &lt; corePoolSize的话，就会新创建一个线程出来放入线程池，</p>
+<h1 id="线程池介绍"><a href="#线程池介绍" class="headerlink" title="线程池介绍"></a>线程池介绍</h1><ul>
+<li>FixedThreadPool：固定数量的线程。</li>
+<li>CachedThreadPool ：线程数量不固定，无论来多少任务都是不停的创建线程来执行，如果线程空闲了一定的时间，就会释放掉这个线程。</li>
+<li>SingleThreadExecutor ：线程池里就只有一个线程。</li>
+<li>ScheduledThreadPool ：提交进去的线程，会在指定的时间过后才去执行。</li>
+</ul>
+<h1 id="FixedThreadPool源码解析"><a href="#FixedThreadPool源码解析" class="headerlink" title="FixedThreadPool源码解析"></a>FixedThreadPool源码解析</h1><h2 id="addWorker源码分析"><a href="#addWorker源码分析" class="headerlink" title="addWorker源码分析"></a>addWorker源码分析</h2><p>如果当前线程数量 &lt; corePoolSize的话，就会新创建一个线程出来放入线程池，</p>
 <ol>
 <li><strong>CAS实现安全的线程创建</strong><br>尝试用CAS操作递增线程数量，如果说CAS成功的话，就可以在后面去创建一个新的线程，放入线程池。如果CAS失败了，再次for循环，判断线程数量是否小于corePoolSize，如果是的话，再次尝试进行CAS递增。 </li>
 <li><strong>基于独占锁安全的将线程放入池子中</strong><br>Worker就是工作线程，他是一个AQS的子类，本身自己就可以直接基于AQS来实现独占锁的机制，负责执行你提交的Runnable任务，里面保存了一个核心的state，代表了工作线程的状态。<br>创建Worker的时候，保存了我们自己写的Runnable，然后创建了一个Thread，创建Thread的时候，传入了Worker(Worker本身也是一个Runnable)。 </li>
@@ -466,7 +466,7 @@
 <h2 id="无界队列线程池在远程服务异常时内存飙升怎么办"><a href="#无界队列线程池在远程服务异常时内存飙升怎么办" class="headerlink" title="无界队列线程池在远程服务异常时内存飙升怎么办"></a>无界队列线程池在远程服务异常时内存飙升怎么办</h2><p>如果要解决这个问题从哪个角度来切入，你可以考虑自己定制线程池，使用有界队列，不要使用无界队列，可以限制内存空间的使用，避免系统崩溃；无界队列，直接支撑前端的请求，不允许有界阻塞，到最后大不了就是系统崩溃。</p>
 <p>远程服务异常的话，可能会导致另外一个问题，你的线程不停的异常报错和崩溃退出。如果你提交到线程池的任务报错了，抛了异常出来，在线程池执行的过程中，Worker层面接收到一个异常，会直接throw抛出去。只要有一个Worker异常挂掉，此时就会把这个worker从线程池里给挪出去，然后判断一下，如果当前线程数量 &lt; corePoolSize，就会重新创建一个Worker和线程放入线程池中，自己再搞一个补位。</p>
 <h2 id="maximumPoolSize和reject策略在fixed线程池中会用吗"><a href="#maximumPoolSize和reject策略在fixed线程池中会用吗" class="headerlink" title="maximumPoolSize和reject策略在fixed线程池中会用吗"></a>maximumPoolSize和reject策略在fixed线程池中会用吗</h2><p>不会。</p>
-<h1 id="Cached源码解析"><a href="#Cached源码解析" class="headerlink" title="Cached源码解析"></a>Cached源码解析</h1><p><strong>不限制线程数量的线程池。</strong></p>
+<h1 id="CachedThreadPool-源码解析"><a href="#CachedThreadPool-源码解析" class="headerlink" title="CachedThreadPool 源码解析"></a>CachedThreadPool 源码解析</h1><p><strong>不限制线程数量的线程池。</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newCachedThreadPool</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">0</span>, Integer.MAX_VALUE,</span><br><span class="line">                                      <span class="number">60L</span>, TimeUnit.SECONDS,</span><br><span class="line">                                      <span class="keyword">new</span> SynchronousQueue&lt;Runnable&gt;());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 <p>corePoolSize = 0，它在提交任务的时候是不会一上来就直接创建一个线程的，会走第二种情况，将任务压入队列中。</p>
 <p>maximumPoolSize是Integer.MAX_VALUE。</p>
@@ -770,7 +770,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#线程池介绍"><span class="nav-text">线程池介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ThreadPoolExecutor"><span class="nav-text">ThreadPoolExecutor</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#核心变量"><span class="nav-text">核心变量</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#提交任务"><span class="nav-text">提交任务</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#execute方法"><span class="nav-text">execute方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Fixed源码解析"><span class="nav-text">Fixed源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#addWorker源码分析"><span class="nav-text">addWorker源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#入队等待"><span class="nav-text">入队等待</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从队列里获取任务"><span class="nav-text">从队列里获取任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池关闭"><span class="nav-text">线程池关闭</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#无界队列线程池在远程服务异常时内存飙升怎么办"><span class="nav-text">无界队列线程池在远程服务异常时内存飙升怎么办</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#maximumPoolSize和reject策略在fixed线程池中会用吗"><span class="nav-text">maximumPoolSize和reject策略在fixed线程池中会用吗</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Cached源码解析"><span class="nav-text">Cached源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#第一个任务到Cached线程池的入队失败以及非core线程执行"><span class="nav-text">第一个任务到Cached线程池的入队失败以及非core线程执行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池已有线程在执行任务时再次提交任务会如何执行"><span class="nav-text">线程池已有线程在执行任务时再次提交任务会如何执行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#非core线程执行完之后如何尝试从队列获取下一个任务"><span class="nav-text">非core线程执行完之后如何尝试从队列获取下一个任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#不停往cached线程池提交任务时会导致CPU负载过高吗？"><span class="nav-text">不停往cached线程池提交任务时会导致CPU负载过高吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cached线程池又会不会触发拒绝任务提交的机制呢？"><span class="nav-text">cached线程池又会不会触发拒绝任务提交的机制呢？</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ThreadPoolExecutor"><span class="nav-text">ThreadPoolExecutor</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#核心变量"><span class="nav-text">核心变量</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#提交任务"><span class="nav-text">提交任务</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#execute方法"><span class="nav-text">execute方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程池介绍"><span class="nav-text">线程池介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FixedThreadPool源码解析"><span class="nav-text">FixedThreadPool源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#addWorker源码分析"><span class="nav-text">addWorker源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#入队等待"><span class="nav-text">入队等待</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从队列里获取任务"><span class="nav-text">从队列里获取任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池关闭"><span class="nav-text">线程池关闭</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#无界队列线程池在远程服务异常时内存飙升怎么办"><span class="nav-text">无界队列线程池在远程服务异常时内存飙升怎么办</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#maximumPoolSize和reject策略在fixed线程池中会用吗"><span class="nav-text">maximumPoolSize和reject策略在fixed线程池中会用吗</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CachedThreadPool-源码解析"><span class="nav-text">CachedThreadPool 源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#第一个任务到Cached线程池的入队失败以及非core线程执行"><span class="nav-text">第一个任务到Cached线程池的入队失败以及非core线程执行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池已有线程在执行任务时再次提交任务会如何执行"><span class="nav-text">线程池已有线程在执行任务时再次提交任务会如何执行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#非core线程执行完之后如何尝试从队列获取下一个任务"><span class="nav-text">非core线程执行完之后如何尝试从队列获取下一个任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#不停往cached线程池提交任务时会导致CPU负载过高吗？"><span class="nav-text">不停往cached线程池提交任务时会导致CPU负载过高吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cached线程池又会不会触发拒绝任务提交的机制呢？"><span class="nav-text">cached线程池又会不会触发拒绝任务提交的机制呢？</span></a></li></ol></li></ol></div>
             
 
           </div>

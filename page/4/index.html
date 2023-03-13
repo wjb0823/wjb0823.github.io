@@ -2624,13 +2624,8 @@ InnoDB 内存结构1. Buffer PoolBu
         
           
             <p>
-              线程池介绍
-fixed：固定数量的线程。
-cached：线程数量不固定，无论来多少任务都是不停的创建线程来执行，如果线程空闲了一定的时间，就会释放掉这个线程。
-single：线程池里就只有一个线程。
-scheduled：提交进去的线程，会在指定的时间过后才去执行。
-
-ThreadPoolExecut
+              ThreadPoolExecutor线程池管理器，内部持有一个线程池，相当于创建了一个线程池。
+ThreadPoolExecutor，核心的数据结构，就是维护了一堆线程的线程池，如果要操作这个核心数据结构，就必须要在ThreadPoolExecutor的层面加一个独占锁，此时只能是一个线程尝试来操作
               ...
             </p>
           <!--noindex-->
