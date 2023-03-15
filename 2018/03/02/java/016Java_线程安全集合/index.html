@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="ConcurrentHashMapJDK1.8的ConcurrentHashMap源码解析 计算hashcode 把hash值的高低16位都考虑到后面的hash取模算法里。  定位index 定位算法：(n - 1) &amp;amp; hash。  put 第一种情况： 这里会走一个线程安全的操作，Unsafe，当前这个位置里如果没有元素的话，此时就通过CAS直接put。 第二种情况： 当有hash冲突">
+<meta name="keywords" content="Java,JUC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java_线程安全集合">
+<meta property="og:url" content="http://yoursite.com/2018/03/02/java/016Java_线程安全集合/index.html">
+<meta property="og:site_name" content="想至千里，先积跬步">
+<meta property="og:description" content="ConcurrentHashMapJDK1.8的ConcurrentHashMap源码解析 计算hashcode 把hash值的高低16位都考虑到后面的hash取模算法里。  定位index 定位算法：(n - 1) &amp;amp; hash。  put 第一种情况： 这里会走一个线程安全的操作，Unsafe，当前这个位置里如果没有元素的话，此时就通过CAS直接put。 第二种情况： 当有hash冲突">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-03-02T09:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java_线程安全集合">
+<meta name="twitter:description" content="ConcurrentHashMapJDK1.8的ConcurrentHashMap源码解析 计算hashcode 把hash值的高低16位都考虑到后面的hash取模算法里。  定位index 定位算法：(n - 1) &amp;amp; hash。  put 第一种情况： 这里会走一个线程安全的操作，Unsafe，当前这个位置里如果没有元素的话，此时就通过CAS直接put。 第二种情况： 当有hash冲突">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2018/03/02/java/016Java_线程安全集合/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Java_线程安全集合 | 想至千里，先积跬步</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">想至千里，先积跬步</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/02/java/016Java_线程安全集合/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="想至千里，先积跬步">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java_线程安全集合
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-03-02 17:15:27" itemprop="dateCreated datePublished" datetime="2018-03-02T17:15:27+08:00">2018-03-02</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/JUC/" itemprop="url" rel="index"><span itemprop="name">JUC</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="ConcurrentHashMap"><a href="#ConcurrentHashMap" class="headerlink" title="ConcurrentHashMap"></a>ConcurrentHashMap</h1><h2 id="JDK1-8的ConcurrentHashMap源码解析"><a href="#JDK1-8的ConcurrentHashMap源码解析" class="headerlink" title="JDK1.8的ConcurrentHashMap源码解析"></a>JDK1.8的ConcurrentHashMap源码解析</h2><ol>
+<li><p>计算hashcode</p>
+<p>把hash值的高低16位都考虑到后面的hash取模算法里。</p>
+</li>
+<li><p>定位index</p>
+<p>定位算法：(n - 1) &amp; hash。</p>
+</li>
+<li><p>put</p>
+<p>第一种情况：</p>
+<p>这里会走一个线程安全的操作，Unsafe，当前这个位置里如果没有元素的话，此时就通过CAS直接put。</p>
+<p>第二种情况：</p>
+<p>当有hash冲突的时候，不会锁定整个数组，而是锁数组对应的元素，通过synchronized加锁。</p>
+<p>初始容量为16，最大可以有16个线程同时并发操作，不会有冲突。</p>
+</li>
+<li><p>读操作不需要加锁，volatile读操作，load屏障会读到最新的数据。</p>
+</li>
+</ol>
+<h2 id="JDK1-7的ConcurrentHashMap对比"><a href="#JDK1-7的ConcurrentHashMap对比" class="headerlink" title="JDK1.7的ConcurrentHashMap对比"></a>JDK1.7的ConcurrentHashMap对比</h2><p>JDK 1.7的ConcurrentHashMap，稍微是有一些差距的。</p>
+<p>Segment，16个Segment，16个分段，每个Segment对应Node[]数组，每个Segment有一把锁，也就是说对一个Segment里的Node[]数组的不同的元素如果要put操作的话，其实都是要竞争一个锁，串行化来处理的。</p>
+<p>锁的粒度是比较粗的，因为一个Node[]数组是一把锁，但是他有多个Node[]数组。</p>
+<h1 id="CopyOnWriteArrayList"><a href="#CopyOnWriteArrayList" class="headerlink" title="CopyOnWriteArrayList"></a>CopyOnWriteArrayList</h1><h2 id="写时复制机制。"><a href="#写时复制机制。" class="headerlink" title="写时复制机制。"></a>写时复制机制。</h2><p><strong>add：</strong> 新搞一个数组，新数组的大小是老数组+1，把老数组拷贝到新数组，把新数组赋值给底层的数组。老数组垃圾回收。</p>
+<p><strong>set：</strong> 新搞一个数组，基于新数组修改值，老数组垃圾回收。</p>
+<p><strong>remove</strong>：numMoved=len-index-1，会复制两次。</p>
+<p><strong>get：</strong></p>
+<p>第一种：我读到的老数组的数据。 第二种：其他线程更新好了数组，volatile写，我读到的是新数组的数据。</p>
+<p>副本机制，写的时候，写副本数组，跟读就没关系了，只要写完成之后，走一个volatile写，设置最新的数组，自然读操作就会读到最新数组的元素了，只有一个线程可以写，但是写的同时可以允许大量的线程来并发读。</p>
+<p><strong>迭代：</strong></p>
+<p>Iterator迭代器里面是包含了一个snapshot，指向的就是CopyOnWriteArrayList当前的数组，array对象，你创建了一个Iterator迭代器对象之后，在迭代的过程中，都是基于快照数组在进行遍历的。</p>
+<p>如果此时有另外一个线程更新了数组的元素，设置了array，但是此时对迭代是没有任何影响的，它会一直用这个老的数组完成遍历。</p>
+<h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><p>弱一致性。</p>
+<p><strong>优点：</strong> 读和写不互斥的，写和写互斥，同一时间就一个人可以写，但是写的同时可以允许其他所有人来读；读和读也是并发的；读写锁机制还要好；他也不涉及到Unsafe.getObjectVolatile。</p>
+<p><strong>缺点：</strong> 空间换时间，写的时候，经常内存里会出现复制出来的一模一样的副本，对内存消耗过大，list如果很大，可能你要考虑在线上运行的时候，可能经常内存占用会是list大小的几倍。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/JUC/" rel="tag"># JUC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/02/java/017Java_线程池/" rel="next" title="Java_线程池">
+                <i class="fa fa-chevron-left"></i> Java_线程池
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/02/java/018Java_常用同步组件/" rel="prev" title="Java_常用同步组件">
+                Java_常用同步组件 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">118</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">23</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ConcurrentHashMap"><span class="nav-text">ConcurrentHashMap</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK1-8的ConcurrentHashMap源码解析"><span class="nav-text">JDK1.8的ConcurrentHashMap源码解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK1-7的ConcurrentHashMap对比"><span class="nav-text">JDK1.7的ConcurrentHashMap对比</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CopyOnWriteArrayList"><span class="nav-text">CopyOnWriteArrayList</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#写时复制机制。"><span class="nav-text">写时复制机制。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#核心思想"><span class="nav-text">核心思想</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
