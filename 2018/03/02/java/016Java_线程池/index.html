@@ -435,12 +435,71 @@
 <ol>
 <li>第三种情况<br>如果线程池的线程数量 &gt;= corePoolSize，而且尝试入队等待也失败，可能队列满了，此时就会再次尝试创建新的线程，根据maximumPoolSize来了，尝试在创建额外的线程出来。<br>如果创建额外线程都失败了，此时就会走reject策略，拒绝你提交任务。<br>超过corePoolSize数量的线程，在keepAliveTime的时间范围内都空闲之后，比如说60s，额外创建的线程就会被回收掉。 </li>
 </ol>
-<h1 id="线程池介绍"><a href="#线程池介绍" class="headerlink" title="线程池介绍"></a>线程池介绍</h1><ul>
+<h1 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h1><ol>
+<li>第一种拒绝策略是 AbortPolicy，这种拒绝策略在拒绝任务时，会直接抛出一个类型为 RejectedExecutionException 的 RuntimeException，让你感知到任务被拒绝了，于是你便可以根据业务逻辑选择重试或者放弃提交等策略。</li>
+<li>第二种拒绝策略是 DiscardPolicy，这种拒绝策略正如它的名字所描述的一样，当新任务被提交后直接被丢弃掉，也不会给你任何的通知，相对而言存在一定的风险，因为我们提交的时候根本不知道这个任务会被丢弃，可能造成数据丢失。</li>
+<li>第三种拒绝策略是 DiscardOldestPolicy，如果线程池没被关闭且没有能力执行，则会丢弃任务队列中的头结点，通常是存活时间最长的任务，这种策略与第二种不同之处在于它丢弃的不是最新提交的，而是队列中存活时间最长的，这样就可以腾出空间给新提交的任务，但同理它也存在一定的数据丢失风险。</li>
+<li>第四种拒绝策略是 CallerRunsPolicy，相对而言它就比较完善了，当有新任务提交后，如果线程池没被关闭且没有能力执行，则把这个任务交于提交任务的线程执行，也就是谁提交任务，谁就负责执行任务。这样做主要有两点好处。<ul>
+<li>第一点新提交的任务不会被丢弃，这样也就不会造成业务损失。</li>
+<li>第二点好处是，由于谁提交任务谁就要负责执行任务，这样提交任务的线程就得负责执行任务，而执行任务又是比较耗时的，在这段期间，提交任务的线程被占用，也就不会再提交新的任务，减缓了任务提交的速度，相当于是一个负反馈。在此期间，线程池中的线程也可以充分利用这段时间来执行掉一部分任务，腾出一定的空间，相当于是给了线程池一定的缓冲期。</li>
+</ul>
+</li>
+</ol>
+<h1 id="常用线程池组件介绍"><a href="#常用线程池组件介绍" class="headerlink" title="常用线程池组件介绍"></a>常用线程池组件介绍</h1><ul>
 <li>FixedThreadPool：固定数量的线程。</li>
 <li>CachedThreadPool ：线程数量不固定，无论来多少任务都是不停的创建线程来执行，如果线程空闲了一定的时间，就会释放掉这个线程。</li>
 <li>SingleThreadExecutor ：线程池里就只有一个线程。</li>
 <li>ScheduledThreadPool ：提交进去的线程，会在指定的时间过后才去执行。</li>
 </ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>线程池</th>
+<th>队列</th>
+<th>创建方式</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FixedThreadPool</td>
+<td>LinkedBlockingQueue</td>
+<td>ThreadPoolExecutor</td>
+<td></td>
+</tr>
+<tr>
+<td>SingleThreadExecutor</td>
+<td>LinkedBlockingQueue</td>
+<td>ThreadPoolExecutor</td>
+<td></td>
+</tr>
+<tr>
+<td>CachedThreadPool</td>
+<td>SynchronousQueue</td>
+<td>ThreadPoolExecutor</td>
+<td></td>
+</tr>
+<tr>
+<td>ScheduledThreadPoolExecutor</td>
+<td>DelayedWorkQueue</td>
+<td>ScheduledThreadPoolExecutor</td>
+<td></td>
+</tr>
+<tr>
+<td>SingleThreadScheduledExecutor</td>
+<td>DelayedWorkQueue</td>
+<td>ScheduledThreadPoolExecutor</td>
+<td></td>
+</tr>
+<tr>
+<td>ForkJoinPool</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
 <h1 id="FixedThreadPool源码解析"><a href="#FixedThreadPool源码解析" class="headerlink" title="FixedThreadPool源码解析"></a>FixedThreadPool源码解析</h1><h2 id="addWorker源码分析"><a href="#addWorker源码分析" class="headerlink" title="addWorker源码分析"></a>addWorker源码分析</h2><p>如果当前线程数量 &lt; corePoolSize的话，就会新创建一个线程出来放入线程池，</p>
 <ol>
 <li><strong>CAS实现安全的线程创建</strong><br>尝试用CAS操作递增线程数量，如果说CAS成功的话，就可以在后面去创建一个新的线程，放入线程池。如果CAS失败了，再次for循环，判断线程数量是否小于corePoolSize，如果是的话，再次尝试进行CAS递增。 </li>
@@ -770,7 +829,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ThreadPoolExecutor"><span class="nav-text">ThreadPoolExecutor</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#核心变量"><span class="nav-text">核心变量</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#提交任务"><span class="nav-text">提交任务</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#execute方法"><span class="nav-text">execute方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程池介绍"><span class="nav-text">线程池介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FixedThreadPool源码解析"><span class="nav-text">FixedThreadPool源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#addWorker源码分析"><span class="nav-text">addWorker源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#入队等待"><span class="nav-text">入队等待</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从队列里获取任务"><span class="nav-text">从队列里获取任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池关闭"><span class="nav-text">线程池关闭</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#无界队列线程池在远程服务异常时内存飙升怎么办"><span class="nav-text">无界队列线程池在远程服务异常时内存飙升怎么办</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#maximumPoolSize和reject策略在fixed线程池中会用吗"><span class="nav-text">maximumPoolSize和reject策略在fixed线程池中会用吗</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CachedThreadPool源码解析"><span class="nav-text">CachedThreadPool源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#第一个任务到Cached线程池的入队失败以及非core线程执行"><span class="nav-text">第一个任务到Cached线程池的入队失败以及非core线程执行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池已有线程在执行任务时再次提交任务会如何执行"><span class="nav-text">线程池已有线程在执行任务时再次提交任务会如何执行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#非core线程执行完之后如何尝试从队列获取下一个任务"><span class="nav-text">非core线程执行完之后如何尝试从队列获取下一个任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#不停往cached线程池提交任务时会导致CPU负载过高吗？"><span class="nav-text">不停往cached线程池提交任务时会导致CPU负载过高吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cached线程池又会不会触发拒绝任务提交的机制呢？"><span class="nav-text">cached线程池又会不会触发拒绝任务提交的机制呢？</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ThreadPoolExecutor"><span class="nav-text">ThreadPoolExecutor</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#核心变量"><span class="nav-text">核心变量</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#提交任务"><span class="nav-text">提交任务</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#execute方法"><span class="nav-text">execute方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#拒绝策略"><span class="nav-text">拒绝策略</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#常用线程池组件介绍"><span class="nav-text">常用线程池组件介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FixedThreadPool源码解析"><span class="nav-text">FixedThreadPool源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#addWorker源码分析"><span class="nav-text">addWorker源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#入队等待"><span class="nav-text">入队等待</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从队列里获取任务"><span class="nav-text">从队列里获取任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池关闭"><span class="nav-text">线程池关闭</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#无界队列线程池在远程服务异常时内存飙升怎么办"><span class="nav-text">无界队列线程池在远程服务异常时内存飙升怎么办</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#maximumPoolSize和reject策略在fixed线程池中会用吗"><span class="nav-text">maximumPoolSize和reject策略在fixed线程池中会用吗</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CachedThreadPool源码解析"><span class="nav-text">CachedThreadPool源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#第一个任务到Cached线程池的入队失败以及非core线程执行"><span class="nav-text">第一个任务到Cached线程池的入队失败以及非core线程执行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池已有线程在执行任务时再次提交任务会如何执行"><span class="nav-text">线程池已有线程在执行任务时再次提交任务会如何执行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#非core线程执行完之后如何尝试从队列获取下一个任务"><span class="nav-text">非core线程执行完之后如何尝试从队列获取下一个任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#不停往cached线程池提交任务时会导致CPU负载过高吗？"><span class="nav-text">不停往cached线程池提交任务时会导致CPU负载过高吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cached线程池又会不会触发拒绝任务提交的机制呢？"><span class="nav-text">cached线程池又会不会触发拒绝任务提交的机制呢？</span></a></li></ol></li></ol></div>
             
 
           </div>
