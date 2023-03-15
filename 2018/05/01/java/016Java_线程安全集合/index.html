@@ -94,18 +94,18 @@
 
 
 
-  <meta name="description" content="CountDownLatch源码分析 构造函数 设置AQS中的status为2。  await()方法 1.判断state。2.如果state大于0，将main线程放入AQS的等待队列中，入队去等待。3.LockSupport将main线程挂起。  countDown()方法 1.await()，触发了一个线程入队阻塞等待。2.countDown()，如果state == 0，唤醒队列里等待的所有">
+  <meta name="description" content="ConcurrentHashMapJDK1.8的ConcurrentHashMap源码解析 计算hashcode 把hash值的高低16位都考虑到后面的hash取模算法里。  定位index 定位算法：(n - 1) &amp;amp; hash。  put 第一种情况： 这里会走一个线程安全的操作，Unsafe，当前这个位置里如果没有元素的话，此时就通过CAS直接put。 第二种情况： 当有hash冲突">
 <meta name="keywords" content="Java,JUC">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java_常用同步组件">
-<meta property="og:url" content="http://yoursite.com/2018/03/02/java/018Java_常用同步组件/index.html">
+<meta property="og:title" content="Java_线程安全集合">
+<meta property="og:url" content="http://yoursite.com/2018/05/01/java/016Java_线程安全集合/index.html">
 <meta property="og:site_name" content="想至千里，先积跬步">
-<meta property="og:description" content="CountDownLatch源码分析 构造函数 设置AQS中的status为2。  await()方法 1.判断state。2.如果state大于0，将main线程放入AQS的等待队列中，入队去等待。3.LockSupport将main线程挂起。  countDown()方法 1.await()，触发了一个线程入队阻塞等待。2.countDown()，如果state == 0，唤醒队列里等待的所有">
+<meta property="og:description" content="ConcurrentHashMapJDK1.8的ConcurrentHashMap源码解析 计算hashcode 把hash值的高低16位都考虑到后面的hash取模算法里。  定位index 定位算法：(n - 1) &amp;amp; hash。  put 第一种情况： 这里会走一个线程安全的操作，Unsafe，当前这个位置里如果没有元素的话，此时就通过CAS直接put。 第二种情况： 当有hash冲突">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-03-02T09:15:27.000Z">
+<meta property="og:updated_time" content="2018-05-01T09:15:27.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java_常用同步组件">
-<meta name="twitter:description" content="CountDownLatch源码分析 构造函数 设置AQS中的status为2。  await()方法 1.判断state。2.如果state大于0，将main线程放入AQS的等待队列中，入队去等待。3.LockSupport将main线程挂起。  countDown()方法 1.await()，触发了一个线程入队阻塞等待。2.countDown()，如果state == 0，唤醒队列里等待的所有">
+<meta name="twitter:title" content="Java_线程安全集合">
+<meta name="twitter:description" content="ConcurrentHashMapJDK1.8的ConcurrentHashMap源码解析 计算hashcode 把hash值的高低16位都考虑到后面的hash取模算法里。  定位index 定位算法：(n - 1) &amp;amp; hash。  put 第一种情况： 这里会走一个线程安全的操作，Unsafe，当前这个位置里如果没有元素的话，此时就通过CAS直接put。 第二种情况： 当有hash冲突">
 
 
 
@@ -113,7 +113,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2018/03/02/java/018Java_常用同步组件/">
+  <link rel="canonical" href="http://yoursite.com/2018/05/01/java/016Java_线程安全集合/">
 
 
 
@@ -123,7 +123,7 @@
   };
 </script>
 
-  <title>Java_常用同步组件 | 想至千里，先积跬步</title>
+  <title>Java_线程安全集合 | 想至千里，先积跬步</title>
   
 
 
@@ -302,7 +302,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/02/java/018Java_常用同步组件/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/01/java/016Java_线程安全集合/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -319,7 +319,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Java_常用同步组件
+          <h1 class="post-title" itemprop="name headline">Java_线程安全集合
 
               
             
@@ -345,7 +345,7 @@
                 
               
 
-              <time title="创建时间：2018-03-02 17:15:27" itemprop="dateCreated datePublished" datetime="2018-03-02T17:15:27+08:00">2018-03-02</time>
+              <time title="创建时间：2018-05-01 17:15:27" itemprop="dateCreated datePublished" datetime="2018-05-01T17:15:27+08:00">2018-05-01</time>
             </span>
           
 
@@ -405,32 +405,39 @@
       
 
       
-        <h1 id="CountDownLatch"><a href="#CountDownLatch" class="headerlink" title="CountDownLatch"></a>CountDownLatch</h1><h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><ol>
-<li><p>构造函数</p>
-<p>设置AQS中的status为2。</p>
+        <h1 id="ConcurrentHashMap"><a href="#ConcurrentHashMap" class="headerlink" title="ConcurrentHashMap"></a>ConcurrentHashMap</h1><h2 id="JDK1-8的ConcurrentHashMap源码解析"><a href="#JDK1-8的ConcurrentHashMap源码解析" class="headerlink" title="JDK1.8的ConcurrentHashMap源码解析"></a>JDK1.8的ConcurrentHashMap源码解析</h2><ol>
+<li><p>计算hashcode</p>
+<p>把hash值的高低16位都考虑到后面的hash取模算法里。</p>
 </li>
-<li><p>await()方法</p>
-<p>1.判断state。<br>2.如果state大于0，将main线程放入AQS的等待队列中，入队去等待。<br>3.LockSupport将main线程挂起。</p>
+<li><p>定位index</p>
+<p>定位算法：(n - 1) &amp; hash。</p>
 </li>
-<li><p>countDown()方法</p>
-<p>1.await()，触发了一个线程入队阻塞等待。<br>2.countDown()，如果state == 0，唤醒队列里等待的所有的线程。<br>3.所有线程被唤醒，发现state == 0，就从await()方法里退出。</p>
+<li><p>put</p>
+<p>第一种情况：</p>
+<p>这里会走一个线程安全的操作，Unsafe，当前这个位置里如果没有元素的话，此时就通过CAS直接put。</p>
+<p>第二种情况：</p>
+<p>当有hash冲突的时候，不会锁定整个数组，而是锁数组对应的元素，通过synchronized加锁。</p>
+<p>初始容量为16，最大可以有16个线程同时并发操作，不会有冲突。</p>
 </li>
-</ol>
-<h1 id="CyclicBarrier"><a href="#CyclicBarrier" class="headerlink" title="CyclicBarrier"></a>CyclicBarrier</h1><h2 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h2><ol>
-<li><p>构造函数</p>
-<p>设置parties、count为3。<br>设置barrierCommand为Runnable。</p>
-</li>
-<li><p>await()方法</p>
-<p>线程1：</p>
-<p>1.ReentrantLock，加锁，保证多线程并发安全。<br>2.count = 3，—count = 2。<br>3.Condition.await()，底层，其实是释放了当前的lock锁，触发了把当前线程加入condition等待队列里，挂起当前线程。</p>
-<p>线程2：</p>
-<p>1.ReentrantLock，加锁，保证多线程并发安全。<br>2.count = 2，—count = 1。<br>3.Condition.await()，底层，其实是释放了当前的lock锁，触发了把当前线程加入condition等待队列里，挂起当前线程。</p>
-<p>线程3：</p>
-<p>1.ReentrantLock，加锁，保证多线程并发安全。<br>2.count = 1，—count = 0。<br>3.count==0就是触发执行在最开始传递进去的那个Runnable里面的代码逻辑。</p>
+<li><p>读操作不需要加锁，volatile读操作，load屏障会读到最新的数据。</p>
 </li>
 </ol>
-<p>源码解析</p>
-<h1 id="Semaphore"><a href="#Semaphore" class="headerlink" title="Semaphore"></a>Semaphore</h1><h2 id="源码解析-1"><a href="#源码解析-1" class="headerlink" title="源码解析"></a>源码解析</h2><h1 id="Exchange"><a href="#Exchange" class="headerlink" title="Exchange"></a>Exchange</h1>
+<h2 id="JDK1-7的ConcurrentHashMap对比"><a href="#JDK1-7的ConcurrentHashMap对比" class="headerlink" title="JDK1.7的ConcurrentHashMap对比"></a>JDK1.7的ConcurrentHashMap对比</h2><p>JDK 1.7的ConcurrentHashMap，稍微是有一些差距的。</p>
+<p>Segment，16个Segment，16个分段，每个Segment对应Node[]数组，每个Segment有一把锁，也就是说对一个Segment里的Node[]数组的不同的元素如果要put操作的话，其实都是要竞争一个锁，串行化来处理的。</p>
+<p>锁的粒度是比较粗的，因为一个Node[]数组是一把锁，但是他有多个Node[]数组。</p>
+<h1 id="CopyOnWriteArrayList"><a href="#CopyOnWriteArrayList" class="headerlink" title="CopyOnWriteArrayList"></a>CopyOnWriteArrayList</h1><h2 id="写时复制机制。"><a href="#写时复制机制。" class="headerlink" title="写时复制机制。"></a>写时复制机制。</h2><p><strong>add：</strong> 新搞一个数组，新数组的大小是老数组+1，把老数组拷贝到新数组，把新数组赋值给底层的数组。老数组垃圾回收。</p>
+<p><strong>set：</strong> 新搞一个数组，基于新数组修改值，老数组垃圾回收。</p>
+<p><strong>remove</strong>：numMoved=len-index-1，会复制两次。</p>
+<p><strong>get：</strong></p>
+<p>第一种：我读到的老数组的数据。 第二种：其他线程更新好了数组，volatile写，我读到的是新数组的数据。</p>
+<p>副本机制，写的时候，写副本数组，跟读就没关系了，只要写完成之后，走一个volatile写，设置最新的数组，自然读操作就会读到最新数组的元素了，只有一个线程可以写，但是写的同时可以允许大量的线程来并发读。</p>
+<p><strong>迭代：</strong></p>
+<p>Iterator迭代器里面是包含了一个snapshot，指向的就是CopyOnWriteArrayList当前的数组，array对象，你创建了一个Iterator迭代器对象之后，在迭代的过程中，都是基于快照数组在进行遍历的。</p>
+<p>如果此时有另外一个线程更新了数组的元素，设置了array，但是此时对迭代是没有任何影响的，它会一直用这个老的数组完成遍历。</p>
+<h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><p>弱一致性。</p>
+<p><strong>优点：</strong> 读和写不互斥的，写和写互斥，同一时间就一个人可以写，但是写的同时可以允许其他所有人来读；读和读也是并发的；读写锁机制还要好；他也不涉及到Unsafe.getObjectVolatile。</p>
+<p><strong>缺点：</strong> 空间换时间，写的时候，经常内存里会出现复制出来的一模一样的副本，对内存消耗过大，list如果很大，可能你要考虑在线上运行的时候，可能经常内存占用会是list大小的几倍。</p>
+
       
     </div>
 
@@ -471,8 +478,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/03/02/java/016Java_线程安全集合/" rel="next" title="Java_线程安全集合">
-                <i class="fa fa-chevron-left"></i> Java_线程安全集合
+              <a href="/2018/04/09/mysql/005.MySQL_InnoDB参数优化/" rel="next" title="MySQL_InnoDB参数优化">
+                <i class="fa fa-chevron-left"></i> MySQL_InnoDB参数优化
               </a>
             
           </div>
@@ -481,8 +488,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/03/02/java/019Java_同步队列/" rel="prev" title="Java_同步队列">
-                Java_同步队列 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/05/01/java/017Java_线程池/" rel="prev" title="Java_线程池">
+                Java_线程池 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -722,7 +729,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CountDownLatch"><span class="nav-text">CountDownLatch</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-text">源码分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CyclicBarrier"><span class="nav-text">CyclicBarrier</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#源码解析"><span class="nav-text">源码解析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Semaphore"><span class="nav-text">Semaphore</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#源码解析-1"><span class="nav-text">源码解析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Exchange"><span class="nav-text">Exchange</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ConcurrentHashMap"><span class="nav-text">ConcurrentHashMap</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK1-8的ConcurrentHashMap源码解析"><span class="nav-text">JDK1.8的ConcurrentHashMap源码解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK1-7的ConcurrentHashMap对比"><span class="nav-text">JDK1.7的ConcurrentHashMap对比</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CopyOnWriteArrayList"><span class="nav-text">CopyOnWriteArrayList</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#写时复制机制。"><span class="nav-text">写时复制机制。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#核心思想"><span class="nav-text">核心思想</span></a></li></ol></li></ol></div>
             
 
           </div>

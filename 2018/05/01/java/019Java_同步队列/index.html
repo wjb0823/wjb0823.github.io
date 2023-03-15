@@ -94,18 +94,18 @@
 
 
 
-  <meta name="description" content="ConcurrentHashMapJDK1.8的ConcurrentHashMap源码解析 计算hashcode 把hash值的高低16位都考虑到后面的hash取模算法里。  定位index 定位算法：(n - 1) &amp;amp; hash。  put 第一种情况： 这里会走一个线程安全的操作，Unsafe，当前这个位置里如果没有元素的话，此时就通过CAS直接put。 第二种情况： 当有hash冲突">
+  <meta name="description" content="ConcurrentLinkedQueue基于链表结构无界队列。 offer： 队尾入队。 if (p.casNext(null, newNode)) 上面那行代码保证了是通过CAS操作把元素入队，同一时间只有一个线程可以入队成功的，其他的线程就会入队失败，此时会不断的for循环，变换指针，尝试让指针往后挪动到最后一个尾部节点。 再次尝试用CAS将自己入队，加入队尾。 上面的过程会通过for循环保">
 <meta name="keywords" content="Java,JUC">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java_线程安全集合">
-<meta property="og:url" content="http://yoursite.com/2018/03/02/java/016Java_线程安全集合/index.html">
+<meta property="og:title" content="Java_同步队列">
+<meta property="og:url" content="http://yoursite.com/2018/05/01/java/019Java_同步队列/index.html">
 <meta property="og:site_name" content="想至千里，先积跬步">
-<meta property="og:description" content="ConcurrentHashMapJDK1.8的ConcurrentHashMap源码解析 计算hashcode 把hash值的高低16位都考虑到后面的hash取模算法里。  定位index 定位算法：(n - 1) &amp;amp; hash。  put 第一种情况： 这里会走一个线程安全的操作，Unsafe，当前这个位置里如果没有元素的话，此时就通过CAS直接put。 第二种情况： 当有hash冲突">
+<meta property="og:description" content="ConcurrentLinkedQueue基于链表结构无界队列。 offer： 队尾入队。 if (p.casNext(null, newNode)) 上面那行代码保证了是通过CAS操作把元素入队，同一时间只有一个线程可以入队成功的，其他的线程就会入队失败，此时会不断的for循环，变换指针，尝试让指针往后挪动到最后一个尾部节点。 再次尝试用CAS将自己入队，加入队尾。 上面的过程会通过for循环保">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-03-02T09:15:27.000Z">
+<meta property="og:updated_time" content="2018-05-01T09:18:27.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java_线程安全集合">
-<meta name="twitter:description" content="ConcurrentHashMapJDK1.8的ConcurrentHashMap源码解析 计算hashcode 把hash值的高低16位都考虑到后面的hash取模算法里。  定位index 定位算法：(n - 1) &amp;amp; hash。  put 第一种情况： 这里会走一个线程安全的操作，Unsafe，当前这个位置里如果没有元素的话，此时就通过CAS直接put。 第二种情况： 当有hash冲突">
+<meta name="twitter:title" content="Java_同步队列">
+<meta name="twitter:description" content="ConcurrentLinkedQueue基于链表结构无界队列。 offer： 队尾入队。 if (p.casNext(null, newNode)) 上面那行代码保证了是通过CAS操作把元素入队，同一时间只有一个线程可以入队成功的，其他的线程就会入队失败，此时会不断的for循环，变换指针，尝试让指针往后挪动到最后一个尾部节点。 再次尝试用CAS将自己入队，加入队尾。 上面的过程会通过for循环保">
 
 
 
@@ -113,7 +113,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2018/03/02/java/016Java_线程安全集合/">
+  <link rel="canonical" href="http://yoursite.com/2018/05/01/java/019Java_同步队列/">
 
 
 
@@ -123,7 +123,7 @@
   };
 </script>
 
-  <title>Java_线程安全集合 | 想至千里，先积跬步</title>
+  <title>Java_同步队列 | 想至千里，先积跬步</title>
   
 
 
@@ -302,7 +302,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/02/java/016Java_线程安全集合/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/01/java/019Java_同步队列/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -319,7 +319,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Java_线程安全集合
+          <h1 class="post-title" itemprop="name headline">Java_同步队列
 
               
             
@@ -345,7 +345,7 @@
                 
               
 
-              <time title="创建时间：2018-03-02 17:15:27" itemprop="dateCreated datePublished" datetime="2018-03-02T17:15:27+08:00">2018-03-02</time>
+              <time title="创建时间：2018-05-01 17:18:27" itemprop="dateCreated datePublished" datetime="2018-05-01T17:18:27+08:00">2018-05-01</time>
             </span>
           
 
@@ -405,38 +405,56 @@
       
 
       
-        <h1 id="ConcurrentHashMap"><a href="#ConcurrentHashMap" class="headerlink" title="ConcurrentHashMap"></a>ConcurrentHashMap</h1><h2 id="JDK1-8的ConcurrentHashMap源码解析"><a href="#JDK1-8的ConcurrentHashMap源码解析" class="headerlink" title="JDK1.8的ConcurrentHashMap源码解析"></a>JDK1.8的ConcurrentHashMap源码解析</h2><ol>
-<li><p>计算hashcode</p>
-<p>把hash值的高低16位都考虑到后面的hash取模算法里。</p>
-</li>
-<li><p>定位index</p>
-<p>定位算法：(n - 1) &amp; hash。</p>
-</li>
-<li><p>put</p>
-<p>第一种情况：</p>
-<p>这里会走一个线程安全的操作，Unsafe，当前这个位置里如果没有元素的话，此时就通过CAS直接put。</p>
-<p>第二种情况：</p>
-<p>当有hash冲突的时候，不会锁定整个数组，而是锁数组对应的元素，通过synchronized加锁。</p>
-<p>初始容量为16，最大可以有16个线程同时并发操作，不会有冲突。</p>
-</li>
-<li><p>读操作不需要加锁，volatile读操作，load屏障会读到最新的数据。</p>
-</li>
-</ol>
-<h2 id="JDK1-7的ConcurrentHashMap对比"><a href="#JDK1-7的ConcurrentHashMap对比" class="headerlink" title="JDK1.7的ConcurrentHashMap对比"></a>JDK1.7的ConcurrentHashMap对比</h2><p>JDK 1.7的ConcurrentHashMap，稍微是有一些差距的。</p>
-<p>Segment，16个Segment，16个分段，每个Segment对应Node[]数组，每个Segment有一把锁，也就是说对一个Segment里的Node[]数组的不同的元素如果要put操作的话，其实都是要竞争一个锁，串行化来处理的。</p>
-<p>锁的粒度是比较粗的，因为一个Node[]数组是一把锁，但是他有多个Node[]数组。</p>
-<h1 id="CopyOnWriteArrayList"><a href="#CopyOnWriteArrayList" class="headerlink" title="CopyOnWriteArrayList"></a>CopyOnWriteArrayList</h1><h2 id="写时复制机制。"><a href="#写时复制机制。" class="headerlink" title="写时复制机制。"></a>写时复制机制。</h2><p><strong>add：</strong> 新搞一个数组，新数组的大小是老数组+1，把老数组拷贝到新数组，把新数组赋值给底层的数组。老数组垃圾回收。</p>
-<p><strong>set：</strong> 新搞一个数组，基于新数组修改值，老数组垃圾回收。</p>
-<p><strong>remove</strong>：numMoved=len-index-1，会复制两次。</p>
-<p><strong>get：</strong></p>
-<p>第一种：我读到的老数组的数据。 第二种：其他线程更新好了数组，volatile写，我读到的是新数组的数据。</p>
-<p>副本机制，写的时候，写副本数组，跟读就没关系了，只要写完成之后，走一个volatile写，设置最新的数组，自然读操作就会读到最新数组的元素了，只有一个线程可以写，但是写的同时可以允许大量的线程来并发读。</p>
+        <h1 id="ConcurrentLinkedQueue"><a href="#ConcurrentLinkedQueue" class="headerlink" title="ConcurrentLinkedQueue"></a>ConcurrentLinkedQueue</h1><p>基于链表结构无界队列。</p>
+<p><strong>offer：</strong> 队尾入队。</p>
+<p>if (p.casNext(null, newNode))</p>
+<p>上面那行代码保证了是通过CAS操作把元素入队，同一时间只有一个线程可以入队成功的，其他的线程就会入队失败，此时会不断的for循环，变换指针，尝试让指针往后挪动到最后一个尾部节点。</p>
+<p>再次尝试用CAS将自己入队，加入队尾。</p>
+<p>上面的过程会通过for循环保证不断的尝试直到成功为止。</p>
+<p><strong>poll：</strong> 队头出队。</p>
+<p>基于CAS操作，将队列的头部元素的item值设置为null，因为是CAS操作，出队的操作只能是同一时间就一个线程可以成功。</p>
+<p>通过一堆指针的变化，找到队列的头结点，通过CAS保证只有一个线程可以执行出队的操作，队列头部Node的item设置为null，原来的head Node给脱离出队列让jvm gc掉，head指针指向最新的头部的null节点。</p>
+<p><strong>peek：</strong> 读取队头元素。</p>
+<p><strong>remove：</strong> 删除元素。</p>
+<p><strong>size：</strong> 获取多列大小。</p>
+<p>size =&gt; 看一下队列的大小，有多少个元素，并没有任何的锁的机制，他就是直接从头节点开始遍历，遍历每个链表中的每个节点，count++。</p>
+<p><strong>size获取队列大小的局限性：</strong></p>
+<p>入队最最核心的操作，就是设置队列尾部节点的next指针，设置好了以后，新的节点就入队了，volatile写，你遍历的时候立马就可以看到的。</p>
+<p>如果是从队头开始遍历的时候，遍历到了一半儿，此时有人从队头出队，这个就没办法了，没法防止这个事情，你如果已经遍历到了一半儿了，此时是感知不到的。</p>
+<p>ConcurrentLinkedQueue，都是为了优化多线程并发性能，牺牲掉了一些数据一致性的，为了保证多线程写队列的高并发性能，大量的采用CAS无锁化的操作，很多读操作，尤其是常见的size，不涉及到任何锁。</p>
+<p><strong>contains：</strong></p>
+<p>通过遍历。</p>
 <p><strong>迭代：</strong></p>
-<p>Iterator迭代器里面是包含了一个snapshot，指向的就是CopyOnWriteArrayList当前的数组，array对象，你创建了一个Iterator迭代器对象之后，在迭代的过程中，都是基于快照数组在进行遍历的。</p>
-<p>如果此时有另外一个线程更新了数组的元素，设置了array，但是此时对迭代是没有任何影响的，它会一直用这个老的数组完成遍历。</p>
-<h2 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h2><p>弱一致性。</p>
-<p><strong>优点：</strong> 读和写不互斥的，写和写互斥，同一时间就一个人可以写，但是写的同时可以允许其他所有人来读；读和读也是并发的；读写锁机制还要好；他也不涉及到Unsafe.getObjectVolatile。</p>
-<p><strong>缺点：</strong> 空间换时间，写的时候，经常内存里会出现复制出来的一模一样的副本，对内存消耗过大，list如果很大，可能你要考虑在线上运行的时候，可能经常内存占用会是list大小的几倍。</p>
+<p>你在迭代的就是ConcurrentLinkedQueue内部的那个单向链表，所以你迭代的过程中，很可能会有新的元素入队，也可能会有已经遍历过的队头的元素会出队，你一定要在使用集合的时候要考虑到这些问题。</p>
+<h1 id="LinkedBlockingQueue"><a href="#LinkedBlockingQueue" class="headerlink" title="LinkedBlockingQueue"></a>LinkedBlockingQueue</h1><p>有界阻塞队列。</p>
+<p>队列容量不足或为0时自动阻塞<br>void put(E e)：自动阻塞，队列容量满后，自动阻塞。<br>E take()：自动阻塞，队列容量为0后，自动阻塞。</p>
+<p><strong>put：</strong> 入队。</p>
+<p>putLock。</p>
+<p>入队阻塞：</p>
+<p>队列满了以后，直接会调用put锁对应的condition进行阻塞等待的操作，当前线程被挂起，释放锁，进入condition等待队列。</p>
+<p>只要发现队列不满了，比如说有人take掉了一个元素，此时是不是就可以唤醒处于阻塞的线程重新获取put锁再去执行入队的操作。</p>
+<p><strong>offer</strong> 仅仅对put方法改动了一点点，当队列没有可用元素的时候，不同于put方法的阻塞等待，offer方法直接方法false。</p>
+<p><strong>take：</strong> 出队。</p>
+<p>takaLock。</p>
+<p>出队阻塞：</p>
+<p>如果有人put了一个数据到队列里去，很明显应该唤醒take阻塞的线程，通知人家说现在可以获取数据了。</p>
+<p><strong>poll</strong> 方法去除了take方法中元素为空后阻塞等待这一步骤，这里也就不详细说了</p>
+<p><strong>size：</strong></p>
+<p>AtomicInteger底层是CAS + volatile，拿到的基本是比较准确的一个值，跟ConcurrentLinkedQueue获取的size</p>
+<p>100%准确的一个size，锁掉整个队列，不允许人入队和出队，获取到的size一定是准确的。</p>
+<p><strong>遍历：</strong></p>
+<p>LinkedBlockingQueue是直接锁了整个队列，直接把两把锁都给锁掉了，如果size也要获取类似的操作，也是这样子fullyLock。</p>
+<h1 id="ArrayBlockingQueue"><a href="#ArrayBlockingQueue" class="headerlink" title="ArrayBlockingQueue"></a>ArrayBlockingQueue</h1><p>基于数组实现的有界阻塞队列。</p>
+<p><strong>put：</strong> 入队。</p>
+<p>一把独占锁。</p>
+<p><strong>take：</strong> 出队。</p>
+<p>一把独占锁。</p>
+<p>size和iterator</p>
+<p>直接加独占锁，此时此刻是没有任何一个线程可以出队或者是入队的。</p>
+<h1 id="SynchronousQueue原理"><a href="#SynchronousQueue原理" class="headerlink" title="SynchronousQueue原理"></a>SynchronousQueue原理</h1><p>put + take的方式，才能实现他原本希望实现的一个效果，如果put的时候没有人在take，此时就会将head指针指向put操作，put线程就park挂起。</p>
+<p>再次另外一个线程来put，head指针指向最新的put线程，因为没有人take，所以也是挂起。</p>
+<p>他其实是用来干两个线程之间的数据传递的同步，put + take，take的时候，如果没人put，此时你会阻塞，直到有人put，是最后一次take的人先可以获取到别人put的数据，栈的效果。</p>
+<p>put的时候，如果没人take，此时你会阻塞住，多人put，最后一个put是在栈顶，此时有人take，先获取最后一次put的数据，栈，后进先出，queue，反过来，先入先出，默认的实现是栈的实现。</p>
 
       
     </div>
@@ -478,8 +496,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/03/02/java/017Java_线程池/" rel="next" title="Java_线程池">
-                <i class="fa fa-chevron-left"></i> Java_线程池
+              <a href="/2018/05/01/java/018Java_常用同步组件/" rel="next" title="Java_常用同步组件">
+                <i class="fa fa-chevron-left"></i> Java_常用同步组件
               </a>
             
           </div>
@@ -488,8 +506,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/03/02/java/018Java_常用同步组件/" rel="prev" title="Java_常用同步组件">
-                Java_常用同步组件 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/05/01/mysql/006.MySQL_事务/" rel="prev" title="MySQL_事务">
+                MySQL_事务 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -729,7 +747,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ConcurrentHashMap"><span class="nav-text">ConcurrentHashMap</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK1-8的ConcurrentHashMap源码解析"><span class="nav-text">JDK1.8的ConcurrentHashMap源码解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK1-7的ConcurrentHashMap对比"><span class="nav-text">JDK1.7的ConcurrentHashMap对比</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CopyOnWriteArrayList"><span class="nav-text">CopyOnWriteArrayList</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#写时复制机制。"><span class="nav-text">写时复制机制。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#核心思想"><span class="nav-text">核心思想</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ConcurrentLinkedQueue"><span class="nav-text">ConcurrentLinkedQueue</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#LinkedBlockingQueue"><span class="nav-text">LinkedBlockingQueue</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ArrayBlockingQueue"><span class="nav-text">ArrayBlockingQueue</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SynchronousQueue原理"><span class="nav-text">SynchronousQueue原理</span></a></li></ol></div>
             
 
           </div>
