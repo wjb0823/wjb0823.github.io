@@ -102,10 +102,12 @@
 <meta property="og:site_name" content="想至千里，先积跬步">
 <meta property="og:description" content="线程的创建 继承Thread类，重写run()方法 实现Runnable接口，重写run()方法 实现Callable接口，重写call()方法并使用FutureTask获取call()方法的返回结果 线程池   Thread类创建线程主要步骤：  通过继承Thread创建线程的子类 重写Thread类的run( )方法 创建子类实例对象 调用子类实例对象start( )方法启动线程  12345">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/juc/juc005.png">
 <meta property="og:updated_time" content="2018-03-02T06:15:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java_线程">
 <meta name="twitter:description" content="线程的创建 继承Thread类，重写run()方法 实现Runnable接口，重写run()方法 实现Callable接口，重写call()方法并使用FutureTask获取call()方法的返回结果 线程池   Thread类创建线程主要步骤：  通过继承Thread创建线程的子类 重写Thread类的run( )方法 创建子类实例对象 调用子类实例对象start( )方法启动线程  12345">
+<meta name="twitter:image" content="http://yoursite.com/images/juc/juc005.png">
 
 
 
@@ -498,6 +500,7 @@
 <p>必须得对同一个对象实例进行加锁、wait、notify，这样的话，他们其实操作的才是通一个对象实例里的monitor相关的计数器、wait set。</p>
 <p><strong>notify:</strong></p>
 <p>notify()与notifyall()：前者就唤醒block状态的一个线程，后者唤醒block状态的所有线程</p>
+<h1 id="线程生命周期与五种状态"><a href="#线程生命周期与五种状态" class="headerlink" title="线程生命周期与五种状态"></a>线程生命周期与五种状态</h1><p><img src="/images/juc/juc005.png" style="width:600px">  </p>
 
       
     </div>
@@ -790,7 +793,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#线程的创建"><span class="nav-text">线程的创建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Thread类创建线程"><span class="nav-text">Thread类创建线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Runnable接口实现多线程"><span class="nav-text">Runnable接口实现多线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Callable接口实现多线程"><span class="nav-text">Callable接口实现多线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池"><span class="nav-text">线程池</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用场景"><span class="nav-text">使用场景</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程的分类"><span class="nav-text">线程的分类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#父线程"><span class="nav-text">父线程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程组"><span class="nav-text">线程组</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程优先级"><span class="nav-text">线程优先级</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程源码"><span class="nav-text">线程源码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化方法"><span class="nav-text">初始化方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动方法"><span class="nav-text">启动方法</span></a></li></ol></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#操作方法"><span class="nav-text">操作方法</span></a></li></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#线程的创建"><span class="nav-text">线程的创建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Thread类创建线程"><span class="nav-text">Thread类创建线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Runnable接口实现多线程"><span class="nav-text">Runnable接口实现多线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Callable接口实现多线程"><span class="nav-text">Callable接口实现多线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池"><span class="nav-text">线程池</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用场景"><span class="nav-text">使用场景</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程的分类"><span class="nav-text">线程的分类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#父线程"><span class="nav-text">父线程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程组"><span class="nav-text">线程组</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程优先级"><span class="nav-text">线程优先级</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程源码"><span class="nav-text">线程源码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化方法"><span class="nav-text">初始化方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动方法"><span class="nav-text">启动方法</span></a></li></ol></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#操作方法"><span class="nav-text">操作方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程生命周期与五种状态"><span class="nav-text">线程生命周期与五种状态</span></a></li></div>
             
 
           </div>
