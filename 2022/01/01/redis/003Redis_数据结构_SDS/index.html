@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="字符串在 Redis 中是很常用的，键值对中的键是字符串类型，值有时也是字符串类型。 Redis 是用 C 语言实现的，但是它没有直接使用 C 语言的 char* 字符数组来实现字符串，而是自己封装了一个名为简单动态字符串（simple dynamic string，SDS） 的数据结构来表示字符串。 那么Redis 为什么要设计了 SDS 结构来表示字符串呢？要了解这一点，得先来看看 char*">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis_底层数据结构_SDS">
+<meta property="og:url" content="http://yoursite.com/2022/01/01/redis/003Redis_数据结构_SDS/index.html">
+<meta property="og:site_name" content="想至千里，先积跬步">
+<meta property="og:description" content="字符串在 Redis 中是很常用的，键值对中的键是字符串类型，值有时也是字符串类型。 Redis 是用 C 语言实现的，但是它没有直接使用 C 语言的 char* 字符数组来实现字符串，而是自己封装了一个名为简单动态字符串（simple dynamic string，SDS） 的数据结构来表示字符串。 那么Redis 为什么要设计了 SDS 结构来表示字符串呢？要了解这一点，得先来看看 char*">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22464775/1676876231437-273c2445-0c20-423e-9865-10db1155c8b6.png">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22464775/1676872545345-d041dfa7-aafb-4855-9505-139a22e01a76.png">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22464775/1676872545785-3171c861-1b6b-42a2-b5eb-3000ab09d450.png">
+<meta property="og:updated_time" content="2022-01-01T14:10:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis_底层数据结构_SDS">
+<meta name="twitter:description" content="字符串在 Redis 中是很常用的，键值对中的键是字符串类型，值有时也是字符串类型。 Redis 是用 C 语言实现的，但是它没有直接使用 C 语言的 char* 字符数组来实现字符串，而是自己封装了一个名为简单动态字符串（simple dynamic string，SDS） 的数据结构来表示字符串。 那么Redis 为什么要设计了 SDS 结构来表示字符串呢？要了解这一点，得先来看看 char*">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2023/png/22464775/1676876231437-273c2445-0c20-423e-9865-10db1155c8b6.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2022/01/01/redis/003Redis_数据结构_SDS/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Redis_底层数据结构_SDS | 想至千里，先积跬步</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">想至千里，先积跬步</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/01/01/redis/003Redis_数据结构_SDS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="想至千里，先积跬步">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis_底层数据结构_SDS
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2022-01-01 22:10:27" itemprop="dateCreated datePublished" datetime="2022-01-01T22:10:27+08:00">2022-01-01</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>字符串在 Redis 中是很常用的，键值对中的键是字符串类型，值有时也是字符串类型。</p>
+<p>Redis 是用 C 语言实现的，但是它没有直接使用 C 语言的 <code>char*</code> 字符数组来实现字符串，而是自己封装了一个名为<strong>简单动态字符串</strong>（simple dynamic string，<strong>SDS</strong>） 的数据结构来表示字符串。</p>
+<p>那么Redis 为什么要设计了 SDS 结构来表示字符串呢？要了解这一点，得先来看看 char* 字符数组的结构。</p>
+<h1 id="C-语言字符串的缺陷"><a href="#C-语言字符串的缺陷" class="headerlink" title="C 语言字符串的缺陷"></a>C 语言字符串的缺陷</h1><p>C 语言的字符串其实就是一个字符数组，即数组中每个元素是字符串中的一个字符。</p>
+<p>比如，下图就是字符串“redis”的 char* 字符数组的结构：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/22464775/1676876231437-273c2445-0c20-423e-9865-10db1155c8b6.png" alt="img"></p>
+<p>在 C 语言里，对字符串操作时，char <em> 指针只是指向字符数组的起始位置，而<em>*字符数组的结尾位置就用“\0”表示，意思是指字符串的结束</em></em>。</p>
+<p>因此，C 语言标准库中的字符串操作函数就通过判断字符是不是 “\0” 来决定要不要停止操作，如果当前字符不是 “\0” ，说明字符串还没结束，可以继续操作，如果当前字符是 “\0”  是则说明字符串结束了，就要停止操作。</p>
+<h2 id="缺陷1：有些操作时间复杂度高"><a href="#缺陷1：有些操作时间复杂度高" class="headerlink" title="缺陷1：有些操作时间复杂度高"></a>缺陷1：有些操作时间复杂度高</h2><p>比如，C 语言获取字符串长度的函数 <code>strlen</code>，就是通过字符数组中的每一个字符，并进行计数，等遇到字符为 “\0” 后，就会停止遍历，然后返回已经统计到的字符个数，即为字符串长度。很明显，<strong>C 语言获取字符串长度的时间复杂度是 O（N）。</strong></p>
+<h2 id="缺陷2：二进制不安全"><a href="#缺陷2：二进制不安全" class="headerlink" title="缺陷2：二进制不安全"></a>缺陷2：二进制不安全</h2><p>除了字符串的末尾之外，字符串里面不能含有 “\0” 字符，否则最先被程序读入的 “\0” 字符将被误认为是字符串结尾，这个限制使得 C 语言的字符串只能保存文本数据，<strong>不能保存像图片、音频、视频文化这样的二进制数据</strong>。</p>
+<h2 id="缺陷3：字符串操作函数不高效且不安全"><a href="#缺陷3：字符串操作函数不高效且不安全" class="headerlink" title="缺陷3：字符串操作函数不高效且不安全"></a>缺陷3：字符串操作函数不高效且不安全</h2><p>C 语言标准库中字符串的操作函数是很不安全的，对程序员很不友好，稍微一不注意，就会导致<strong>缓冲区溢出</strong>。</p>
+<p>举个例子，<code>strcat</code> 函数是可以将两个字符串拼接在一起。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//将 src 字符串拼接到 dest 字符串后面</span><br><span class="line"> char *strcat(char *dest, const char* src);</span><br></pre></td></tr></table></figure>
+<p>C 语言的字符串是不会记录自身的缓冲区大小的，所以 strcat 函数假定程序员在执行这个函数时，已经为 dest 分配了足够多的内存，可以容纳 src 字符串中的所有内容，而一旦这个假定不成立，就会发生<strong>缓冲区溢出</strong>将可能会造成程序运行终止。</p>
+<p>而且，strcat 函数和 strlen 函数类似，时间复杂度也很高，也都需要先通过遍历字符串才能得到目标字符串的末尾。然后对于 strcat 函数来说，还要再遍历源字符串才能完成追加，<strong>对字符串的操作效率不高</strong>。</p>
+<h1 id="SDS"><a href="#SDS" class="headerlink" title="SDS"></a>SDS</h1><p>3.0版本</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr</span> &#123;</span> </span><br><span class="line">    <span class="comment">// buf 中已占用空间的长度</span></span><br><span class="line">    <span class="keyword">int</span> len;</span><br><span class="line">    <span class="comment">// buf 中剩余可用空间的长度</span></span><br><span class="line">    <span class="keyword">int</span> <span class="built_in">free</span>;</span><br><span class="line">    <span class="comment">// 数据空间</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>5.0版本</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr5</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 3 lsb of type, and 5 msb of string length */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr16</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint16_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="keyword">uint16_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr32</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint32_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="keyword">uint32_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr64</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint64_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="keyword">uint64_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>len，记录了字符串长度</strong>。这样获取字符串长度的时候，只需要返回这个成员变量值就行，时间复杂度只需要 O（1）。</li>
+<li><strong>alloc，分配给字符数组的空间长度</strong>。这样在修改字符串的时候，可以通过 alloc - len 计算出剩余的空间大小，可以用来判断空间是否满足修改需求，如果不满足的话，就会自动将 SDS  的空间扩展至执行修改所需的大小，然后才执行实际的修改操作，所以使用 SDS 既不需要手动修改 SDS 的空间大小，也不会出现前面所说的缓冲区溢出的问题。</li>
+<li><strong>flags，用来表示不同类型的 SDS</strong>。一共设计了 5 种类型，分别是 sdshdr5、sdshdr8、sdshdr16、sdshdr32 和 sdshdr64，后面在说明区别之处。</li>
+<li><strong>buf[]，字符数组，用来保存实际数据</strong>。不仅可以保存字符串，也可以保存二进制数据。</li>
+</ul>
+<h2 id="SDS的好处"><a href="#SDS的好处" class="headerlink" title="SDS的好处"></a>SDS的好处</h2><ol>
+<li>O(1)复杂度获取字符串长度</li>
+<li>二进制安全</li>
+<li>不会发生缓冲区溢出</li>
+</ol>
+<p>当判断出缓冲区大小不够用时，Redis 会自动将扩大 SDS 的空间大小（小于 1MB 翻倍扩容，大于 1MB 按 1MB 扩容），以满足修改所需的大小。</p>
+<p>在扩展 SDS 空间之前，SDS API 会优先检查<strong>未使用空间</strong>是否足够，如果不够的话，API 不仅会为 SDS 分配修改所必须要的空间，还会给 SDS 分配额外的「<strong>未使用空间</strong>」。这样的好处是，下次在操作 SDS 时，如果 SDS 空间够的话，API 就会直接使用「未使用空间」，而无须执行内存分配，<strong>有效的减少内存分配次数</strong>。</p>
+<ol>
+<li><strong>节省内存空间的优化</strong></li>
+</ol>
+<p>5.0之所以 SDS 设计不同类型的结构体，是为了能灵活保存不同大小的字符串，从而有效节省内存空间。比如，在保存小字符串时，结构体占用空间也比较少。</p>
+<p>除了设计不同类型的结构体，Redis 在编程上还<strong>使用了专门的编译优化来节省内存空间</strong>，即在 struct 声明了 <strong>attribute</strong> ((packed)) ，它的作用是：<strong>告诉编译器取消结构体在编译过程中的优化对齐，按照实际占用字节数进行对齐</strong>。</p>
+<p>比如，sdshdr16 类型的 SDS，默认情况下，编译器会按照 16 字节对齐的方式给变量分配内存，这意味着，即使一个变量的大小不到 16 个字节，编译器也会给它分配 16 个字节。</p>
+<p>举个例子，假设下面这个结构体，它有两个成员变量，类型分别是 char 和 int，如下所示：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> test1 &#123;</span><br><span class="line">    <span class="keyword">char</span> a;</span><br><span class="line">    <span class="keyword">int</span> b;</span><br><span class="line"> &#125; test1;</span><br></pre></td></tr></table></figure>
+<p>默认情况下，编译器是使用「字节对齐」的方式分配内存，虽然 char 类型只占一个字节，但是由于成员变量里有 int 类型，它占用了 4 个字节，所以在成员变量为 char 类型分配内存时，会分配 4 个字节，其中这多余的 3 个字节是为了字节对齐而分配的，相当于有 3 个字节被浪费掉了。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/22464775/1676872545345-d041dfa7-aafb-4855-9505-139a22e01a76.png" alt="img"></p>
+<p>如果不想编译器使用字节对齐的方式进行分配内存，可以采用了 <strong>attribute</strong> ((packed)) 属性定义结构体，这样一来，结构体实际占用多少内存空间，编译器就分配多少空间。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/22464775/1676872545785-3171c861-1b6b-42a2-b5eb-3000ab09d450.png" alt="img"></p>
+<p>可以看得出，这是按照实际占用字节数进行分配内存的，这样可以节省内存空间。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/11/28/java/012Java_Socket/" rel="next" title="Java_Socket">
+                <i class="fa fa-chevron-left"></i> Java_Socket
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/01/01/redis/002Redis_数据类型/" rel="prev" title="Redis_数据类型">
+                Redis_数据类型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">122</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">25</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#C-语言字符串的缺陷"><span class="nav-text">C 语言字符串的缺陷</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#缺陷1：有些操作时间复杂度高"><span class="nav-text">缺陷1：有些操作时间复杂度高</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺陷2：二进制不安全"><span class="nav-text">缺陷2：二进制不安全</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺陷3：字符串操作函数不高效且不安全"><span class="nav-text">缺陷3：字符串操作函数不高效且不安全</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SDS"><span class="nav-text">SDS</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SDS的好处"><span class="nav-text">SDS的好处</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
