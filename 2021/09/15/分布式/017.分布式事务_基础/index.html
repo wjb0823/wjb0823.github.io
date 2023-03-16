@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="事务筑基ACID 见MySQL 事务隔离级别见MySQL CAPCAP，就是Consistency、Availability、Partition Tolerence的简称，简单来说，就是一致性、可用性、分区容忍性。 一致性一致性，就是说一个分布式系统中，一旦你做了一个数据的修改，那么这个操作成功的时候，就必须是分布式系统的各个节点都是一样的。 不能说，客户端发起一个数据修改的请求，然后服务器告诉他">
+<meta name="keywords" content="分布式,分布式事务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式事务_基础">
+<meta property="og:url" content="http://yoursite.com/2021/09/15/分布式/017.分布式事务_基础/index.html">
+<meta property="og:site_name" content="想至千里，先积跬步">
+<meta property="og:description" content="事务筑基ACID 见MySQL 事务隔离级别见MySQL CAPCAP，就是Consistency、Availability、Partition Tolerence的简称，简单来说，就是一致性、可用性、分区容忍性。 一致性一致性，就是说一个分布式系统中，一旦你做了一个数据的修改，那么这个操作成功的时候，就必须是分布式系统的各个节点都是一样的。 不能说，客户端发起一个数据修改的请求，然后服务器告诉他">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-09-15T06:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式事务_基础">
+<meta name="twitter:description" content="事务筑基ACID 见MySQL 事务隔离级别见MySQL CAPCAP，就是Consistency、Availability、Partition Tolerence的简称，简单来说，就是一致性、可用性、分区容忍性。 一致性一致性，就是说一个分布式系统中，一旦你做了一个数据的修改，那么这个操作成功的时候，就必须是分布式系统的各个节点都是一样的。 不能说，客户端发起一个数据修改的请求，然后服务器告诉他">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2021/09/15/分布式/017.分布式事务_基础/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>分布式事务_基础 | 想至千里，先积跬步</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">想至千里，先积跬步</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/09/15/分布式/017.分布式事务_基础/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="想至千里，先积跬步">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">分布式事务_基础
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2021-09-15 14:15:27" itemprop="dateCreated datePublished" datetime="2021-09-15T14:15:27+08:00">2021-09-15</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/分布式事务/" itemprop="url" rel="index"><span itemprop="name">分布式事务</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="事务筑基"><a href="#事务筑基" class="headerlink" title="事务筑基"></a>事务筑基</h1><p>ACID 见MySQL</p>
+<p>事务隔离级别见MySQL</p>
+<h1 id="CAP"><a href="#CAP" class="headerlink" title="CAP"></a>CAP</h1><p>CAP，就是Consistency、Availability、Partition Tolerence的简称，简单来说，就是一致性、可用性、分区容忍性。</p>
+<h2 id="一致性"><a href="#一致性" class="headerlink" title="一致性"></a>一致性</h2><p>一致性，就是说一个分布式系统中，一旦你做了一个数据的修改，那么这个操作成功的时候，就必须是分布式系统的各个节点都是一样的。</p>
+<p>不能说，客户端发起一个数据修改的请求，然后服务器告诉他成功了，结果去查的时候，从某个节点上查询数据，发现这个数据不对啊，这样的话就成了数据不一致了，就是分布式系统的各个节点上的数据是不一样的，就是不一致。</p>
+<p>这个所谓一致性还分成几种：</p>
+<ul>
+<li><strong>强一致性</strong>，上面讲的那种就是强一致性；</li>
+<li><strong>弱一致性</strong>，你更新个数据，鬼知道能不能让各个节点都更新成功；</li>
+<li><strong>最终一致性</strong>，可能更新过后，一段时间内，数据不一致，最后过了一段时间成功了。</li>
+</ul>
+<p>最终一致性，应该是分布式系统中非常常见的这么一个东西，比如：Redis主从同步，你可以做成主从异步同步的，主节点同步数据到从节点上去的时候，异步，最终一致性的体现。</p>
+<h2 id="可用性"><a href="#可用性" class="headerlink" title="可用性"></a>可用性</h2><p>可用性，就是你的分布式系统必须是可用的，说句不好听的，要是一会儿访问你是成功，一会儿访问你失败，那失败的时候就是不可用，有不可用的情况存在，就导致可用性降低了。</p>
+<p>什么叫做可用？客户端往分布式系统的各个节点发送请求，都是可以获取到响应的，要不是可以写入成功，要不是可以查询成功。</p>
+<p>可用性分成好多级别，比如99%，99.9%，99.99%，99.999%</p>
+<p>99%，一年中只能有80小时左右是可以允许访问失败的<br>99.9%，一年中大概有8小时左右是可以访问失败<br>99.99%，一年中有大概不到1小时是可以访问失败的<br>99.999%，一年中有大概不到5分钟是可以访问失败的<br>99.9999%，一年中只能有大概不到1分钟可以访问失败</p>
+<p>一般做到99.99%，也就是所谓的4个9，那就是比较高的水平了。而至于说99.999%，五个9，那是行业内的顶尖水平。</p>
+<h2 id="分区容忍性"><a href="#分区容忍性" class="headerlink" title="分区容忍性"></a>分区容忍性</h2><p>分区，partition，network partition，网络分区 =&gt; 分布式系统之间的网络环境出了故障，分布式系统的各个节点之间现在已经无法进行通信了。</p>
+<p>分区容忍性，你的分布式系统可以容忍网络分区的故障，出现上面说的那种网络分区的故障之后，分布式系统的各个节点之间无法进行通信，无所谓，整套分布式系统各个节点，各自为战，该干嘛干嘛，只不过互相之间无法通信而已。这个就是实现了分区容忍性。</p>
+<h1 id="CP-or-AP"><a href="#CP-or-AP" class="headerlink" title="CP or AP"></a>CP or AP</h1><p>在各种分布式系统里面，CAP不可能同时兼得，指的主要是什么呢，就是发生网络故障的时候，可能一些数据没有同步，此时要么就是CP，要么就是AP。</p>
+<p>基于这套理论，redis、mongodb、hbase等分布式系统，都是参照着CAP理论来设计的，有些系统是CP，有些系统是AP。</p>
+<h2 id="CP"><a href="#CP" class="headerlink" title="CP"></a>CP</h2><p>CP，为什么就没有A了呢？</p>
+<p>假设，出现了网络分区的故障，但是因为有P，所以分布式系统继续运转，但是此时分布式系统的节点之间无法进行通信，也就无法同步数据了。</p>
+<p>此时客户端要来查询数据，也就是那个key1的数据了，此时系统实际上是处于一个不一致的状态，因为各个节点之间的数据是不一样的，如果客户端来查询key1这条数据，你要是要保证CP的话，就得返回一个特殊的结果（异常）给客户端。</p>
+<p>任何一个节点此时不接收任何查询的请求，返回一个异常（系统当前处于不一致的状态，无法查询），这样的话呢，客户端是看不到不一致的数据的。</p>
+<p>但是此时的话，就牺牲掉了A，可用性，因为此时不让你看到不一致的数据，所以你发送请求过来是返回异常的，请求失败了，此时分布式系统就暂时处于不可用的状态下，也就是保证了CP，就没有了A。</p>
+<p>经典的就是一些分布式存储，比如说zookeeper、mongodb、hbase等等，跟他们都是CP的，也就是说数据100%一致，但是有可能有些时候你请求是失败的，不让你请求到不一致的数据，这就是CP。</p>
+<p>Redis单机CP，redis-cluster集群AP。</p>
+<h2 id="AP"><a href="#AP" class="headerlink" title="AP"></a>AP</h2><p>如果网络故障，数据没同步，数据处于不一致的状态下，要保证A，可用性，你两个节点都要允许任何客户端来查询，都可以查到，这样的话呢，整个系统就处于可用的状态下，但是此时就牺牲掉了C，一会儿可以查到key1的数据，一会儿从另外一个节点去查又查不到了，这就是对客户端而言，看到了不一致的数据。</p>
+<p>比如：</p>
+<p>对于12306、电商系统，这种业务类系统，一般都是AP，也就是说，你可能看到的商品库存或者火车票的库存，是错的，有可能是旧的啊，那么数据很可能看到的都是不一致的，但是呢，你买东西或者买票的时候，一定会检查库存，就可以了。</p>
+<h2 id="BASE"><a href="#BASE" class="headerlink" title="BASE"></a>BASE</h2><p>BASE理论，Basicly Available、Soft State、Eventual Consistency，也就是基本可用、软状态、最终一致性</p>
+<p>BASE希望的是，CAP里面基本都可以同时实现，但是不要求同时全部100%完美的实现，CAP三者同时基本实现，BASE，基本可用、最终一致性。</p>
+<h3 id="软状态"><a href="#软状态" class="headerlink" title="软状态"></a>软状态</h3><p>此时要保证基本可用性，应该怎么办呢？两个节点都可以查询的，但是这个时候你会发现说有的节点可以返回数据，有的节点无法返回数据，会看到不一致的状态，这个不一致的状态，就是指的是BASE中的S，soft state，软状态。</p>
+<h3 id="基本可用"><a href="#基本可用" class="headerlink" title="基本可用"></a>基本可用</h3><p>基本可用，降级，正常情况下，是查询可以负载均衡到各个节点去查的，也就是可以多节点抗高并发查询，但是此时如果你要降级的话，可以降级为，所有客户端强制查询主节点，这样看到的数据暂时而言都是一样的，都是从主节点去查。</p>
+<p>但是因为客户端访问量太大了，同时用一个主节点来支撑很坑，扛不住，怎么办呢，主节点做限流降级，也就是说如果流量太大了，直接返回一个空，让你稍后再来查询。</p>
+<p>如果你这样子来降级了，保证的就是所谓的基本可用，降级的措施在里面了，跟正常的可用是不一样的，比正常的可用要差一些，但是还是基本可以用的。</p>
+<h3 id="最终一致性"><a href="#最终一致性" class="headerlink" title="最终一致性"></a>最终一致性</h3><p>最终一致性，一旦故障或者延迟解决了，数据过了一段时间最终一定是可以同步到其他节点的，数据最终一定是可以处于一致性的</p>
+<p>CAP和BASE是俩理论，是俩基础理论，你在设计分布式系统的话，可以用CAP中的CP或者AP，也可以采用BASE理论，有一些不一样，也有一些关系。</p>
+<h2 id="分布式事务模型"><a href="#分布式事务模型" class="headerlink" title="分布式事务模型"></a>分布式事务模型</h2><ul>
+<li>AP（Application，应用程序）</li>
+<li>TM（Transaction Manager，事务管理器）</li>
+<li>RM（Resource Manager，资源管理器）</li>
+<li>CRM（Communication Resource Manager，通信资源管理器）</li>
+</ul>
+<p>Application说白了就是我们的系统，TM的话就是一个在系统里嵌入的一个专门管理横跨多个数据库的事务的一个组件，RM的话说白了就是数据库（比如MySQL），CRM可以是消息中间件（但是也可以不用这个东西）。</p>
+<p><strong>全局事务</strong>，就是一个横跨多个数据库的事务，就是一个事务里，涉及了多个数据库的操作，然后要保证多个数据库中，任何一个操作失败了，其他所有库的操作全部回滚。</p>
+<h1 id="XA"><a href="#XA" class="headerlink" title="XA"></a>XA</h1><p>就是定义好的那个TM与RM之间的接口规范，TM就会根据XA定义的接口规范，跟各个数据库通信和交互，告诉各个数据库一起来回滚一下，或者是一起来提交个事务把。</p>
+<p>XA仅仅是个规范，具体的实现是数据库产商来提供的，比如说MySQL就会提供XA规范的接口函数和类库实现。</p>
+<h2 id="2PC"><a href="#2PC" class="headerlink" title="2PC"></a>2PC</h2><p>2PC说白了就是基于XA规范搞的一套分布式事务的理论，也可以叫做一套规范，或者是协议。2PC，基于XA规范，来让分布式事务可以落地，定义了很多实现分布式事务过程中的一些细节。</p>
+<ol>
+<li><strong>准备阶段</strong>简单来说，就是TM先发送个prepare消息给各个数据库，让各个库先把分布式事务里要执行的各种操作，先准备执行，其实此时各个库会差不多先执行好，就是不提交罢了。然后各个数据库都返回一个响应消息给事务管理器，如果成功了就发送一个成功的消息，如果失败了就发送一个失败的消息。</li>
+<li><strong>提交阶段</strong>第一种情况，要是TM哥儿们发现某个数据库告诉他说，不好意思啊，我这儿失败了，那就尴尬了。或者是TM等了半天，某个数据库楞是死活不返回消息，跟失踪了一样，不知道在干嘛，也就麻烦了。这个时候TM直接判定这个分布式事务失败，毕竟某个数据库那里报了个错么，对不对，然后TM通知所有的数据库，全部回滚回滚回滚，赶紧的，做了啥操作都回滚，其实这里你可以认为是通知每个数据库，把自己本地的那个事务回滚不就得了，然后各个库都回滚好了以后就通知TM，TM就认为整个分布式事务都回滚了。但是呢，要是TM接收到所有的数据库返回的消息都是成功，那就happy了，直接发送个消息通知各个数据库说提交，兄弟们，然后各个数据库都在自己本地提交事务呗，就这么回事儿，提交好了通知下TM，TM要是发现所有数据库的事务都提交成功了，就认为整个分布式事务成功了。</li>
+</ol>
+<p><strong>2PC缺陷</strong></p>
+<p>1、<strong>同步阻塞：</strong> 在阶段一里执行prepare操作会占用资源，一直到整个分布式事务完成，才会释放资源，这个过程中，如果有其他人要访问这个资源，就会被阻塞住。</p>
+<p>2、<strong>单点故障：</strong> TM是个单点，一旦挂掉就完蛋了。</p>
+<p>3、<strong>事务状态丢失：</strong> 即使把TM做成一个双机热备的，一个TM挂了自动选举其他的TM出来，但是如果TM挂掉的同时，接收到commit消息的某个库也挂了，此时即使重新选举了其他的TM，压根儿不知道这个分布式事务当前的状态，因为不知道哪个库接收过commit消息，那个接收过commit消息的库也挂了，兄弟。</p>
+<p>4、<strong>脑裂问题：</strong> 在阶段二中，如果发生了脑裂问题，那么就会导致某些数据库没有接收到commit消息，那就完蛋了，有些库收到了commit消息，结果有些库没有收到，这咋整呢，那肯定完蛋了。</p>
+<h2 id="3PC"><a href="#3PC" class="headerlink" title="3PC"></a>3PC</h2><ol>
+<li><strong>CanCommit阶段</strong>这个就是TM发送一个CanCommit消息给各个数据库，然后各个库返回个结果，注意一下，这里的话呢，是不会执行实际的SQL语句的，其实说白了，就是各个库看看自己网络环境啊，各方面是否ready。</li>
+<li><strong>PreCommit阶段</strong>如果各个库对CanCommit消息返回的都是成功，那么就进入PreCommit阶段，TM发送PreCommit消息给各个库，这个时候就相当于2PC里的阶段一，其实就会执行各个SQL语句，只是不提交罢了；如果有个库对CanCommit消息返回了失败，那么就尴尬了，TM发送abort消息给各个库，大家别玩儿了，结束这个分布式事务。</li>
+<li><strong>DoCommit阶段</strong>如果各个库对PreCommit阶段都返回了成功，那么发送DoCommit消息给各个库，就说提交事务吧，兄弟们，各个库如果都返回提交成功给TM，那么分布式事务成功；如果有个库对PreCommit返回的是失败，或者超时一直没返回，那么TM认为分布式事务失败，直接发abort消息给各个库，说兄弟们回滚吧，各个库回滚成功之后通知TM，分布式事务回滚。</li>
+</ol>
+<p>说白了大概就是这样子，但是这里的话，跟2PC相比，主要做了下面两个改进点：</p>
+<p>（1）引入了CanCommit阶段</p>
+<p>（2）在DoCommit阶段，各个库自己也有超时机制，也就是说，如果一个库收到了PreCommit自己还返回成功了，等了一会儿，如果超时时间到了，还没收到TM发送的DoCommit消息或者是abort消息，直接判定为TM可能出故障了，人家库自己颠儿颠儿的就执行DoCommit操作，提交事务了。</p>
+<p><strong>3PC缺陷</strong></p>
+<p>但是其实这种的话，也不是完全就一定好的，因为还是可能有问题啊，如果人家TM在DoCommit阶段发送了abort消息给各个库，结果因为脑裂问题，某个库没接收到abort消息，自己还颠儿颠儿的执行了commit操作，不是也不对么。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/分布式/" rel="tag"># 分布式</a>
+          
+            <a href="/tags/分布式事务/" rel="tag"># 分布式事务</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/09/15/分布式/019.分布式事务_方案/" rel="next" title="分布式事务_方案">
+                <i class="fa fa-chevron-left"></i> 分布式事务_方案
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/09/15/分布式/018.分布式事务_JTA + Atomikos/" rel="prev" title="分布式事务_JTA + Atomikos实现单体应用多数据源分布式事务">
+                分布式事务_JTA + Atomikos实现单体应用多数据源分布式事务 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">122</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">25</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#事务筑基"><span class="nav-text">事务筑基</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CAP"><span class="nav-text">CAP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一致性"><span class="nav-text">一致性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可用性"><span class="nav-text">可用性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分区容忍性"><span class="nav-text">分区容忍性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CP-or-AP"><span class="nav-text">CP or AP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CP"><span class="nav-text">CP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AP"><span class="nav-text">AP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BASE"><span class="nav-text">BASE</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#软状态"><span class="nav-text">软状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基本可用"><span class="nav-text">基本可用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最终一致性"><span class="nav-text">最终一致性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分布式事务模型"><span class="nav-text">分布式事务模型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#XA"><span class="nav-text">XA</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2PC"><span class="nav-text">2PC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3PC"><span class="nav-text">3PC</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

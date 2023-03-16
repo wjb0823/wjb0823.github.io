@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Spring提供了PlatformTransactionManager接口，其有2个重要的实现类。  DataSourceTransactionManager：用于支持本地事务，事实上，其内部也是通过操作java.sql.Connection来开启、提交和回滚事务。 JtaTransactionManager：用于支持分布式事务，其实现了JTA规范，使用XA协议进行两阶段提交。JTA规范：Java">
+<meta name="keywords" content="分布式,分布式事务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式事务_JTA + Atomikos实现单体应用多数据源分布式事务">
+<meta property="og:url" content="http://yoursite.com/2021/09/15/分布式/018.分布式事务_JTA + Atomikos/index.html">
+<meta property="og:site_name" content="想至千里，先积跬步">
+<meta property="og:description" content="Spring提供了PlatformTransactionManager接口，其有2个重要的实现类。  DataSourceTransactionManager：用于支持本地事务，事实上，其内部也是通过操作java.sql.Connection来开启、提交和回滚事务。 JtaTransactionManager：用于支持分布式事务，其实现了JTA规范，使用XA协议进行两阶段提交。JTA规范：Java">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-09-15T06:15:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式事务_JTA + Atomikos实现单体应用多数据源分布式事务">
+<meta name="twitter:description" content="Spring提供了PlatformTransactionManager接口，其有2个重要的实现类。  DataSourceTransactionManager：用于支持本地事务，事实上，其内部也是通过操作java.sql.Connection来开启、提交和回滚事务。 JtaTransactionManager：用于支持分布式事务，其实现了JTA规范，使用XA协议进行两阶段提交。JTA规范：Java">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2021/09/15/分布式/018.分布式事务_JTA + Atomikos/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>分布式事务_JTA + Atomikos实现单体应用多数据源分布式事务 | 想至千里，先积跬步</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">想至千里，先积跬步</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-首页">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-分类">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-归档">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/09/15/分布式/018.分布式事务_JTA + Atomikos/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="最光阴">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="想至千里，先积跬步">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">分布式事务_JTA + Atomikos实现单体应用多数据源分布式事务
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2021-09-15 14:15:27" itemprop="dateCreated datePublished" datetime="2021-09-15T14:15:27+08:00">2021-09-15</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/分布式事务/" itemprop="url" rel="index"><span itemprop="name">分布式事务</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Spring提供了PlatformTransactionManager接口，其有2个重要的实现类。</p>
+<ul>
+<li>DataSourceTransactionManager：用于支持本地事务，事实上，其内部也是通过操作java.sql.Connection来开启、提交和回滚事务。</li>
+<li>JtaTransactionManager：用于支持分布式事务，其实现了JTA规范，使用XA协议进行两阶段提交。JTA规范：Java Transaction API，Java提供的基于XA规范的事务管理规范。</li>
+</ul>
+<p><strong>DruidXADataSource、JtaTransactionManager、SqlSessionFactory配置</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span>  </span><br><span class="line"><span class="meta">@MapperScan</span>(basePackages = <span class="string">"xxx"</span>, </span><br><span class="line">			sqlSessionFactoryRef = <span class="string">"activitySqlSessionFactory"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ActivityDataSourceConfig</span> </span>&#123;  </span><br><span class="line">   </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.url&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> String dbUrl;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.username&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> String username;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.password&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> String password;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.driverClassName&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> String driverClassName;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.initialSize&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> initialSize;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.minIdle&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> minIdle;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.maxActive&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> maxActive;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.maxWait&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> maxWait;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.timeBetweenEvictionRunsMillis&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> timeBetweenEvictionRunsMillis;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.minEvictableIdleTimeMillis&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> minEvictableIdleTimeMillis;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.validationQuery&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> String validationQuery;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.testWhileIdle&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> testWhileIdle;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.testOnBorrow&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> testOnBorrow;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.testOnReturn&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> testOnReturn;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.poolPreparedStatements&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> poolPreparedStatements;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.maxPoolPreparedStatementPerConnectionSize&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> maxPoolPreparedStatementPerConnectionSize;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.filters&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> String filters;  </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;activity.datasource.connectionProperties&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> String connectionProperties;  </span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建druid数据库连接池bean</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean</span>(name = <span class="string">"activityDataSource"</span>)     </span><br><span class="line">    <span class="meta">@Primary</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> DataSource <span class="title">activityDataSource</span><span class="params">()</span></span>&#123;  </span><br><span class="line">        DruidXADataSource datasource = <span class="keyword">new</span> DruidXADataSource();  </span><br><span class="line">        datasource.setUrl(<span class="keyword">this</span>.dbUrl);  </span><br><span class="line">        datasource.setUsername(username);  </span><br><span class="line">        datasource.setPassword(password);  </span><br><span class="line">        datasource.setDriverClassName(driverClassName);  </span><br><span class="line">        datasource.setInitialSize(initialSize);  </span><br><span class="line">        datasource.setMinIdle(minIdle);  </span><br><span class="line">        datasource.setMaxActive(maxActive);  </span><br><span class="line">        datasource.setMaxWait(maxWait);          </span><br><span class="line">        datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);  </span><br><span class="line">        datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);  </span><br><span class="line">        datasource.setValidationQuery(validationQuery);  </span><br><span class="line">        datasource.setTestWhileIdle(testWhileIdle);  </span><br><span class="line">        datasource.setTestOnBorrow(testOnBorrow);  </span><br><span class="line">        datasource.setTestOnReturn(testOnReturn);  </span><br><span class="line">        datasource.setPoolPreparedStatements(poolPreparedStatements);  </span><br><span class="line">        datasource.setMaxPoolPreparedStatementPerConnectionSize(maxPoolPreparedStatementPerConnectionSize);  </span><br><span class="line">        </span><br><span class="line">        <span class="keyword">try</span> &#123;  </span><br><span class="line">            datasource.setFilters(filters);  </span><br><span class="line">        &#125; <span class="keyword">catch</span> (SQLException e) &#123;  </span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;  </span><br><span class="line">        </span><br><span class="line">        datasource.setConnectionProperties(connectionProperties);  </span><br><span class="line">        </span><br><span class="line">        AtomikosDataSourceBean atomikosDataSource = <span class="keyword">new</span> AtomikosDataSourceBean();</span><br><span class="line">        atomikosDataSource.setXaDataSource(datasource);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> atomikosDataSource;  </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Bean</span>(name = <span class="string">"xatx"</span>)</span><br><span class="line">    <span class="meta">@Primary</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> JtaTransactionManager <span class="title">activityTransactionManager</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    	UserTransactionManager userTransactionManager = <span class="keyword">new</span> UserTransactionManager();</span><br><span class="line">        UserTransaction userTransaction = <span class="keyword">new</span> UserTransactionImp();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> JtaTransactionManager(userTransaction, userTransactionManager);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span>(name = <span class="string">"activitySqlSessionFactory"</span>)</span><br><span class="line">    <span class="meta">@Primary</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> SqlSessionFactory <span class="title">activitySqlSessionFactory</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    		@Qualifier(<span class="string">"activityDataSource"</span>)</span> DataSource activityDataSource) <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    	<span class="keyword">final</span> SqlSessionFactoryBean sessionFactory = <span class="keyword">new</span> SqlSessionFactoryBean();</span><br><span class="line">    	sessionFactory.setDataSource(activityDataSource);</span><br><span class="line">    	<span class="keyword">return</span> sessionFactory.getObject();</span><br><span class="line">    &#125;   </span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Atomikos对数据源的代理"><a href="#Atomikos对数据源的代理" class="headerlink" title="Atomikos对数据源的代理"></a>Atomikos对数据源的代理</h1><p><strong>AtomikosDataSourceBean</strong>，我们其实设置了<strong>DruidXADataSource</strong>。</p>
+<p>MyBatis流程：mybatis -&gt; mapper -&gt; SqlSessionFactory -&gt; DataSource -&gt; getConnection()，AtomokosDataSourceBean最核心的地方其实是getConnection()方法。mybatis底层肯定是基于这个数据源来获取数据库连接以及执行preparedStatement之类的操作。</p>
+<p>AtomikosDataSourceBean -&gt; getConnection() -&gt; Connection接口的动态代理 -&gt; <strong>AtomikosConnectionProxy</strong>（InvocationHandler）。</p>
+<h1 id="开启事务调用栈"><a href="#开启事务调用栈" class="headerlink" title="开启事务调用栈"></a>开启事务调用栈</h1><p>org.springframework.transaction.interceptor.TransactionInterceptor#invoke</p>
+<p>org.springframework.transaction.interceptor.TransactionAspectSupport#invokeWithinTransaction</p>
+<p>org.springframework.transaction.interceptor.TransactionAspectSupport#createTransactionIfNecessary</p>
+<p>org.springframework.transaction.support.AbstractPlatformTransactionManager#getTransaction</p>
+<p>org.springframework.transaction.jta.JtaTransactionManager#doBegin</p>
+<p>org.springframework.transaction.jta.JtaTransactionManager#doJtaBegin</p>
+<p>com.atomikos.icatch.jta.UserTransactionManager#begin</p>
+<p>com.atomikos.icatch.jta.TransactionManagerImp#begin(int)</p>
+<p>事务原理在分析Spring事务的时候分析过了，这里省略代码，看下com.atomikos.icatch.jta.TransactionManagerImp#begin(int)源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">begin</span> <span class="params">( <span class="keyword">int</span> timeout )</span> <span class="keyword">throws</span> NotSupportedException,</span></span><br><span class="line"><span class="function">            SystemException</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        CompositeTransaction ct = <span class="keyword">null</span>;</span><br><span class="line">        ResumePreviousTransactionSubTxAwareParticipant resumeParticipant = <span class="keyword">null</span>;</span><br><span class="line">        <span class="comment">// 从map中获取，private Map&lt;Thread, Stack&lt;CompositeTransaction&gt;&gt; threadtotxmap_ = null;</span></span><br><span class="line">        ct = compositeTransactionManager.getCompositeTransaction();</span><br><span class="line">        <span class="keyword">if</span> ( ct != <span class="keyword">null</span> &amp;&amp; ct.getProperty (  JTA_PROPERTY_NAME ) == <span class="keyword">null</span> ) &#123;</span><br><span class="line">            LOGGER.logWarning ( <span class="string">"JTA: temporarily suspending incompatible transaction: "</span> + ct.getTid() +</span><br><span class="line">                    <span class="string">" (will be resumed after JTA transaction ends)"</span> );</span><br><span class="line">            ct = compositeTransactionManager.suspend();</span><br><span class="line">            resumeParticipant = <span class="keyword">new</span> ResumePreviousTransactionSubTxAwareParticipant ( ct );</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ct = compositeTransactionManager.createCompositeTransaction ( ( ( <span class="keyword">long</span> ) timeout ) * <span class="number">1000</span> );</span><br><span class="line">            <span class="keyword">if</span> ( resumeParticipant != <span class="keyword">null</span> ) ct.addSubTxAwareParticipant ( resumeParticipant );</span><br><span class="line">            <span class="keyword">if</span> ( ct.isRoot () &amp;&amp; getDefaultSerial () )</span><br><span class="line">                ct.getTransactionControl ().setSerial ();</span><br><span class="line">            ct.setProperty ( JTA_PROPERTY_NAME , <span class="string">"true"</span> );</span><br><span class="line">        &#125; <span class="keyword">catch</span> ( SysException se ) &#123;</span><br><span class="line">        	String msg = <span class="string">"Error in begin()"</span>;</span><br><span class="line">        	LOGGER.logWarning( msg , se );</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ExtendedSystemException ( msg , se</span><br><span class="line">                    .getErrors () );</span><br><span class="line">        &#125;</span><br><span class="line">        recreateCompositeTransactionAsJtaTransaction(ct);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>最后的com.atomikos.icatch.jta.TransactionManagerImp#begin(int)方法中主要就是获取一个CompositeTransaction的一个对象，根据当前线程，从一个map中获取出来一个Stack数据结构，从栈中弹出来一个对象。</p>
+<p>每个线程过来，都可以获取到属于这个线程他自己的代表着分布式事务的一个<strong>CompositeTransaction</strong>的对象，刚开始这个栈里肯定是没有对象的，栈是空的，所以刚开始从栈中弹出来的这个对象是null，所以会手动创建一个创建好了一个CompositeTransaction对象之后，会放入map中thread对应的一个Stack，将这个对象压入栈中。</p>
+<p>为当前线程创建这么一个CompositeTransaction，他的深意在哪儿呢？这个事务对象，代表了一个当前线程要执行的多个数据库的操作关联起来的一个分布式事务，所以讲这个事务对象跟当前线程通过一个map关联起来了，后面这个线程再执行的时候，就可以获取到这个关联多个数据库操作的分布式事务的CompositeTransaction对象了。</p>
+<h1 id="XA-START指令以及SQL准备"><a href="#XA-START指令以及SQL准备" class="headerlink" title="XA START指令以及SQL准备"></a>XA START指令以及SQL准备</h1><p><strong>AtomikosConnectionProxy</strong>，被mybatis调用preparedStatement()方法的时候，就会执行XA START相关的指令。</p>
+<p><strong>CompositeTransactionImpl</strong>，代表的是一个分布式事务，也是一个root事务，root事务id就是：192.168.56.1.tm0001100005。<strong>XAResourceTransaction</strong>是其中一个数据库的子事务，id：3139322E3136382E35362E312E746D30303031313030303035:3139322E3136382E35362E312E7。</p>
+<p>在这个XAResourceTransaction里面，会有一个<strong>resume</strong>()方法，这个方法中，就会去执行底层的XAResource的start指令，就会给数据库发送一个<strong>XA START</strong>指令</p>
+<p>ret = method.invoke(delegate, args);</p>
+<p>相当于就会去调用<strong>原生的Connection</strong>，数据库连接，去执行原生Connection的<strong>prepareStatement()</strong>方法，将原生的PreparedStatement全部放入一个list中，对于资金数据库，其实是会调用两次相对应的一个prepareStatement()，他会执行两条SQL，完成资金的转账</p>
+<p>但是，第二次执行同一个库的SQL的时候，代表那个库的子事务的XAResourceTransaction就不会重新创建了，所以说只有在第一次创建XAResourceTransaction的时候，才会执行XA START指令</p>
+<p>第二次的话，就不会再次来一次了，<strong>isEnlistedInGlobalTransaction()</strong>，他肯定会判断一下，当前这个库对应的子事务，是否在全局事务中（GlobalTransaction），之前已经将这个库的子事务对象创建好，加入<strong>CompositeTransaction</strong>中了，也就是全局事务中了，所以以后对同一个库执行SQL语句的时候</p>
+<p>又换了一个了，就是开始往订单库中插入订单了，对于每个库的SQL，都会针对哪个数据库，创建一个代表哪个库的子事务，XAResourceTransaction，加入分布式事务CompositeTransaction中，同时基于XAResource，执行那个库上的XA START指令</p>
+<p>然后对每个库都开启了XA START指令，都在依次通过prepareStatement()定义好每个库要执行的SQL，到这一步为止，其实所有的SQL都执行完了。</p>
+<h1 id="XA-END指令"><a href="#XA-END指令" class="headerlink" title="XA END指令"></a>XA END指令</h1><p>对每个库都执行XA END指令，然后对每个库都执行XA PREPARE指令，2PC的阶段一，如果说有人的prepare返回消息不是ok，那么就全量回滚，就是发送XA ROLLBACK指令，如果说所有人的返回消息都是ok，那么就对每个库发送XA COMMIT指令。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/分布式/" rel="tag"># 分布式</a>
+          
+            <a href="/tags/分布式事务/" rel="tag"># 分布式事务</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/09/15/分布式/017.分布式事务_基础/" rel="next" title="分布式事务_基础">
+                <i class="fa fa-chevron-left"></i> 分布式事务_基础
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/11/28/java/012Java_Socket/" rel="prev" title="Java_Socket">
+                Java_Socket <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">最光阴</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives">
+                
+                    <span class="site-state-item-count">122</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">25</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Atomikos对数据源的代理"><span class="nav-text">Atomikos对数据源的代理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#开启事务调用栈"><span class="nav-text">开启事务调用栈</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#XA-START指令以及SQL准备"><span class="nav-text">XA START指令以及SQL准备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#XA-END指令"><span class="nav-text">XA END指令</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 – <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">最光阴</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.2</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
