@@ -2917,7 +2917,7 @@ os cache
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/04/03/rocketmq/005.RocketMQ_Consumer/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/04/03/rocketmq/006.RocketMQ_主从架构/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="最光阴">
@@ -2937,7 +2937,7 @@ os cache
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2021/04/03/rocketmq/005.RocketMQ_Consumer/" class="post-title-link" itemprop="url">RocketMQ_Consumer</a>
+                <a href="/2021/04/03/rocketmq/006.RocketMQ_主从架构/" class="post-title-link" itemprop="url">RocketMQ_主从架构</a>
               
             
           </h1>
@@ -3018,15 +3018,18 @@ os cache
         
           
             <p>
-              Consumer端队列负载均衡分配机制topic是有一堆的queue，而且分布在不同的broker上；
-consumer group是有多个consumer，我们要把多个queue分配给多个consumer，每个consumer都会分配到一部分的queue，是这个分配关系。
-如何知道一个consum
+              RocketMQ自身的pull模式
+基于从节点pull模式的主从同步
+
+消息丢失消息丢失的解决：同步刷盘+同步复制
+读写分离主从漂移+惰性读写分离机制
+默认情况下，rocketmq是不倾向于主动让你直接长期进行读写分离的，倾向于写和读，都是在主节点来进行的，从节点主要是用于进行数据复制和同步，实现热
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2021/04/03/rocketmq/005.RocketMQ_Consumer/#more" rel="contents">
+              <a class="btn" href="/2021/04/03/rocketmq/006.RocketMQ_主从架构/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -3811,7 +3814,7 @@ brok
                 
                   <a href="/archives">
                 
-                    <span class="site-state-item-count">122</span>
+                    <span class="site-state-item-count">121</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
